@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import type { MenuProps } from "antd";
+import { Layout, Menu, theme } from "antd";
+// import { Breadcrumb } from "antd";
+import Navbar from "./components/navbar/Navbar";
+import { routes } from "./components/navbar/routes";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Sidebar from "./components/sidebar/Sidebar";
+const { Header, Content, Sider } = Layout;
 
-function App() {
+// const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
+//   key,
+//   label: `nav ${key}`,
+// }));
+
+
+
+const router = createBrowserRouter(routes);
+
+const App = () => {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout style={{ height: "100vh" }}>
+      <Header className="header">
+        <Navbar />
+      </Header>
+      <Layout>
+        <Sider width={200} style={{ background: colorBgContainer }}>
+          <Sidebar />
+        </Sider>
+        <Layout style={{ padding: "0 24px 24px" }}>
+          {/* <Breadcrumb style={{ margin: "16px 0" }}>
+            <Breadcrumb.Item>Home</Breadcrumb.Item>
+            <Breadcrumb.Item>List</Breadcrumb.Item>
+            <Breadcrumb.Item>App</Breadcrumb.Item>
+          </Breadcrumb> */}
+          <Content
+            style={{
+              padding: 24,
+              margin: 0,
+              minHeight: 280,
+              background: colorBgContainer,
+            }}
+          >
+            <RouterProvider router={router} />
+          </Content>
+        </Layout>
+      </Layout>
+    </Layout>
   );
-}
+};
 
 export default App;
