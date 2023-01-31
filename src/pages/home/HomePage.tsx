@@ -1,9 +1,8 @@
-const HomePage = () => {
-    return (
-        <>
-            Welcome!
-        </>
-    );
-}
+import { Skeleton } from "antd";
+import React from "react";
 
-export default HomePage
+const HomePage: React.FC = () => {
+  return <><Skeleton active /></>;
+};
+
+export default HomePage;
