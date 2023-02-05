@@ -1,23 +1,19 @@
 import React from "react";
-// import type { MenuProps } from "antd";
 import { Layout, theme } from "antd";
-// import { Breadcrumb } from "antd";
 import Navbar from "./components/navbar/Navbar";
 import { routes } from "./components/navbar/routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Sidebar from "./components/sidebar/Sidebar";
+import { observer } from "mobx-react-lite";
+import { useStore } from "./stores/store";
+
 const { Header, Content, Sider } = Layout;
-
-// const items1: MenuProps["items"] = ["1", "2", "3"].map((key) => ({
-//   key,
-//   label: `nav ${key}`,
-// }));
-
 
 
 const router = createBrowserRouter(routes);
 
-const App = () => {
+const App = observer(() => {
+  const { settings } = useStore();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -51,6 +47,6 @@ const App = () => {
       </Layout>
     </Layout>
   );
-};
+});
 
 export default App;
