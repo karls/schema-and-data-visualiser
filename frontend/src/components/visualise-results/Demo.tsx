@@ -1,10 +1,7 @@
-import { useCallback } from "react";
 import ReactFlow, {
   Node,
-  addEdge,
   Background,
   Edge,
-  Connection,
   useNodesState,
   useEdgesState,
   MiniMap,
@@ -55,11 +52,7 @@ const minimapStyle = {
 
 const Demo = () => {
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((els) => addEdge(params, els)),
-    [setEdges]
-  );
+  const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
   return (
     <ReactFlow
@@ -67,7 +60,6 @@ const Demo = () => {
       edges={edges}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
-      // onConnect={onConnect}
       nodeTypes={nodeTypes}
     >
       <Background />
