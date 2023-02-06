@@ -1,5 +1,5 @@
 import React from "react";
-import { Skeleton, Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { DotChartOutlined, QuestionCircleOutlined } from "@ant-design/icons";
 import QueryEditor from "../../components/query-editor/QueryEditor";
 import VisualiseResults from "../../components/visualise-results/VisualiseResults";
@@ -28,9 +28,9 @@ const items: TabsProps["items"] = [
 
 const HomePage: React.FC = () => {
   return (
-    <>
+    <div style={{ width: '100%', height: '100%' }}>
       <Tabs items={items} onChange={() => {}} />
-    </>
+    </div>
   );
 };
 
