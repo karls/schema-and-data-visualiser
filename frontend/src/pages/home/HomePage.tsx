@@ -1,6 +1,7 @@
 import React from "react";
 import { Tabs, TabsProps } from "antd";
-import { DotChartOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { AiOutlineDotChart } from "react-icons/ai";
+import { TbVectorTriangle } from "react-icons/tb";
 import QueryEditor from "../../components/query-editor/QueryEditor";
 import VisualiseResults from "../../components/visualise-results/VisualiseResults";
 
@@ -9,7 +10,7 @@ const items: TabsProps["items"] = [
     key: "1",
     label: (
       <>
-        <QuestionCircleOutlined /> SPARQL query
+        <TbVectorTriangle size={20} style={{ margin: 5 }}/> SPARQL query
       </>
     ),
     children: <QueryEditor />,
@@ -18,7 +19,7 @@ const items: TabsProps["items"] = [
     key: "2",
     label: (
       <>
-        <DotChartOutlined />
+        <AiOutlineDotChart size={20} style={{ margin: 5 }}/>
         Visualise results
       </>
     ),
