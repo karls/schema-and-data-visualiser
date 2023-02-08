@@ -18,7 +18,6 @@ const Sidebar = observer(() => {
 
   return (
     <div style={{ justifyContent: "center" }}>
-      {settings.currentRepository && <h4>Current repository:</h4>}
       <Dropdown
         menu={{
           items: repositories.map(({ id }: RepositoryInfo, index) => {
