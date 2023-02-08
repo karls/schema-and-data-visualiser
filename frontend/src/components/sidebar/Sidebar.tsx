@@ -1,46 +1,47 @@
-import React from 'react';
-import { Spin } from "antd";
-// import {
-//   LaptopOutlined,
-//   NotificationOutlined,
-//   UserOutlined,
-// } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Button, Dropdown } from "antd";
+import { allRepositories } from "../../api/repository";
+import { useStore } from "../../stores/store";
+import { RepositoryInfo } from "../../types";
+import { observer } from "mobx-react-lite";
 
-// const items2: MenuProps["items"] = [
-//   UserOutlined,
-//   LaptopOutlined,
-//   NotificationOutlined,
-// ].map((icon, index) => {
-//   const key = String(index + 1);
+const Sidebar = observer(() => {
+  const { settings } = useStore();
+  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
-//   return {
-//     key: `sub${key}`,
-//     icon: React.createElement(icon),
-//     label: `subnav ${key}`,
+  useEffect(() => {
+    allRepositories().then((repositories) => {
+      console.log("repositories", repositories);
+      setRepositories(repositories);
+    });
+  }, []);
 
-//     children: new Array(4).fill(null).map((_, j) => {
-//       const subKey: number = index * 4 + j + 1;
-//       return {
-//         key: subKey,
-//         label: `option${subKey}`,
-//       };
-//     }),
-//   };
-// });
-
-const Sidebar = () => {
   return (
-    <>
-      <Spin size="large" style={{ margin: 5}} />
-      {/* <Menu
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
-            style={{ height: "100%", borderRight: 0 }}
-            items={items2}
-          /> */}
-    </>
+    <div style={{ justifyContent: "center" }}>
+      {settings.currentRepository && <h4>Current repository:</h4>}
+      <Dropdown
+        menu={{
+          items: repositories.map(({ id }: RepositoryInfo, index) => {
+            return {
+              key: `${index}`,
+              label: (
+                <Button
+                  onClick={() => settings.setCurrentRepository(id)}
+                  style={{ width: "100%" }}
+                >
+                  {id}
+                </Button>
+              ),
+            };
+          }),
+        }}
+      >
+        <Button style={{ width: "95%", margin: 5 }}>
+          <b>{settings.currentRepository || "Select repository"}</b>
+        </Button>
+      </Dropdown>
+    </div>
   );
-};
+});
 
 export default Sidebar;
