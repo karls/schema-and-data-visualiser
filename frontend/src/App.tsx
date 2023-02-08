@@ -5,7 +5,6 @@ import { routes } from "./components/navbar/routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Sidebar from "./components/sidebar/Sidebar";
 import { observer } from "mobx-react-lite";
-import { useStore } from "./stores/store";
 
 const { Header, Content, Sider } = Layout;
 
@@ -13,8 +12,6 @@ const { Header, Content, Sider } = Layout;
 const router = createBrowserRouter(routes);
 
 const App = observer(() => {
-  const { settings } = useStore();
-  console.log(settings);
   const {
     token: { colorBgContainer },
   } = theme.useToken();
