@@ -1,16 +1,19 @@
 import React from "react";
-import { Tabs, TabsProps } from "antd";
+import { Layout, theme, Tabs, TabsProps } from "antd";
 import { AiOutlineDotChart } from "react-icons/ai";
 import { TbVectorTriangle } from "react-icons/tb";
 import QueryEditor from "../../components/query-editor/QueryEditor";
 import VisualiseResults from "../../components/visualise-results/VisualiseResults";
+import Sidebar from "../../components/sidebar/Sidebar";
+
+const { Content, Sider } = Layout;
 
 const items: TabsProps["items"] = [
   {
     key: "1",
     label: (
       <>
-        <TbVectorTriangle size={20} style={{ margin: 5 }}/> SPARQL query
+        <TbVectorTriangle size={20} style={{ margin: 5 }} /> SPARQL query
       </>
     ),
     children: <QueryEditor />,
@@ -19,7 +22,7 @@ const items: TabsProps["items"] = [
     key: "2",
     label: (
       <>
-        <AiOutlineDotChart size={20} style={{ margin: 5 }}/>
+        <AiOutlineDotChart size={20} style={{ margin: 5 }} />
         Visualise results
       </>
     ),
@@ -28,10 +31,27 @@ const items: TabsProps["items"] = [
 ];
 
 const HomePage: React.FC = () => {
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
   return (
-    <div style={{ width: '100%', height: '100%' }}>
-      <Tabs items={items} onChange={() => {}} />
-    </div>
+    <Layout>
+      <Sider width={200} style={{ background: colorBgContainer }}>
+        <Sidebar />
+      </Sider>
+      <Layout style={{ padding: "0 24px 24px" }}>
+        <Content
+          style={{
+            padding: 24,
+            margin: 0,
+            background: colorBgContainer,
+          }}
+        >
+          <Tabs items={items} onChange={() => {}} />
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

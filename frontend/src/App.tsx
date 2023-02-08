@@ -1,41 +1,22 @@
 import React from "react";
-import { Layout, theme } from "antd";
+import { Layout } from "antd";
 import Navbar from "./components/navbar/Navbar";
 import { routes } from "./components/navbar/routes";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Sidebar from "./components/sidebar/Sidebar";
 import { observer } from "mobx-react-lite";
 
-const { Header, Content, Sider } = Layout;
-
+const { Header } = Layout;
 
 const router = createBrowserRouter(routes);
 
 const App = observer(() => {
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
   return (
     <Layout style={{ height: "100vh" }}>
       <Header className="header">
         <Navbar />
       </Header>
       <Layout>
-        <Sider width={200} style={{ background: colorBgContainer }}>
-          <Sidebar />
-        </Sider>
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              background: colorBgContainer,
-            }}
-          >
-            <RouterProvider router={router} />
-          </Content>
-        </Layout>
+        <RouterProvider router={router} />
       </Layout>
     </Layout>
   );
