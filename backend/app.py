@@ -1,13 +1,17 @@
 import os
 from flask import Flask, request, jsonify, redirect, url_for, flash
 from werkzeug.utils import secure_filename
+import requests
+from flask_cors import CORS
 
-from rdflib import Graph
-
+from util import csv_to_json
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
+
+GRAPHDB_API = 'http://localhost:7200'
+CORS(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
@@ -23,6 +27,12 @@ def hello_world():
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/repositories', methods=['GET'])
+def get_repositories():
+    response = requests.get(f'{GRAPHDB_API}/repositories')
+    return csv_to_json(response.text)
 
 
 @app.route('/upload', methods=['POST'])
