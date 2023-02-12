@@ -64,8 +64,8 @@ def upload_file():
 @app.route('/query', methods=['POST'])
 def run_query():
     if request.method == 'POST':
-        repository = request.form['repository']
-        query = request.form['query']
+        repository = request.json['repository']
+        query = request.json['query']
         response = requests.get(
             f'{GRAPHDB_API}/repositories/{repository}'
             f'?query={parse.quote(query, safe="")}')
