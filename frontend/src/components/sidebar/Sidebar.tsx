@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Dropdown } from "antd";
+import { Button, Dropdown, Popover } from "antd";
 import { allRepositories } from "../../api/repository";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
@@ -11,7 +11,6 @@ const Sidebar = observer(() => {
 
   useEffect(() => {
     allRepositories().then((repositories) => {
-      console.log("repositories", repositories);
       setRepositories(repositories);
     });
   }, []);
@@ -20,16 +19,23 @@ const Sidebar = observer(() => {
     <div style={{ justifyContent: "center" }}>
       <Dropdown
         menu={{
-          items: repositories.map(({ id }: RepositoryInfo, index) => {
+          items: repositories.map(({ id, title }: RepositoryInfo, index) => {
             return {
               key: `${index}`,
               label: (
-                <Button
-                  onClick={() => settings.setCurrentRepository(id)}
-                  style={{ width: "100%" }}
+                <Popover
+                  placement="right"
+                  title={title ? "Description" : "No description available"}
+                  content={title}
+                  trigger="hover"
                 >
-                  {id}
-                </Button>
+                  <Button
+                    onClick={() => settings.setCurrentRepository(id)}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {id}
+                  </Button>
+                </Popover>
               ),
             };
           }),
