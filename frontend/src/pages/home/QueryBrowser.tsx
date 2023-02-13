@@ -1,25 +1,19 @@
 import React, { useRef, useState } from "react";
-import { Tabs, Input } from "antd";
-
-const { TextArea } = Input;
+import { Tabs } from "antd";
+import Query from "../../components/query/Query";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const queryTemplate = 
-`\
-SELECT ?s ?p ?o
-WHERE { ?s ?p ? o}        
-`;
 
 const initialItems = [
   {
     label: "Query 1",
-    children: <TextArea rows={10} allowClear placeholder={queryTemplate} />,
+    children: <Query />,
     key: "1",
   },
 ];
 
-const QueryEditor: React.FC = () => {
+const QueryBrowser: React.FC = () => {
   const [activeKey, setActiveKey] = useState(initialItems[0].key);
   const [items, setItems] = useState(initialItems);
   const newTabIndex = useRef(initialItems.length);
@@ -33,7 +27,7 @@ const QueryEditor: React.FC = () => {
     const newPanes = [...items];
     newPanes.push({
       label: `Query ${newTabIndex.current}`,
-      children: <TextArea rows={10} allowClear placeholder={queryTemplate} />,
+      children: <Query />,
       key: newActiveKey,
     });
     setItems(newPanes);
@@ -82,4 +76,4 @@ const QueryEditor: React.FC = () => {
   );
 };
 
-export default QueryEditor;
+export default QueryBrowser;

@@ -1,8 +1,9 @@
 import os
-from flask import Flask, request, jsonify, redirect, url_for, flash
+from flask import Flask, request, jsonify, flash
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
+from urllib import parse
 
 from util import csv_to_json
 
@@ -17,9 +18,12 @@ ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
 
 @app.route('/', methods=['GET'])
-def hello_world():
+def get_api():
     api = {
-        '/upload': 'upload file with RDF data'
+        '/repositories': 'GET - returns list of all repository ids',
+        '/upload': 'POST: [file] - upload file with RDF data',
+        '/query': 'POST: [repository, query] - runs query on given repository '
+                  'id '
     }
     return jsonify(api)
 
@@ -55,3 +59,15 @@ def upload_file():
                 os.makedirs(UPLOAD_FOLDER)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return {}
+
+
+@app.route('/query', methods=['POST'])
+def run_query():
+    if request.method == 'POST':
+        repository = request.json['repository']
+        query = request.json['query']
+        response = requests.get(
+            f'{GRAPHDB_API}/repositories/{repository}'
+            f'?query={parse.quote(query, safe="")}')
+
+        return csv_to_json(response.text)

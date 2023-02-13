@@ -7,3 +7,10 @@ export interface RepositoryInfo {
     readable: boolean;
     writeable: boolean;
 }
+
+export type Triplet = {
+    s?: string;
+    o?: string;
+    p?: string;
+  };
+  
