@@ -20,8 +20,8 @@ export async function runSparqlQuery(
   try {
     const endpoint = `${BACKEND_API}/query`;
     const response = await axios.post(endpoint, {
-      repository: repository,
-      query: query.replace('\n', ' '),
+      repository,
+      query,
     });
     const results = response.data;
     return results;
