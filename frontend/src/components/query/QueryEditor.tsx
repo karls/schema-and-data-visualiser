@@ -18,7 +18,7 @@ const QueryEditor = ({ query, onChange }: QueryEditorProps) => {
         rows={10}
         value={query}
         onChange={(event) => {
-            onChange(event.target.value);
+          onChange(event.target.value);
         }}
         allowClear
         placeholder={queryTemplate}
