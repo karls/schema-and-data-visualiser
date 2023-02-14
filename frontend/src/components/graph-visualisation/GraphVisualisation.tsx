@@ -1,11 +1,11 @@
 import { observer } from "mobx-react-lite";
-import Demo from "./Demo";
+import { Triplet } from "../../types";
+import Graph from "./Graph";
 
-const GraphVisualisation = observer(() => {
+const GraphVisualisation = observer(({ results }: { results: Triplet[]}) => {
   return (
     <div style={{ width: "calc(100vw - 200)", height: "82vh" }}>
-      {/* <div style={{ width: '100%', height: '100%'}}> */}
-      <Demo />
+      <Graph results={results} />
     </div>
   );
 });
