@@ -1,16 +1,15 @@
 export type RepositoryId = string;
 
 export interface RepositoryInfo {
-    uri: String;
-    id: RepositoryId;
-    title: String;
-    readable: boolean;
-    writeable: boolean;
+  uri: String;
+  id: RepositoryId;
+  title: String;
+  readable: boolean;
+  writeable: boolean;
 }
 
 export type Triplet = {
-    s?: string;
-    o?: string;
-    p?: string;
-  };
-  
+  s?: string;
+  o?: string;
+  p?: string;
+};
