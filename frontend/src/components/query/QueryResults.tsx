@@ -7,10 +7,10 @@ type QueryResultsProps = {
 };
 
 const QueryResults = ({ results }: QueryResultsProps) => {
-  console.log(results);
   return (
     <>
       <Table
+        pagination={{ pageSize: 5 }}
         dataSource={results.map((t, index) => {
           return { ...t, key: `${index}` };
         })}
