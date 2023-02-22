@@ -1,34 +1,62 @@
 import React from "react";
-import { Table } from "antd";
-import { Triplet } from "../../types";
+import { Table, Tooltip } from "antd";
+import { QueryResult } from "../../types";
 
 type QueryResultsProps = {
-  results: Triplet[];
+  results: QueryResult;
+  loading: boolean;
 };
 
-const QueryResults = ({ results }: QueryResultsProps) => {
+const QueryResults = ({ results, loading }: QueryResultsProps) => {
+  const { header, data } = results;
+
   return (
     <>
       <Table
+        loading={loading}
         pagination={{ pageSize: 5 }}
-        dataSource={results.map((t, index) => {
-          return { ...t, key: `${index}` };
+        dataSource={data.map(([s, p, o], index) => {
+          return { s, p, o, key: `${index}` };
         })}
         columns={[
           {
-            title: "Subject",
+            title: header[0],
             dataIndex: "s",
             key: "subject",
+            ellipsis: {
+              showTitle: false,
+            },
+            render: (value) => (
+              <Tooltip placement="topLeft" title={value}>
+                {value}
+              </Tooltip>
+            ),
           },
           {
-            title: "Predicate",
+            title: header[1],
             dataIndex: "p",
             key: "predicate",
+            ellipsis: {
+              showTitle: false,
+            },
+            render: (value) => (
+              <Tooltip placement="topLeft" title={value}>
+                {value}
+              </Tooltip>
+            ),
           },
           {
-            title: "Object",
+            title: header[2],
             dataIndex: "o",
             key: "object",
+            ellipsis: {
+              showTitle: false,
+            },
+            render: (value) => (
+              <Tooltip placement="topLeft" title={value}>
+                {value}
+              </Tooltip>
+            ),
           },
         ]}
       />
