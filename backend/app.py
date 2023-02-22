@@ -5,7 +5,7 @@ import requests
 from flask_cors import CORS
 from urllib import parse
 
-from util import csv_to_json
+from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
@@ -70,4 +70,12 @@ def run_query():
             f'{GRAPHDB_API}/repositories/{repository}'
             f'?query={parse.quote(query, safe="")}')
 
-        return csv_to_json(response.text)
+        results = response.text
+        if is_csv(results):
+            header = results.split('\n')[0].split(',')
+            data = csv_to_list(results)
+        else:
+            header = ['Subject', 'Predicate', 'Object']
+            data = convert_graph_to_list(results)
+
+        return jsonify({'header': header, 'data': data})
