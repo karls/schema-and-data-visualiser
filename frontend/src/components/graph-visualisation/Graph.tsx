@@ -22,7 +22,7 @@ const minimapStyle = {
 const Graph = ({ results }: { results: Triplet[] }) => {
   const { nodes: initialNodes, edges: initialEdges } =
     getNodesAndEdges(results);
-//   console.log(initialNodes, initialEdges);
+  //   console.log(initialNodes, initialEdges);
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
@@ -54,7 +54,7 @@ function createNode({ id, label }: { id: string; label: string }) {
   } as Node;
 }
 
-function createEdge({ s, p, o }: Triplet) {
+function createEdge([s, p, o]: Triplet) {
   return {
     id: `e${s ?? ""}-${o ?? ""}`,
     source: s ?? "",
@@ -68,20 +68,20 @@ function getNodesAndEdges(results: Triplet[]) {
   const nodes: Set<Node> = new Set();
   const edges: Edge[] = [];
 
-  results.forEach(({ s, p, o }) => {
+  results.forEach(([s, p, o]) => {
     const nodeA = createNode({
-      id: s ?? "",
-      label: (s ?? "/").split("/").at(-1) ?? "",
+      id: s,
+      label: s,
     });
     const nodeB = createNode({
-      id: o ?? "",
-      label: (o ?? "/").split("/").at(-1) ?? "",
+      id: o,
+      label: o,
     });
 
     nodes.add(nodeA);
     nodes.add(nodeB);
 
-    const edge = createEdge({ s, p, o });
+    const edge = createEdge([s, p, o]);
     edges.push(edge);
   });
 
