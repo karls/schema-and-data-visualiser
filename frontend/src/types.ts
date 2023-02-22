@@ -8,8 +8,9 @@ export interface RepositoryInfo {
   writeable: boolean;
 }
 
-export type Triplet = {
-  s?: string;
-  o?: string;
-  p?: string;
+export type Triplet = [string, string, string];
+
+export type QueryResult = {
+  header: string[];
+  data: Triplet[];
 };
