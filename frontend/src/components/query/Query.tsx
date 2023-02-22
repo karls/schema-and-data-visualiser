@@ -5,7 +5,7 @@ import { BiNetworkChart } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
 import { allRepositories, runSparqlQuery } from "../../api/repository";
 import { useStore } from "../../stores/store";
-import { RepositoryId, RepositoryInfo, Triplet } from "../../types";
+import { QueryResult, RepositoryId, RepositoryInfo } from "../../types";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import QueryEditor from "./QueryEditor";
 import QueryResults from "./QueryResults";
@@ -16,8 +16,9 @@ const Query: React.FC = observer(() => {
   const [repository, setRepository] = useState<RepositoryId | null>(
     settings.currentRepository
   );
-  const [results, setResults] = useState<Triplet[]>([]);
+  const [results, setResults] = useState<QueryResult>({ header: [], data: []});
   const [graphKey, setGraphKey] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const items: TabsProps["items"] = [
     {
@@ -38,8 +39,10 @@ const Query: React.FC = observer(() => {
             />
             <Button
               onClick={() => {
+                setLoading(true)
                 runSparqlQuery(repository!, query).then((results) => {
                   setResults(results);
+                  setLoading(false);
                   setGraphKey((key) => key + 1); 
                 });
               }}
@@ -48,7 +51,7 @@ const Query: React.FC = observer(() => {
               Run
             </Button>
           </Space>
-          <QueryResults results={results} />
+          <QueryResults results={results} loading={loading} />
         </>
       ),
     },
@@ -60,7 +63,8 @@ const Query: React.FC = observer(() => {
           Graph
         </>
       ),
-      children: <GraphVisualisation key={graphKey} results={results} />,
+      disabled: results.data.length === 0,
+      children: <GraphVisualisation key={graphKey} results={results.data} />,
     },
   ];
 
