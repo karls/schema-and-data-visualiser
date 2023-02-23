@@ -1,5 +1,5 @@
 import React from "react";
-import TextEditor from "../text-editor/TextEditor";
+import CodeEditor from "../code-editor/CodeEditor";
 
 type QueryEditorProps = {
   query: string;
@@ -9,15 +9,9 @@ type QueryEditorProps = {
 const QueryEditor = ({ query, onChange }: QueryEditorProps) => {
   return (
     <>
-      <TextEditor
-        initialText=" "
-        setText={onChange}
-        highlightWords={KEYWORDS}
-      />
+      <CodeEditor code={query} setCode={onChange} language="sparql" />
     </>
   );
 };
-
-const KEYWORDS: string[] = ["SELECT", "WHERE", "PREFIX", "ORDER BY", "LIMIT"];
 
 export default QueryEditor;
