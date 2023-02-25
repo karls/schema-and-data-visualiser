@@ -14,3 +14,11 @@ export type QueryResult = {
   header: string[];
   data: Triplet[];
 };
+
+
+type QueryRecord = {
+  id: number;
+  sparql: string;
+  date: string;
+}
+export type QueryHistory = QueryRecord[]
