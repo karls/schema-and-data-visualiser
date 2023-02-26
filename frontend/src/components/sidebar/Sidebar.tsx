@@ -1,46 +1,96 @@
-import React from 'react';
-import { Spin } from "antd";
-// import {
-//   LaptopOutlined,
-//   NotificationOutlined,
-//   UserOutlined,
-// } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
+import { Button, Divider, Dropdown, Popover, Space } from "antd";
+import { allRepositories } from "../../api/graphdb";
+import { useStore } from "../../stores/store";
+import { RepositoryInfo } from "../../types";
+import { observer } from "mobx-react-lite";
+import Title from "antd/es/typography/Title";
 
-// const items2: MenuProps["items"] = [
-//   UserOutlined,
-//   LaptopOutlined,
-//   NotificationOutlined,
-// ].map((icon, index) => {
-//   const key = String(index + 1);
+const Sidebar = observer(() => {
+  const { settings } = useStore();
+  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
-//   return {
-//     key: `sub${key}`,
-//     icon: React.createElement(icon),
-//     label: `subnav ${key}`,
+  useEffect(() => {
+    allRepositories().then((repositories) => setRepositories(repositories));
+  }, []);
 
-//     children: new Array(4).fill(null).map((_, j) => {
-//       const subKey: number = index * 4 + j + 1;
-//       return {
-//         key: subKey,
-//         label: `option${subKey}`,
-//       };
-//     }),
-//   };
-// });
-
-const Sidebar = () => {
   return (
-    <>
-      <Spin size="large" style={{ margin: 5}} />
-      {/* <Menu
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            defaultOpenKeys={["sub1"]}
-            style={{ height: "100%", borderRight: 0 }}
-            items={items2}
-          /> */}
-    </>
+    <div style={{ justifyContent: "center" }}>
+      <Dropdown
+        menu={{
+          items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+            return {
+              key: `${index}`,
+              label: (
+                <Popover
+                  placement="right"
+                  title={title ? "Description" : "No description available"}
+                  content={title}
+                  trigger="hover"
+                >
+                  <Button
+                    onClick={() => settings.setCurrentRepository(id)}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {id}
+                  </Button>
+                </Popover>
+              ),
+            };
+          }),
+        }}
+      >
+        <Button style={{ width: "95%", margin: 5 }}>
+          <b>{settings.currentRepository || "Select repository"}</b>
+        </Button>
+      </Dropdown>
+      <Divider />
+      <QueryHistory />
+    </div>
   );
-};
+});
+
+const QueryHistory = observer(() => {
+  const { settings } = useStore();
+
+  useEffect(() => {
+    settings.updateQueryHistory();
+  }, [settings]);
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        justifyContent: "center",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
+        History
+      </Title>
+      <Space
+        style={{
+          height: 500,
+          overflow: "auto",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {settings.queryHistory.map(({ id, sparql, repositoryId, date }) => (
+          <Popover
+            key={`query-${id}`}
+            placement="right"
+            title={`Repository: ${repositoryId}`}
+            content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
+            trigger="hover"
+          >
+            <Button onClick={() => {}}>{date}</Button>
+          </Popover>
+        ))}
+      </Space>
+    </div>
+  );
+});
 
 export default Sidebar;
