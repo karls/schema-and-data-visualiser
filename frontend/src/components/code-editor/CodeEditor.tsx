@@ -27,7 +27,11 @@ type CodeEditorProps = {
   language: string;
 };
 
-const CodeEditor = ({ code, setCode }: CodeEditorProps) => {
+const languageParsers: any = {
+  'sparql': sparql,
+}
+
+const CodeEditor = ({ code, setCode, language }: CodeEditorProps) => {
   return (
     <CodeMirror
       value={code}
@@ -36,7 +40,7 @@ const CodeEditor = ({ code, setCode }: CodeEditorProps) => {
       }}
       height="200px"
       extensions={[
-        StreamLanguage.define(sparql),
+        StreamLanguage.define(languageParsers[language]),
         autocompletion({ override: [myCompletions] }),
       ]}
       onChange={(value: string, viewUpdate: any) => {
