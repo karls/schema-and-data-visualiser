@@ -16,9 +16,9 @@ export type QueryResult = {
 };
 
 
-type QueryRecord = {
+export type QueryRecord = {
   id: number;
   sparql: string;
+  repositoryId: string;
   date: string;
 }
-export type QueryHistory = QueryRecord[]

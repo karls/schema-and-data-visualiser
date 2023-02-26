@@ -68,7 +68,7 @@ def run_query():
         repository = request.json['repository']
         query = request.json['query']
 
-        add_query(query)
+        add_query(query, repository)
 
         response = requests.get(
             f'{GRAPHDB_API}/repositories/{repository}'
@@ -86,6 +86,7 @@ def run_query():
 
 
 @app.route('/query/history', methods=['GET'])
-def all_queries():
+def query_history():
     if request.method == 'GET':
-        return jsonify(get_queries())
+        repositoryId = request.args['repositoryId']
+        return jsonify(get_queries(repositoryId))

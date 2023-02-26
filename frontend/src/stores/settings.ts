@@ -1,25 +1,28 @@
-import { makeAutoObservable } from 'mobx';
-import { getQueryHistory } from '../api/queries';
-import { QueryHistory, RepositoryId } from '../types';
+import { makeAutoObservable } from "mobx";
+import { getQueryHistory } from "../api/queries";
+import { QueryRecord, RepositoryId } from "../types";
 
 class Settings {
-    currentRepository: RepositoryId | null = null;
-    queryHistory: QueryHistory = [];
+  currentRepository: RepositoryId | null = null;
+  queryHistory: QueryRecord[] = [];
 
-    constructor() {
-        makeAutoObservable(this);
-    }
+  constructor() {
+    makeAutoObservable(this);
+  }
 
-    setCurrentRepository(id: RepositoryId) {
-        this.currentRepository = id;
-    }
+  setCurrentRepository(id: RepositoryId) {
+    this.currentRepository = id;
+    this.updateQueryHistory();
+  }
 
-    updateQueryHistory() {
-        getQueryHistory().then((queries) => {
-            this.queryHistory = queries;
-            console.log(queries);
-        })
+  updateQueryHistory() {
+    if (this.currentRepository) {
+      getQueryHistory(this.currentRepository).then((queries) => {
+        this.queryHistory = queries;
+        console.log(queries);
+      });
     }
+  }
 }
 
 export default Settings;

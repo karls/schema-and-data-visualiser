@@ -45,12 +45,12 @@ const Sidebar = observer(() => {
         </Button>
       </Dropdown>
       <Divider />
-      <History />
+      <QueryHistory />
     </div>
   );
 });
 
-const History = observer(() => {
+const QueryHistory = observer(() => {
   const { settings } = useStore();
 
   useEffect(() => {
@@ -77,12 +77,12 @@ const History = observer(() => {
           flexDirection: "column",
         }}
       >
-        {settings.queryHistory.map(({ id, sparql, date }) => (
+        {settings.queryHistory.map(({ id, sparql, repositoryId, date }) => (
           <Popover
             key={`query-${id}`}
             placement="right"
-            title={`Query ${id}`}
-            content={<div style={{ whiteSpace: 'pre-line'}}>{sparql}</div>}
+            title={`Repository: ${repositoryId}`}
+            content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
             trigger="hover"
           >
             <Button onClick={() => {}}>{date}</Button>
