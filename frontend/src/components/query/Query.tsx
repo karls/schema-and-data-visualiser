@@ -64,7 +64,7 @@ const Query: React.FC = observer(() => {
           Graph
         </>
       ),
-      disabled: results.data.length === 0,
+      disabled: results.data.length === 0 || results.data[0].length < 3,
       children: <GraphVisualisation key={graphKey} results={results.data} />,
     },
   ];
