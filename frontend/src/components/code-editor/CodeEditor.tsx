@@ -8,19 +8,6 @@ import { StreamLanguage } from "@codemirror/language";
 import { sparql } from "@codemirror/legacy-modes/mode/sparql";
 import { autocompletion, CompletionContext } from "@codemirror/autocomplete";
 
-function myCompletions(context: CompletionContext) {
-  let word = context.matchBefore(/\w*/)!;
-  if (word.from === word.to && !context.explicit) return null;
-  return {
-    from: word.from,
-    options: [
-      { label: "SELECT", type: "keyword" },
-      { label: "WHERE", type: "leyword" },
-      { label: "LIMIT", type: "keyword" },
-    ],
-  };
-}
-
 type CodeEditorProps = {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
@@ -28,10 +15,25 @@ type CodeEditorProps = {
 };
 
 const languageParsers: any = {
-  'sparql': sparql,
-}
+  sparql: sparql,
+};
+
+const keywords: { [language: string]: string[] } = {
+  sparql: ["SELECT", "WHERE", "CONSTRUCT", "PREFIX", "LIMIT"],
+};
 
 const CodeEditor = ({ code, setCode, language }: CodeEditorProps) => {
+  const myCompletions = (context: CompletionContext) => {
+    let word = context.matchBefore(/\w*/)!;
+    if (word.from === word.to && !context.explicit) return null;
+    return {
+      from: word.from,
+      options: keywords[language].map((kw) => {
+        return { label: kw, type: "keyword" };
+      }),
+    };
+  };
+
   return (
     <CodeMirror
       value={code}
