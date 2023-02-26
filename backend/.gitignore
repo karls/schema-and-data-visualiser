@@ -50,3 +50,5 @@ coverage.xml
 docs/_build/
 
 imports/
+
+database.db

@@ -1,10 +1,11 @@
+import json
 import os
 from flask import Flask, request, jsonify, flash
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 from urllib import parse
-
+from db import add_query, get_queries
 from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list
 
 app = Flask(__name__)
@@ -66,6 +67,9 @@ def run_query():
     if request.method == 'POST':
         repository = request.json['repository']
         query = request.json['query']
+
+        add_query(query, repository)
+
         response = requests.get(
             f'{GRAPHDB_API}/repositories/{repository}'
             f'?query={parse.quote(query, safe="")}')
@@ -79,3 +83,10 @@ def run_query():
             data = convert_graph_to_list(results)
 
         return jsonify({'header': header, 'data': data})
+
+
+@app.route('/query/history', methods=['GET'])
+def query_history():
+    if request.method == 'GET':
+        repositoryId = request.args['repositoryId']
+        return jsonify(get_queries(repositoryId))

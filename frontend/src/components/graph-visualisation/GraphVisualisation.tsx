@@ -4,7 +4,7 @@ import Graph from "./Graph";
 
 const GraphVisualisation = observer(({ results }: { results: Triplet[]}) => {
   return (
-    <div style={{ width: "calc(100vw - 200)", height: "82vh" }}>
+    <div style={{ width: "calc(100vw - 200)", height: "70vh" }}>
       <Graph results={results} />
     </div>
   );

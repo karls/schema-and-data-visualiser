@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { BiNetworkChart } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
-import { allRepositories, runSparqlQuery } from "../../api/repository";
+import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { QueryResult, RepositoryId, RepositoryInfo } from "../../types";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
@@ -43,7 +43,8 @@ const Query: React.FC = observer(() => {
                 runSparqlQuery(repository!, query).then((results) => {
                   setResults(results);
                   setLoading(false);
-                  setGraphKey((key) => key + 1); 
+                  setGraphKey((key) => key + 1);
+                  settings.updateQueryHistory();
                 });
               }}
               disabled={repository === null}
@@ -63,7 +64,7 @@ const Query: React.FC = observer(() => {
           Graph
         </>
       ),
-      disabled: results.data.length === 0,
+      disabled: results.data.length === 0 || results.data[0].length < 3,
       children: <GraphVisualisation key={graphKey} results={results.data} />,
     },
   ];
