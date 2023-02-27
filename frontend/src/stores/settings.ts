@@ -5,6 +5,7 @@ import { QueryRecord, RepositoryId } from "../types";
 class Settings {
   currentRepository: RepositoryId | null = null;
   queryHistory: QueryRecord[] = [];
+  darkMode: boolean = false;
 
   constructor() {
     makeAutoObservable(this);
@@ -22,6 +23,10 @@ class Settings {
         console.log(queries);
       });
     }
+  }
+
+  setDarkMode(value: boolean) {
+    this.darkMode = value;
   }
 }
 
