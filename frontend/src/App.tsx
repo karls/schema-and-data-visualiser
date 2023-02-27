@@ -1,25 +1,39 @@
 import React from "react";
-import { Layout } from "antd";
+import { ConfigProvider, Layout, theme } from "antd";
 import Navbar from "./components/navbar/Navbar";
-import { routes } from "./components/navbar/routes";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import Settings from "./components/settings/Settings";
+import { useStore } from "./stores/store";
+import HomePage from "./pages/home/HomePage";
+import ContactPage from "./pages/contact/ContactPage";
 
 const { Header } = Layout;
+const { darkAlgorithm, defaultAlgorithm } = theme;
 
-const router = createBrowserRouter(routes);
+const App = () => {
+  const { settings } = useStore();
 
-const App = observer(() => {
   return (
-    <Layout style={{ height: "100vh" }}>
-      <Header className="header">
-        <Navbar />
-      </Header>
-      <Layout>
-        <RouterProvider router={router} />
+    <ConfigProvider
+      theme={{
+        algorithm: settings.darkMode ? darkAlgorithm : defaultAlgorithm,
+      }}
+    >
+      <Layout style={{ height: "100vh" }}>
+        <Header className="header">
+          <Navbar />
+        </Header>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/contact" element={<ContactPage />} />
+          </Routes>
+        </Layout>
+        <Settings />
       </Layout>
-    </Layout>
+    </ConfigProvider>
   );
-});
+};
 
-export default App;
+export default observer(App);
