@@ -1,4 +1,6 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
+import { useStore } from "../../stores/store";
 import CodeEditor from "../code-editor/CodeEditor";
 
 type QueryEditorProps = {
@@ -7,11 +9,12 @@ type QueryEditorProps = {
 };
 
 const QueryEditor = ({ query, onChange }: QueryEditorProps) => {
+  const { settings } = useStore();
   return (
     <>
-      <CodeEditor code={query} setCode={onChange} language="sparql" />
+      <CodeEditor code={query} setCode={onChange} language="sparql" darkTheme={settings.darkMode} />
     </>
   );
 };
 
-export default QueryEditor;
+export default observer(QueryEditor);
