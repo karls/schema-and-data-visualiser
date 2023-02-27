@@ -4,7 +4,9 @@ import { allRepositories } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
 import { observer } from "mobx-react-lite";
-import Title from "antd/es/typography/Title";
+import { Typography } from "antd";
+
+const { Title, Text } = Typography;
 
 const Sidebar = observer(() => {
   const { settings } = useStore();
@@ -69,6 +71,16 @@ const QueryHistory = observer(() => {
       <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
         History
       </Title>
+      {settings.currentRepository === null && (
+        <Text style={{ padding: 5 }}>
+          Select a repository to see the queries you have run in the past
+        </Text>
+      )}
+      {settings.currentRepository && settings.queryHistory.length === 0 && (
+        <Text style={{ padding: 5 }}>
+          There are no queries for this repository
+        </Text>
+      )}
       <Space
         style={{
           height: 500,
