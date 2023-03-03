@@ -4,6 +4,7 @@ import { useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useStore } from "../../stores/store";
 import { Typography } from 'antd';
+import { MdLightMode, MdDarkMode } from 'react-icons/md';
 
 const { Text } = Typography;
 
@@ -31,6 +32,8 @@ const Settings = () => {
         <Switch
           checked={settings.darkMode}
           onChange={(checked: boolean) => settings.setDarkMode(checked)}
+          checkedChildren={<MdDarkMode />}
+          unCheckedChildren={<MdLightMode />}
         /> <Text>Dark Mode</Text>
       </Drawer>
     </>
