@@ -28,7 +28,7 @@ const ContactPage: React.FC = () => {
   return (
     <>
       <Sider width={200} style={{ background: colorBgContainer }}>
-        <Image width={200} src="rohan-profile-pic.jpg"/>
+        <Image width={200} src="rohan-profile-pic.jpg" />
       </Sider>
       <Layout style={{ padding: "0 24px 24px" }}>
         <Content
@@ -42,7 +42,7 @@ const ContactPage: React.FC = () => {
             My name is Rohan Pandit and I am a Computing student at Imperial
             College London.
           </Paragraph>
-          <Links links={links}/>
+          <Links links={links} />
         </Content>
         <Footer>
           <a
@@ -62,24 +62,24 @@ const ContactPage: React.FC = () => {
 const Links = ({ links }: any) => {
   return (
     <>
-      <Row gutter={16}>
-        {links.map(({ value, icon }: any, index: number) => (
-          <Col className="gutter-row" span={8}>
-            <a
-              key={`link-${index}`}
-              href={value}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <QRCode
-                style={{ margin: "auto", marginTop: 5 }}
-                value={value}
-                icon={icon}
-              />
-            </a>
-          </Col>
-        ))}
-      </Row>
+        <Row gutter={16}>
+          {links.map(({ value, icon }: any, index: number) => (
+            <Col key={`col-${index}`} className="gutter-row" span={8}>
+              <a
+                key={`link-${index}`}
+                href={value}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <QRCode
+                  style={{ margin: "auto", marginTop: 5 }}
+                  value={value}
+                  icon={icon}
+                />
+              </a>
+            </Col>
+          ))}
+        </Row>
     </>
   );
 };
