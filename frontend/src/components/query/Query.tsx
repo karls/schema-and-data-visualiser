@@ -1,14 +1,18 @@
-import { Button, Dropdown, Space, Tabs, TabsProps } from "antd";
+import { Button, Dropdown, Space, Switch, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { BiNetworkChart } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
+import { AiOutlineLineChart } from "react-icons/ai";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { QueryResult, RepositoryId, RepositoryInfo } from "../../types";
+import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import QueryEditor from "./QueryEditor";
 import QueryResults from "./QueryResults";
+import Charts from "../charts/Charts";
+import { getPrefixes } from "../../utils/queries";
 
 const Query: React.FC = observer(() => {
   const { settings } = useStore();
@@ -16,9 +20,10 @@ const Query: React.FC = observer(() => {
   const [repository, setRepository] = useState<RepositoryId | null>(
     settings.currentRepository
   );
-  const [results, setResults] = useState<QueryResult>({ header: [], data: []});
+  const [results, setResults] = useState<QueryResult>({ header: [], data: [] });
   const [graphKey, setGraphKey] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [prefix, setPrefix] = useState<boolean>(false);
 
   const items: TabsProps["items"] = [
     {
@@ -39,7 +44,7 @@ const Query: React.FC = observer(() => {
             />
             <Button
               onClick={() => {
-                setLoading(true)
+                setLoading(true);
                 runSparqlQuery(repository!, query).then((results) => {
                   setResults(results);
                   setLoading(false);
@@ -52,20 +57,35 @@ const Query: React.FC = observer(() => {
               Run
             </Button>
           </Space>
-          <QueryResults results={results} loading={loading} />
+          <Switch
+            checked={prefix}
+            onChange={(checked: boolean) => setPrefix(checked)}
+          /> Show Prefix
+          <QueryResults results={results} loading={loading} showPrefix={prefix} />
         </>
       ),
     },
     {
       key: "2",
       label: (
-        <>
+        <div title="Use CONSTRUCT for a graph">
           <BiNetworkChart size={20} style={{ margin: 5 }} />
           Graph
+        </div>
+      ),
+      disabled: results.data.length === 0 || !isGraph(results),
+      children: <GraphVisualisation key={graphKey} results={results.data} />,
+    },
+    {
+      key: "3",
+      label: (
+        <>
+          <AiOutlineLineChart size={20} style={{ margin: 5 }} />
+          Charts
         </>
       ),
-      disabled: results.data.length === 0 || results.data[0].length < 3,
-      children: <GraphVisualisation key={graphKey} results={results.data} />,
+      disabled: isEmpty(results),
+      children: <Charts />,
     },
   ];
 
