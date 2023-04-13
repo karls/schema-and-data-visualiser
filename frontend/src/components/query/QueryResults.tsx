@@ -1,13 +1,15 @@
 import React from "react";
 import { Table, Tooltip } from "antd";
 import { QueryResult } from "../../types";
+import { removePrefix } from "../../utils/queryResults";
 
 type QueryResultsProps = {
   results: QueryResult;
   loading: boolean;
+  showPrefix: boolean;
 };
 
-const QueryResults = ({ results, loading }: QueryResultsProps) => {
+const QueryResults = ({ results, loading, showPrefix }: QueryResultsProps) => {
   const { header, data } = results;
 
   return (
@@ -16,7 +18,12 @@ const QueryResults = ({ results, loading }: QueryResultsProps) => {
         loading={loading}
         pagination={{ pageSize: 5 }}
         dataSource={data.map(([s, p, o], index) => {
-          return { s, p, o, key: `${index}` };
+          return {
+            s: showPrefix ? s : removePrefix(s),
+            p: showPrefix ? p : removePrefix(p),
+            o: showPrefix ? o : removePrefix(o),
+            key: `${index}`,
+          };
         })}
         columns={[
           {
