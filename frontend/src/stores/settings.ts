@@ -21,7 +21,6 @@ class Settings {
     if (this.currentRepository) {
       getQueryHistory(this.currentRepository).then((queries) => {
         this.queryHistory = queries;
-        console.log(queries);
       });
     }
   }
