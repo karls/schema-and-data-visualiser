@@ -10,7 +10,7 @@ export interface RepositoryInfo {
 
 export type Triplet = [string, string, string];
 
-export type QueryResult = {
+export type QueryResults = {
   header: string[];
   data: Triplet[];
 };

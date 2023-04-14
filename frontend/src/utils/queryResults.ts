@@ -1,12 +1,12 @@
-import { QueryResult } from "../types";
+import { QueryResults } from "../types";
 
-export function isGraph(results: QueryResult) {
+export function isGraph(results: QueryResults) {
   return (
     results.header.toString() === ["Subject", "Predicate", "Object"].toString()
   );
 }
 
-export function isEmpty(results: QueryResult) {
+export function isEmpty(results: QueryResults) {
   return results.data.length === 0;
 }
 

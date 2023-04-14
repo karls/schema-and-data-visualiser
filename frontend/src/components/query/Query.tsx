@@ -6,7 +6,7 @@ import { TbVectorTriangle } from "react-icons/tb";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
-import { QueryResult, RepositoryId, RepositoryInfo } from "../../types";
+import { QueryResults, RepositoryId, RepositoryInfo } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import QueryEditor from "./QueryEditor";
@@ -20,7 +20,7 @@ const Query: React.FC = observer(() => {
   const [repository, setRepository] = useState<RepositoryId | null>(
     settings.currentRepository
   );
-  const [results, setResults] = useState<QueryResult>({ header: [], data: [] });
+  const [results, setResults] = useState<QueryResults>({ header: [], data: [] });
   const [graphKey, setGraphKey] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [prefix, setPrefix] = useState<boolean>(false);

@@ -6,6 +6,7 @@ class Settings {
   currentRepository: RepositoryId | null = null;
   queryHistory: QueryRecord[] = [];
   darkMode: boolean = false;
+  sidebarWidth: number = 200;
 
   constructor() {
     makeAutoObservable(this);

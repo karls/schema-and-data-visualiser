@@ -1,10 +1,10 @@
 import React from "react";
 import { Table, Tooltip } from "antd";
-import { QueryResult } from "../../types";
+import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 
 type QueryResultsProps = {
-  results: QueryResult;
+  results: QueryResults;
   loading: boolean;
   showPrefix: boolean;
 };
