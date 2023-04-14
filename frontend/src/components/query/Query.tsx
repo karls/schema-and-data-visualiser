@@ -9,8 +9,8 @@ import { useStore } from "../../stores/store";
 import { QueryResults, RepositoryId, RepositoryInfo } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
-import QueryEditor from "./QueryEditor";
-import QueryResults from "./QueryResults";
+import Editor from "./Editor";
+import Results from "./Results";
 import Charts from "../charts/Charts";
 import { getPrefixes } from "../../utils/queries";
 
@@ -36,7 +36,7 @@ const Query: React.FC = observer(() => {
       ),
       children: (
         <>
-          <QueryEditor query={query} onChange={setQuery} />
+          <Editor query={query} onChange={setQuery} />
           <Space style={{ margin: 5 }}>
             <SelectRepository
               repository={repository}
@@ -61,7 +61,7 @@ const Query: React.FC = observer(() => {
             checked={prefix}
             onChange={(checked: boolean) => setPrefix(checked)}
           /> Show Prefix
-          <QueryResults results={results} loading={loading} showPrefix={prefix} />
+          <Results results={results} loading={loading} showPrefix={prefix} />
         </>
       ),
     },

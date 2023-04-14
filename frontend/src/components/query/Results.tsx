@@ -1,15 +1,15 @@
 import React from "react";
 import { Table, Tooltip } from "antd";
-import { QueryResults } from "../../types";
+import { QueryResults as Results } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 
 type QueryResultsProps = {
-  results: QueryResults;
+  results: Results;
   loading: boolean;
   showPrefix: boolean;
 };
 
-const QueryResults = ({ results, loading, showPrefix }: QueryResultsProps) => {
+const Results = ({ results, loading, showPrefix }: QueryResultsProps) => {
   const { header, data } = results;
 
   return (
@@ -71,4 +71,4 @@ const QueryResults = ({ results, loading, showPrefix }: QueryResultsProps) => {
   );
 };
 
-export default QueryResults;
+export default Results;
