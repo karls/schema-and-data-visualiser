@@ -8,6 +8,8 @@ export interface RepositoryInfo {
   writeable: boolean;
 }
 
+export type Triplet = [string, string, string];
+
 export type Row = string[];
 
 export type QueryResults = {
@@ -15,10 +17,9 @@ export type QueryResults = {
   data: Row[];
 };
 
-
 export type QueryRecord = {
   id: number;
   sparql: string;
   repositoryId: string;
   date: string;
-}
+};

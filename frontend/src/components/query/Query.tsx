@@ -6,7 +6,7 @@ import { TbVectorTriangle } from "react-icons/tb";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
-import { QueryResults, RepositoryId, RepositoryInfo } from "../../types";
+import { QueryResults, RepositoryId, RepositoryInfo, Triplet } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import Editor from "./Editor";
@@ -74,7 +74,7 @@ const Query: React.FC = observer(() => {
         </div>
       ),
       disabled: results.data.length === 0 || !isGraph(results),
-      children: <GraphVisualisation key={graphKey} results={results.data} />,
+      children: <GraphVisualisation key={graphKey} results={results.data as Triplet[]} />,
     },
     {
       key: "3",
@@ -85,7 +85,7 @@ const Query: React.FC = observer(() => {
         </>
       ),
       disabled: isEmpty(results),
-      children: <Charts />,
+      children: <Charts results={results} />,
     },
   ];
 
