@@ -1,10 +1,10 @@
 import React from "react";
 import { Table, Tooltip } from "antd";
-import { QueryResults as Results } from "../../types";
+import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 
 type QueryResultsProps = {
-  results: Results;
+  results: QueryResults;
   loading: boolean;
   showPrefix: boolean;
 };
@@ -17,55 +17,29 @@ const Results = ({ results, loading, showPrefix }: QueryResultsProps) => {
       <Table
         loading={loading}
         pagination={{ pageSize: 5 }}
-        dataSource={data.map(([s, p, o], index) => {
+        dataSource={data.map((row, index) => {
+          const values: any = {};
+          for (let i = 0; i < row.length; i++) {
+            values[header[i]] = showPrefix ? row[i] : removePrefix(row[i]);
+          }
+          values.key = `${index}`;
+          return values;
+        })}
+        columns={header.map((column) => {
           return {
-            s: showPrefix ? s : removePrefix(s),
-            p: showPrefix ? p : removePrefix(p),
-            o: showPrefix ? o : removePrefix(o),
-            key: `${index}`,
+            title: column,
+            dataIndex: column,
+            key: column,
+            ellipsis: {
+              showTitle: false,
+            },
+            render: (value) => (
+              <Tooltip placement="topLeft" title={value}>
+                {value}
+              </Tooltip>
+            ),
           };
         })}
-        columns={[
-          {
-            title: header[0],
-            dataIndex: "s",
-            key: "subject",
-            ellipsis: {
-              showTitle: false,
-            },
-            render: (value) => (
-              <Tooltip placement="topLeft" title={value}>
-                {value}
-              </Tooltip>
-            ),
-          },
-          {
-            title: header[1],
-            dataIndex: "p",
-            key: "predicate",
-            ellipsis: {
-              showTitle: false,
-            },
-            render: (value) => (
-              <Tooltip placement="topLeft" title={value}>
-                {value}
-              </Tooltip>
-            ),
-          },
-          {
-            title: header[2],
-            dataIndex: "o",
-            key: "object",
-            ellipsis: {
-              showTitle: false,
-            },
-            render: (value) => (
-              <Tooltip placement="topLeft" title={value}>
-                {value}
-              </Tooltip>
-            ),
-          },
-        ]}
       />
     </>
   );
