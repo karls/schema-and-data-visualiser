@@ -20,6 +20,16 @@ def is_csv(string):
     return ',' in string
 
 
+def remove_brackets(text):
+    if len(text) >= 2:
+        if (text[0], text[-1]) == ('<', '>'):
+            return text[1:-1]
+    return text
+
+
 def convert_graph_to_list(string: str) -> [[str]]:
-    return list(map(lambda line: line.replace('.', '').strip().split(' '),
-                    string.splitlines()))
+    triplets: [[str, str, str]] = list(map(
+        lambda line: list(map(remove_brackets, line.split(' '))),
+        string.split('.\n')[:-1]))
+    print(triplets)
+    return triplets

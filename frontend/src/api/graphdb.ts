@@ -1,5 +1,5 @@
 import axios from "axios";
-import { QueryResult, RepositoryId, RepositoryInfo } from "../types";
+import { QueryResults, RepositoryId, RepositoryInfo } from "../types";
 
 export async function allRepositories(): Promise<RepositoryInfo[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
@@ -15,7 +15,7 @@ export async function allRepositories(): Promise<RepositoryInfo[]> {
 export async function runSparqlQuery(
   repository: RepositoryId,
   query: string
-): Promise<QueryResult> {
+): Promise<QueryResults> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/query`;

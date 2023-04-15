@@ -1,26 +1,28 @@
 import { memo } from "react";
 import { Handle, NodeProps, Position } from "reactflow";
+import { removePrefix } from "../../utils/queryResults";
+import { Tooltip } from "antd";
 
 const CustomNode = ({
   data,
-  isConnectable,
+  // isConnectable,
   targetPosition = Position.Top,
   sourcePosition = Position.Bottom,
 }: NodeProps) => {
   return (
-    <>
+    <Tooltip placement="topLeft" title={data?.label}>
       <Handle
         type="target"
         position={targetPosition}
-        isConnectable={isConnectable}
+        isConnectable={false}
       />
-      {data?.label}
+      {removePrefix(data?.label)}
       <Handle
         type="source"
         position={sourcePosition}
-        isConnectable={isConnectable}
+        isConnectable={false}
       />
-    </>
+    </Tooltip>
   );
 };
 

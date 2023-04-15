@@ -5,14 +5,21 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   MiniMap,
+  EdgeTypes,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import "./graph.css";
 import { Triplet } from "../../types";
 import CustomNode from "./CustomNode";
+import CustomEdge from "./CustomEdge";
+import getUuidByString from "uuid-by-string";
 
 const nodeTypes = {
   custom: CustomNode,
+};
+
+const edgeTypes: EdgeTypes = {
+  custom: CustomEdge,
 };
 
 const minimapStyle = {
@@ -22,7 +29,6 @@ const minimapStyle = {
 const Graph = ({ results }: { results: Triplet[] }) => {
   const { nodes: initialNodes, edges: initialEdges } =
     getNodesAndEdges(results);
-  //   console.log(initialNodes, initialEdges);
   const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
 
@@ -33,6 +39,7 @@ const Graph = ({ results }: { results: Triplet[] }) => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       nodeTypes={nodeTypes}
+      edgeTypes={edgeTypes}
     >
       <Background />
       <MiniMap style={minimapStyle} zoomable pannable />
@@ -40,7 +47,17 @@ const Graph = ({ results }: { results: Triplet[] }) => {
   );
 };
 
-function createNode({ id, label }: { id: string; label: string }) {
+function createNode({
+  id,
+  label,
+  x,
+  y,
+}: {
+  id: string;
+  label: string;
+  x?: number;
+  y?: number;
+}) {
   return {
     id,
     type: "custom",
@@ -48,19 +65,20 @@ function createNode({ id, label }: { id: string; label: string }) {
       label,
     },
     position: {
-      x: Math.round((window.screen.width - 200) * Math.random()),
-      y: Math.round(window.screen.height * Math.random()),
+      x: x ?? Math.round((window.screen.width - 200) * Math.random()),
+      y: y ?? Math.round(window.screen.height * Math.random()),
     },
   } as Node;
 }
 
-function createEdge([s, p, o]: Triplet) {
+function createEdge(nodeA: Node, nodeB: Node, label: string) {
   return {
-    id: `e${s ?? ""}-${o ?? ""}`,
-    source: s ?? "",
-    target: o ?? "",
-    label: p ?? "",
+    id: getUuidByString(`${nodeA.data.label}-${nodeB.data.label}`),
+    source: nodeA.id,
+    target: nodeB.id,
+    data: { label  },
     animated: true,
+    type: "custom",
   } as Edge;
 }
 
@@ -68,20 +86,24 @@ function getNodesAndEdges(results: Triplet[]) {
   const nodes: Set<Node> = new Set();
   const edges: Edge[] = [];
 
-  results.forEach(([s, p, o]) => {
+  results.forEach(([s, p, o], index) => {
     const nodeA = createNode({
-      id: s,
+      id: getUuidByString(s),
       label: s,
+      x: 10,
+      y: 100 * index,
     });
     const nodeB = createNode({
-      id: o,
+      id: getUuidByString(o),
       label: o,
+      x: 500,
+      y: 100 * index,
     });
 
     nodes.add(nodeA);
     nodes.add(nodeB);
 
-    const edge = createEdge([s, p, o]);
+    const edge = createEdge(nodeA, nodeB, p);
     edges.push(edge);
   });
 

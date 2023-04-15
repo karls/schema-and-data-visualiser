@@ -10,15 +10,16 @@ export interface RepositoryInfo {
 
 export type Triplet = [string, string, string];
 
-export type QueryResult = {
-  header: string[];
-  data: Triplet[];
-};
+export type Row = string[];
 
+export type QueryResults = {
+  header: string[];
+  data: Row[];
+};
 
 export type QueryRecord = {
   id: number;
   sparql: string;
   repositoryId: string;
   date: string;
-}
+};

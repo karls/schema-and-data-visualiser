@@ -2,17 +2,19 @@ import React from "react";
 import { Layout, theme } from "antd";
 import QueryBrowser from "./QueryBrowser";
 import Sidebar from "../../components/sidebar/Sidebar";
+import { useStore } from "../../stores/store";
 
 const { Content, Sider } = Layout;
 
 const HomePage: React.FC = () => {
+  const { settings } = useStore();
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   return (
     <Layout>
-      <Sider width={200} style={{ background: colorBgContainer }}>
+      <Sider width={settings.sidebarWidth} style={{ background: colorBgContainer }}>
         <Sidebar />
       </Sider>
       <Layout style={{ padding: "0 10px " }}>

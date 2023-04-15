@@ -6,6 +6,7 @@ class Settings {
   currentRepository: RepositoryId | null = null;
   queryHistory: QueryRecord[] = [];
   darkMode: boolean = false;
+  sidebarWidth: number = 200;
 
   constructor() {
     makeAutoObservable(this);
@@ -20,7 +21,6 @@ class Settings {
     if (this.currentRepository) {
       getQueryHistory(this.currentRepository).then((queries) => {
         this.queryHistory = queries;
-        console.log(queries);
       });
     }
   }

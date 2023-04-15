@@ -8,7 +8,7 @@ type QueryEditorProps = {
   onChange: React.Dispatch<React.SetStateAction<string>>;
 };
 
-const QueryEditor = ({ query, onChange }: QueryEditorProps) => {
+const Editor = ({ query, onChange }: QueryEditorProps) => {
   const { settings } = useStore();
   return (
     <>
@@ -17,4 +17,4 @@ const QueryEditor = ({ query, onChange }: QueryEditorProps) => {
   );
 };
 
-export default observer(QueryEditor);
+export default observer(Editor);
