@@ -43,7 +43,7 @@ const Sidebar = observer(() => {
         }}
       >
         <Button style={{ width: "95%", margin: 5 }}>
-          <b>{settings.currentRepository || "Select repository"}</b>
+          <b>{settings.getCurrentRepository() || "Select repository"}</b>
         </Button>
       </Dropdown>
       <Divider />
@@ -71,12 +71,12 @@ const QueryHistory = observer(() => {
       <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
         History
       </Title>
-      {settings.currentRepository === null && (
+      {settings.getCurrentRepository() === null && (
         <Text style={{ padding: 5 }}>
           Select a repository to see the queries you have run in the past
         </Text>
       )}
-      {settings.currentRepository && settings.queryHistory.length === 0 && (
+      {settings.getCurrentRepository() && settings.getQueryHistory().length === 0 && (
         <Text style={{ padding: 5 }}>
           There are no queries for this repository
         </Text>
@@ -89,7 +89,7 @@ const QueryHistory = observer(() => {
           flexDirection: "column",
         }}
       >
-        {settings.queryHistory.map(({ id, sparql, repositoryId, date }) => (
+        {settings.getQueryHistory().map(({ id, sparql, repositoryId, date }) => (
           <Popover
             key={`query-${id}`}
             placement="right"

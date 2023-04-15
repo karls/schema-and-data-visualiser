@@ -18,7 +18,7 @@ const Query: React.FC = observer(() => {
   const { settings } = useStore();
   const [query, setQuery] = useState<string>("");
   const [repository, setRepository] = useState<RepositoryId | null>(
-    settings.currentRepository
+    settings.getCurrentRepository()
   );
   const [results, setResults] = useState<QueryResults>({ header: [], data: [] });
   const [graphKey, setGraphKey] = useState<number>(0);

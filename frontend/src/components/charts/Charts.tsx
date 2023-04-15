@@ -17,7 +17,7 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <BarGraph
           results={results}
-          width={Math.floor((window.screen.width - settings.sidebarWidth) * 0.75)}
+          width={Math.floor((window.screen.width - settings.getSidebarWidth()) * 0.75)}
           height={400}
         />
       ),

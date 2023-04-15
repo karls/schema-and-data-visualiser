@@ -17,7 +17,7 @@ const App = () => {
   return (
     <ConfigProvider
       theme={{
-        algorithm: settings.darkMode ? darkAlgorithm : defaultAlgorithm,
+        algorithm: settings.getDarkMode() ? darkAlgorithm : defaultAlgorithm,
       }}
     >
       <Layout style={{ height: "100vh" }}>
