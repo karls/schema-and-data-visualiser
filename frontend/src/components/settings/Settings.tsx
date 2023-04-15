@@ -9,7 +9,9 @@ import { MdLightMode, MdDarkMode } from 'react-icons/md';
 const { Text } = Typography;
 
 const Settings = () => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+  
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {

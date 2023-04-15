@@ -7,7 +7,7 @@ import { useStore } from "../../stores/store";
 const { Content, Sider } = Layout;
 
 const HomePage: React.FC = () => {
-  const { settings } = useStore();
+  const settings = useStore().settingsStore;
   const {
     token: { colorBgContainer },
   } = theme.useToken();

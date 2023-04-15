@@ -12,13 +12,14 @@ import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import Editor from "./Editor";
 import Results from "./Results";
 import Charts from "../charts/Charts";
-import { getPrefixes } from "../../utils/queries";
 
 const Query: React.FC = observer(() => {
-  const { settings } = useStore();
+  const rootStore = useStore(); 
+  const repositoryStore = rootStore.repositoryStore;
+
   const [query, setQuery] = useState<string>("");
   const [repository, setRepository] = useState<RepositoryId | null>(
-    settings.getCurrentRepository()
+    repositoryStore.getCurrentRepository()
   );
   const [results, setResults] = useState<QueryResults>({ header: [], data: [] });
   const [graphKey, setGraphKey] = useState<number>(0);
@@ -49,7 +50,7 @@ const Query: React.FC = observer(() => {
                   setResults(results);
                   setLoading(false);
                   setGraphKey((key) => key + 1);
-                  settings.updateQueryHistory();
+                  repositoryStore.updateQueryHistory();
                 });
               }}
               disabled={repository === null}

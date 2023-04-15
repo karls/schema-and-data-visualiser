@@ -1,24 +1,23 @@
 import { makeAutoObservable } from "mobx";
-import { getQueryHistory } from "../api/queries";
-import { QueryRecord, RepositoryId } from "../types";
 import { makePersistable } from "mobx-persist-store";
+import { QueryRecord, RepositoryId } from "../types";
+import RootStore from "./root-store";
+import { getQueryHistory } from "../api/queries";
 
-type SettingsState = {
+type RepositoryStoreState = {
   currentRepository: RepositoryId | null;
   queryHistory: QueryRecord[];
-  darkMode: boolean;
-  sidebarWidth: number;
 };
 
-class Settings {
-  state: SettingsState = {
+class RepositoryStore {
+  rootStore: RootStore;
+  state: RepositoryStoreState = {
     currentRepository: null,
     queryHistory: [],
-    darkMode: false,
-    sidebarWidth: 200,
   };
 
-  constructor() {
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
     makeAutoObservable(this);
     makePersistable(this, {
       name: "Settings",
@@ -33,12 +32,8 @@ class Settings {
     });
   }
 
-  setState(state: SettingsState) {
+  setState(state: RepositoryStoreState) {
     this.state = state;
-  }
-
-  getDarkMode(): boolean {
-    return this.state.darkMode;
   }
 
   getCurrentRepository() {
@@ -49,10 +44,6 @@ class Settings {
     return this.state.queryHistory;
   }
 
-  getSidebarWidth(): number {
-    return this.state.sidebarWidth;
-  }
-
   setCurrentRepository(id: RepositoryId) {
     this.setState({ ...this.state, currentRepository: id });
     this.updateQueryHistory();
@@ -60,15 +51,11 @@ class Settings {
 
   updateQueryHistory() {
     if (this.state.currentRepository) {
-      getQueryHistory(this.state.currentRepository).then((queries) => {
+      getQueryHistory(this.state.currentRepository).then((queries: QueryRecord[]) => {
         this.setState({ ...this.state, queryHistory: queries });
       });
     }
   }
-
-  setDarkMode(value: boolean) {
-    this.setState({ ...this.state, darkMode: value });
-  }
 }
 
-export default Settings;
+export default RepositoryStore;

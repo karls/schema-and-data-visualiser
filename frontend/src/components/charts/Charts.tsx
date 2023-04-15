@@ -9,7 +9,8 @@ type ChartsProps = {
 };
 
 const Charts = ({ results }: ChartsProps) => {
-  const { settings } = useStore();
+  const settings = useStore().settingsStore;
+  
   const items: TabsProps["items"] = [
     {
       key: "1",

@@ -12,7 +12,8 @@ const { Header } = Layout;
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
 const App = () => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
 
   return (
     <ConfigProvider
