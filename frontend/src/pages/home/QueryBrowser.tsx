@@ -44,7 +44,7 @@ const QueryBrowser: React.FC = () => {
       key: newActiveKey,
     });
     setItems(newPanes);
-    setActiveKey(newActiveKey);
+    onTabChange(newActiveKey);
   };
 
   const remove = (targetKey: TargetKey) => {
