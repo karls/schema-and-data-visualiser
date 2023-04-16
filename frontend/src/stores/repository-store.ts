@@ -20,7 +20,7 @@ class RepositoryStore {
     this.rootStore = rootStore;
     makeAutoObservable(this);
     makePersistable(this, {
-      name: "Settings",
+      name: "Repository",
       properties: [
         {
           key: "state",
