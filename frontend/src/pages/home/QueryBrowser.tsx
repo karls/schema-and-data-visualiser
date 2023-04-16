@@ -24,7 +24,7 @@ const QueryBrowser: React.FC = () => {
   const [activeKey, setActiveKey] = useState(queriesStore.getCurrentQueryId());
   const [items, setItems] = useState(initialItems);
 
-  const onChange = (newActiveKey: string) => {
+  const onTabChange = (newActiveKey: string) => {
     queriesStore.setCurrentQueryId(newActiveKey);
     setActiveKey(newActiveKey);
   };
@@ -56,6 +56,7 @@ const QueryBrowser: React.FC = () => {
       }
     });
     const newPanes = items.filter((item) => item.key !== targetKey);
+
     if (newPanes.length && newActiveKey === targetKey) {
       if (lastIndex >= 0) {
         newActiveKey = newPanes[lastIndex].key;
@@ -64,7 +65,8 @@ const QueryBrowser: React.FC = () => {
       }
     }
     setItems(newPanes);
-    setActiveKey(newActiveKey);
+    onTabChange(newActiveKey);
+    queriesStore.removeQuery(activeKey);
   };
 
   const onEdit = (
@@ -81,7 +83,7 @@ const QueryBrowser: React.FC = () => {
   return (
     <Tabs
       type="editable-card"
-      onChange={onChange}
+      onChange={onTabChange}
       activeKey={activeKey}
       onEdit={onEdit}
       items={items}

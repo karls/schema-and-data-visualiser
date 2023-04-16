@@ -65,6 +65,10 @@ class QueriesStore {
     };
   }
 
+  removeQuery(qid: string) {
+    delete this.state.openQueries[qid];
+  }
+  
   getTotalQueries(): number {
     return this.state.totalQueries;
   }
