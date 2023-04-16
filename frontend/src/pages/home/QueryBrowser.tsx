@@ -1,33 +1,45 @@
 import React, { useRef, useState } from "react";
 import { Tabs } from "antd";
 import Query from "../../components/query/Query";
+import { useStore } from "../../stores/store";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-
-const initialItems = [
-  {
-    label: "Query 1",
-    children: <Query />,
-    key: "1",
-  },
-];
-
 const QueryBrowser: React.FC = () => {
-  const [activeKey, setActiveKey] = useState(initialItems[0].key);
+  const rootStore = useStore();
+  const queriesStore = rootStore.queriesStore;
+  const initialItems = Object.keys(queriesStore.getOpenQueries()).map((qid) => {
+    return {
+      label: `Query ${qid}`,
+      children: (
+        <Query
+          getQueryText={() => queriesStore.getOpenQueries()[qid].text}
+          setQueryText={(text: string) => queriesStore.setQueryText(qid, text)}
+        />
+      ),
+      key: qid,
+    };
+  });
+
+  const [activeKey, setActiveKey] = useState("1");
   const [items, setItems] = useState(initialItems);
-  const newTabIndex = useRef(initialItems.length);
 
   const onChange = (newActiveKey: string) => {
     setActiveKey(newActiveKey);
   };
 
   const add = () => {
-    const newActiveKey = `newTab${newTabIndex.current++}`;
+    const newActiveKey = `${queriesStore.getTotalQueries() + 1}`;
+    queriesStore.addQuery(newActiveKey);
     const newPanes = [...items];
     newPanes.push({
-      label: `Query ${newTabIndex.current}`,
-      children: <Query />,
+      label: `Query ${newActiveKey}`,
+      children: (
+        <Query
+          getQueryText={() => queriesStore.getOpenQueries()[newActiveKey].text}
+          setQueryText={(text: string) => queriesStore.setQueryText(newActiveKey, text)}
+        />
+      ),
       key: newActiveKey,
     });
     setItems(newPanes);
