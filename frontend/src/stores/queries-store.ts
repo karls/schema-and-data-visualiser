@@ -5,6 +5,7 @@ import RootStore from "./root-store";
 type QueriesState = {
   totalQueries: number;
   openQueries: { [key: string]: { label: string; text: string } };
+  currentQueryId: string;
 };
 
 class QueriesStore {
@@ -17,6 +18,7 @@ class QueriesStore {
         text: "",
       },
     },
+    currentQueryId: "1",
   };
 
   constructor(rootStore: RootStore) {
@@ -41,6 +43,14 @@ class QueriesStore {
 
   getOpenQueries() {
     return this.state.openQueries;
+  }
+
+  getCurrentQueryId(): string {
+    return this.state.currentQueryId;
+  }
+
+  setCurrentQueryId(key: string): void {
+    this.state.currentQueryId = key;
   }
 
   setQueryText(id: string, text: string) {

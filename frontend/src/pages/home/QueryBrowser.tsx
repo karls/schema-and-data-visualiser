@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Tabs } from "antd";
 import Query from "../../components/query/Query";
 import { useStore } from "../../stores/store";
@@ -21,10 +21,11 @@ const QueryBrowser: React.FC = () => {
     };
   });
 
-  const [activeKey, setActiveKey] = useState("1");
+  const [activeKey, setActiveKey] = useState(queriesStore.getCurrentQueryId());
   const [items, setItems] = useState(initialItems);
 
   const onChange = (newActiveKey: string) => {
+    queriesStore.setCurrentQueryId(newActiveKey);
     setActiveKey(newActiveKey);
   };
 
