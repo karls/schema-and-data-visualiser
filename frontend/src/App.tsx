@@ -12,12 +12,13 @@ const { Header } = Layout;
 const { darkAlgorithm, defaultAlgorithm } = theme;
 
 const App = () => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
 
   return (
     <ConfigProvider
       theme={{
-        algorithm: settings.darkMode ? darkAlgorithm : defaultAlgorithm,
+        algorithm: settings.getDarkMode() ? darkAlgorithm : defaultAlgorithm,
       }}
     >
       <Layout style={{ height: "100vh" }}>

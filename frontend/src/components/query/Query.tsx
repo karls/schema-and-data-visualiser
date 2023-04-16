@@ -6,21 +6,33 @@ import { TbVectorTriangle } from "react-icons/tb";
 import { AiOutlineLineChart } from "react-icons/ai";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
-import { QueryResults, RepositoryId, RepositoryInfo, Triplet } from "../../types";
+import {
+  QueryResults,
+  RepositoryId,
+  RepositoryInfo,
+  Triplet,
+} from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import Editor from "./Editor";
 import Results from "./Results";
 import Charts from "../charts/Charts";
-import { getPrefixes } from "../../utils/queries";
 
-const Query: React.FC = observer(() => {
-  const { settings } = useStore();
-  const [query, setQuery] = useState<string>("");
+type QueryProps = {
+  getQueryText: () => string;
+  setQueryText: any;
+};
+
+const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
   const [repository, setRepository] = useState<RepositoryId | null>(
-    settings.currentRepository
+    repositoryStore.getCurrentRepository()
   );
-  const [results, setResults] = useState<QueryResults>({ header: [], data: [] });
+  const [results, setResults] = useState<QueryResults>({
+    header: [],
+    data: [],
+  });
   const [graphKey, setGraphKey] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [prefix, setPrefix] = useState<boolean>(false);
@@ -36,7 +48,7 @@ const Query: React.FC = observer(() => {
       ),
       children: (
         <>
-          <Editor query={query} onChange={setQuery} />
+          <Editor query={getQueryText()} onChange={setQueryText} />
           <Space style={{ margin: 5 }}>
             <SelectRepository
               repository={repository}
@@ -45,11 +57,11 @@ const Query: React.FC = observer(() => {
             <Button
               onClick={() => {
                 setLoading(true);
-                runSparqlQuery(repository!, query).then((results) => {
+                runSparqlQuery(repository!, getQueryText()).then((results) => {
                   setResults(results);
                   setLoading(false);
                   setGraphKey((key) => key + 1);
-                  settings.updateQueryHistory();
+                  repositoryStore.updateQueryHistory();
                 });
               }}
               disabled={repository === null}
@@ -60,7 +72,8 @@ const Query: React.FC = observer(() => {
           <Switch
             checked={prefix}
             onChange={(checked: boolean) => setPrefix(checked)}
-          /> Show Prefix
+          />{" "}
+          Show Prefix
           <Results results={results} loading={loading} showPrefix={prefix} />
         </>
       ),
@@ -74,7 +87,12 @@ const Query: React.FC = observer(() => {
         </div>
       ),
       disabled: results.data.length === 0 || !isGraph(results),
-      children: <GraphVisualisation key={graphKey} results={results.data as Triplet[]} />,
+      children: (
+        <GraphVisualisation
+          key={graphKey}
+          results={results.data as Triplet[]}
+        />
+      ),
     },
     {
       key: "3",

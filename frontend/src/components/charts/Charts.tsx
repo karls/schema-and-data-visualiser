@@ -9,7 +9,8 @@ type ChartsProps = {
 };
 
 const Charts = ({ results }: ChartsProps) => {
-  const { settings } = useStore();
+  const settings = useStore().settingsStore;
+  
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -17,7 +18,7 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <BarGraph
           results={results}
-          width={Math.floor((window.screen.width - settings.sidebarWidth) * 0.75)}
+          width={Math.floor((window.screen.width - settings.getSidebarWidth()) * 0.75)}
           height={400}
         />
       ),

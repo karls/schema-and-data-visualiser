@@ -9,10 +9,10 @@ type QueryEditorProps = {
 };
 
 const Editor = ({ query, onChange }: QueryEditorProps) => {
-  const { settings } = useStore();
+  const settings  = useStore().settingsStore;
   return (
     <>
-      <CodeEditor code={query} setCode={onChange} language="sparql" darkTheme={settings.darkMode} />
+      <CodeEditor code={query} setCode={onChange} language="sparql" darkTheme={settings.getDarkMode()} />
     </>
   );
 };

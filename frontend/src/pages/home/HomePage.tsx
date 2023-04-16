@@ -7,14 +7,14 @@ import { useStore } from "../../stores/store";
 const { Content, Sider } = Layout;
 
 const HomePage: React.FC = () => {
-  const { settings } = useStore();
+  const settings = useStore().settingsStore;
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   return (
     <Layout>
-      <Sider width={settings.sidebarWidth} style={{ background: colorBgContainer }}>
+      <Sider width={settings.getSidebarWidth()} style={{ background: colorBgContainer }}>
         <Sidebar />
       </Sider>
       <Layout style={{ padding: "0 10px " }}>

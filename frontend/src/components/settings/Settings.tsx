@@ -9,7 +9,9 @@ import { MdLightMode, MdDarkMode } from 'react-icons/md';
 const { Text } = Typography;
 
 const Settings = () => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+  
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -30,7 +32,7 @@ const Settings = () => {
       </Tooltip>
       <Drawer title="Settings" placement="right" onClose={onClose} open={open}>
         <Switch
-          checked={settings.darkMode}
+          checked={settings.getDarkMode()}
           onChange={(checked: boolean) => settings.setDarkMode(checked)}
           checkedChildren={<MdDarkMode />}
           unCheckedChildren={<MdLightMode />}

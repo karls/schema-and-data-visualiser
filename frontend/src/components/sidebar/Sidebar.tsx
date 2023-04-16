@@ -9,7 +9,9 @@ import { Typography } from "antd";
 const { Title, Text } = Typography;
 
 const Sidebar = observer(() => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
+
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const Sidebar = observer(() => {
                   trigger="hover"
                 >
                   <Button
-                    onClick={() => settings.setCurrentRepository(id)}
+                    onClick={() => repositoryStore.setCurrentRepository(id)}
                     style={{ width: "100%", height: "100%" }}
                   >
                     {id}
@@ -43,7 +45,7 @@ const Sidebar = observer(() => {
         }}
       >
         <Button style={{ width: "95%", margin: 5 }}>
-          <b>{settings.currentRepository || "Select repository"}</b>
+          <b>{repositoryStore.getCurrentRepository() || "Select repository"}</b>
         </Button>
       </Dropdown>
       <Divider />
@@ -53,11 +55,12 @@ const Sidebar = observer(() => {
 });
 
 const QueryHistory = observer(() => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
 
   useEffect(() => {
-    settings.updateQueryHistory();
-  }, [settings]);
+    repositoryStore.updateQueryHistory();
+  }, [repositoryStore]);
 
   return (
     <div
@@ -71,12 +74,12 @@ const QueryHistory = observer(() => {
       <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
         History
       </Title>
-      {settings.currentRepository === null && (
+      {repositoryStore.getCurrentRepository() === null && (
         <Text style={{ padding: 5 }}>
           Select a repository to see the queries you have run in the past
         </Text>
       )}
-      {settings.currentRepository && settings.queryHistory.length === 0 && (
+      {repositoryStore.getCurrentRepository() && repositoryStore.getQueryHistory().length === 0 && (
         <Text style={{ padding: 5 }}>
           There are no queries for this repository
         </Text>
@@ -89,7 +92,7 @@ const QueryHistory = observer(() => {
           flexDirection: "column",
         }}
       >
-        {settings.queryHistory.map(({ id, sparql, repositoryId, date }) => (
+        {repositoryStore.getQueryHistory().map(({ id, sparql, repositoryId, date }) => (
           <Popover
             key={`query-${id}`}
             placement="right"
