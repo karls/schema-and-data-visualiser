@@ -1,6 +1,6 @@
 import {
   Bar,
-  BarChart,
+  BarChart as BarRechart,
   CartesianGrid,
   Legend,
   Tooltip,
@@ -16,7 +16,7 @@ type BarGraphProps = {
   height: number;
 };
 
-const BarGraph = ({ results, width, height }: BarGraphProps) => {
+const BarChart = ({ results, width, height }: BarGraphProps) => {
   const data = results.data.map((row) => {
     const bar: any = { name: removePrefix(row[0]) };
     for (let i = 1; i < row.length; i++) {
@@ -25,17 +25,17 @@ const BarGraph = ({ results, width, height }: BarGraphProps) => {
     return bar;
   });
   return (
-    <BarChart width={width} height={height} data={data}>
+    <BarRechart width={width} height={height} data={data}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey="name" />
       <YAxis />
       <Tooltip />
       <Legend />
       {results.header.map(
-        (column, index) => index > 0 && <Bar dataKey={column} fill="#8884d8" />
+        (column, index) => index > 0 && <Bar key={`bar-${index}`} dataKey={column} fill="#8884d8" />
       )}
-    </BarChart>
+    </BarRechart>
   );
 };
 
-export default BarGraph;
+export default BarChart;

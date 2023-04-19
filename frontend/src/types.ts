@@ -23,3 +23,6 @@ export type QueryRecord = {
   repositoryId: string;
   date: string;
 };
+
+export type QueryId = string;
+export type QueryInfo = { label: string; text: string };

@@ -34,11 +34,11 @@ class SettingsStore {
     this.state = state;
   }
 
-  getDarkMode(): boolean {
+  get darkMode(): boolean {
     return this.state.darkMode;
   }
 
-  getSidebarWidth(): number {
+  get sidebarWidth(): number {
     return this.state.sidebarWidth;
   }
 

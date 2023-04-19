@@ -1,10 +1,11 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
 import RootStore from "./root-store";
+import { QueryId, QueryInfo } from "../types";
 
 type QueriesState = {
   totalQueries: number;
-  openQueries: { [key: string]: { label: string; text: string } };
+  openQueries: { [key: string]: QueryInfo };
   currentQueryId: string;
 };
 
@@ -41,11 +42,11 @@ class QueriesStore {
     this.state = state;
   }
 
-  getOpenQueries() {
+  get openQueries() {
     return this.state.openQueries;
   }
 
-  getCurrentQueryId(): string {
+  get currentQueryId(): string {
     return this.state.currentQueryId;
   }
 
@@ -57,18 +58,19 @@ class QueriesStore {
     this.state.openQueries[id].text = text;
   }
 
-  addQuery(qid: string) {
-    this.state.totalQueries++;
+  addQuery(text: string = ''): QueryId {
+    const qid = `${++this.state.totalQueries}`
     this.state.openQueries[qid] = {
       label: `Query ${qid}`,
-      text: "",
+      text,
     };
+    return qid;
   }
 
   removeQuery(qid: string) {
     delete this.state.openQueries[qid];
   }
-  
+
   getTotalQueries(): number {
     return this.state.totalQueries;
   }

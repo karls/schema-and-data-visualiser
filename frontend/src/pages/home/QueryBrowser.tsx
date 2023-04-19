@@ -2,27 +2,14 @@ import React, { useState } from "react";
 import { Tabs } from "antd";
 import Query from "../../components/query/Query";
 import { useStore } from "../../stores/store";
+import { observer } from "mobx-react-lite";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
-const QueryBrowser: React.FC = () => {
+const QueryBrowser = observer(() => {
   const rootStore = useStore();
   const queriesStore = rootStore.queriesStore;
-  const initialItems = Object.keys(queriesStore.getOpenQueries()).map((qid) => {
-    return {
-      label: `Query ${qid}`,
-      children: (
-        <Query
-          getQueryText={() => queriesStore.getOpenQueries()[qid].text}
-          setQueryText={(text: string) => queriesStore.setQueryText(qid, text)}
-        />
-      ),
-      key: qid,
-    };
-  });
-
-  const [activeKey, setActiveKey] = useState(queriesStore.getCurrentQueryId());
-  const [items, setItems] = useState(initialItems);
+  const [activeKey, setActiveKey] = useState(queriesStore.currentQueryId);
 
   const onTabChange = (newActiveKey: string) => {
     queriesStore.setCurrentQueryId(newActiveKey);
@@ -30,43 +17,16 @@ const QueryBrowser: React.FC = () => {
   };
 
   const add = () => {
-    const newActiveKey = `${queriesStore.getTotalQueries() + 1}`;
-    queriesStore.addQuery(newActiveKey);
-    const newPanes = [...items];
-    newPanes.push({
-      label: `Query ${newActiveKey}`,
-      children: (
-        <Query
-          getQueryText={() => queriesStore.getOpenQueries()[newActiveKey].text}
-          setQueryText={(text: string) => queriesStore.setQueryText(newActiveKey, text)}
-        />
-      ),
-      key: newActiveKey,
-    });
-    setItems(newPanes);
-    onTabChange(newActiveKey);
+    // So this changes the tab to the id of the new query
+    onTabChange(queriesStore.addQuery());
   };
 
   const remove = (targetKey: TargetKey) => {
-    let newActiveKey = activeKey;
-    let lastIndex = -1;
-    items.forEach((item, i) => {
-      if (item.key === targetKey) {
-        lastIndex = i - 1;
-      }
-    });
-    const newPanes = items.filter((item) => item.key !== targetKey);
-
-    if (newPanes.length && newActiveKey === targetKey) {
-      if (lastIndex >= 0) {
-        newActiveKey = newPanes[lastIndex].key;
-      } else {
-        newActiveKey = newPanes[0].key;
-      }
+    queriesStore.removeQuery(targetKey as string);
+    if (targetKey === activeKey) {
+      const newActiveKey = Object.keys(queriesStore.openQueries)[0];
+      onTabChange(newActiveKey);
     }
-    setItems(newPanes);
-    onTabChange(newActiveKey);
-    queriesStore.removeQuery(activeKey);
   };
 
   const onEdit = (
@@ -86,9 +46,22 @@ const QueryBrowser: React.FC = () => {
       onChange={onTabChange}
       activeKey={activeKey}
       onEdit={onEdit}
-      items={items}
+      items={Object.keys(queriesStore.openQueries).map((qid: string) => {
+        return {
+          label: `Query ${qid}`,
+          children: (
+            <Query
+              getQueryText={() => queriesStore.openQueries[qid].text}
+              setQueryText={(text: string) =>
+                queriesStore.setQueryText(qid, text)
+              }
+            />
+          ),
+          key: qid,
+        };
+      })}
     />
   );
-};
+});
 
 export default QueryBrowser;
