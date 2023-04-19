@@ -1,8 +1,10 @@
-import { Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps, Tooltip } from "antd";
 import { QueryResults } from "../../types";
 import BarChart from "./BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
+import { AiOutlineBarChart } from "react-icons/ai";
+import { BsPieChart } from 'react-icons/bs'
 import PieChart from "./PieChart";
 
 type ChartsProps = {
@@ -20,7 +22,11 @@ const Charts = ({ results }: ChartsProps) => {
     },
     {
       key: "2",
-      label: `Bar Chart`,
+      label: (
+        <>
+          <AiOutlineBarChart size={20} /> Bar
+        </>
+      ),
       children: (
         <BarChart
           results={results}
@@ -33,7 +39,11 @@ const Charts = ({ results }: ChartsProps) => {
     },
     {
       key: "3",
-      label: `Pie Chart`,
+      label: (
+        <>
+          <BsPieChart size={18} /> Pie
+        </>
+      ),
       children: (
         <Tabs
           defaultActiveKey="1"
