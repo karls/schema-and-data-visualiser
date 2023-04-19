@@ -1,6 +1,5 @@
 import {
   Cell,
-  Label,
   Legend,
   Pie,
   PieChart as PieRechart,
@@ -9,6 +8,7 @@ import {
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import randomColour from "randomcolor";
+import { useStore } from "../../stores/store";
 
 type PieChartProps = {
   results: QueryResults;
@@ -18,6 +18,9 @@ type PieChartProps = {
 };
 
 const PieChart = ({ results, width, height, columnIndex }: PieChartProps) => {
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+
   const data = results.data.map((row) => {
     return {
       [results.header[0]]: removePrefix(row[0]),
@@ -35,7 +38,7 @@ const PieChart = ({ results, width, height, columnIndex }: PieChartProps) => {
         <div
           className="custom-tooltip"
           style={{
-            backgroundColor: "#ffff",
+            backgroundColor: settings.darkMode ? 'black' : "#ffff",
             padding: "5px",
             border: "columnIndexpx solid #cccc",
           }}
