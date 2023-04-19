@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
   return (
     <Layout>
       <Sider
-        width={settings.getSidebarWidth()}
+        width={settings.sidebarWidth}
         style={{ background: colorBgContainer }}
       >
         <Sidebar />

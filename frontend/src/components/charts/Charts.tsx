@@ -25,7 +25,7 @@ const Charts = ({ results }: ChartsProps) => {
         <BarChart
           results={results}
           width={Math.floor(
-            (window.screen.width - settings.getSidebarWidth()) * 0.75
+            (window.screen.width - settings.sidebarWidth) * 0.75
           )}
           height={400}
         />
@@ -45,7 +45,7 @@ const Charts = ({ results }: ChartsProps) => {
                 <PieChart
                   results={results}
                   width={Math.floor(
-                    (window.screen.width - settings.getSidebarWidth()) * 0.75
+                    (window.screen.width - settings.sidebarWidth) * 0.75
                   )}
                   height={400}
                   columnIndex={index + 1}

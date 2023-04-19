@@ -32,7 +32,7 @@ const Settings = () => {
       </Tooltip>
       <Drawer title="Settings" placement="right" onClose={onClose} open={open}>
         <Switch
-          checked={settings.getDarkMode()}
+          checked={settings.darkMode}
           onChange={(checked: boolean) => settings.setDarkMode(checked)}
           checkedChildren={<MdDarkMode />}
           unCheckedChildren={<MdLightMode />}
