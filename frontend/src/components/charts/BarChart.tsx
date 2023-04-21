@@ -10,13 +10,13 @@ import {
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 
-type BarGraphProps = {
+type BarChartProps = {
   results: QueryResults;
   width: number;
   height: number;
 };
 
-const BarChart = ({ results, width, height }: BarGraphProps) => {
+const BarChart = ({ results, width, height }: BarChartProps) => {
   const data = results.data.map((row) => {
     const bar: any = { name: removePrefix(row[0]) };
     for (let i = 1; i < row.length; i++) {
