@@ -4,10 +4,12 @@ import BarChart from "./BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import { AiOutlineBarChart } from "react-icons/ai";
-import { BsPieChart } from 'react-icons/bs'
-import { BiLineChart } from 'react-icons/bi'
+import { BsPieChart } from "react-icons/bs";
+import { BiLineChart } from "react-icons/bi";
+import { HiRectangleGroup } from "react-icons/hi2";
 import PieChart from "./PieChart";
 import LineChart from "./LineChart";
+import TreeMap from "./TreeMap";
 
 type ChartsProps = {
   results: QueryResults;
@@ -84,6 +86,35 @@ const Charts = ({ results }: ChartsProps) => {
               label: column,
               children: (
                 <LineChart
+                  results={results}
+                  width={Math.floor(
+                    (window.screen.width - settings.sidebarWidth) * 0.75
+                  )}
+                  height={400}
+                  columnIndex={index + 1}
+                />
+              ),
+            };
+          })}
+        />
+      ),
+    },
+    {
+      key: "5",
+      label: (
+        <>
+          <HiRectangleGroup size={18} /> Treemap
+        </>
+      ),
+      children: (
+        <Tabs
+          defaultActiveKey="1"
+          items={results.header.slice(1).map((column, index) => {
+            return {
+              key: `${index}`,
+              label: column,
+              children: (
+                <TreeMap
                   results={results}
                   width={Math.floor(
                     (window.screen.width - settings.sidebarWidth) * 0.75
