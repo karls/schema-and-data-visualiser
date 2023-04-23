@@ -3,7 +3,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { BiNetworkChart } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
-import { AiOutlineLineChart } from "react-icons/ai";
+import { BsBarChartSteps } from "react-icons/bs";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import {
@@ -98,7 +98,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       key: "3",
       label: (
         <>
-          <AiOutlineLineChart size={20} style={{ margin: 5 }} />
+          <BsBarChartSteps size={20} style={{ margin: 5 }} />
           Charts
         </>
       ),
