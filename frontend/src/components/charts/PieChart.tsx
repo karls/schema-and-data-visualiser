@@ -65,7 +65,7 @@ const PieChart = ({ results, width, height, columnIndex }: PieChartProps) => {
           fill="#8884d8"
           label
         >
-          {data.map((entry, index) => (
+          {data.map((entry, index: number) => (
             <Cell key={`cell-${index}`} fill={randomColour()} />
           ))}
         </Pie>
