@@ -1,4 +1,4 @@
-import { Tabs, TabsProps, Tooltip } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { QueryResults } from "../../types";
 import BarChart from "./BarChart";
 import { observer } from "mobx-react-lite";
