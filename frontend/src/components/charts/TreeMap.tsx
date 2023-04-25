@@ -1,8 +1,7 @@
-import { Cell, Tooltip, Treemap } from "recharts";
+import { Tooltip, Treemap } from "recharts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
-import randomColour from "randomcolor";
 
 type TreeMapProps = {
   results: QueryResults;
