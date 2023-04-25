@@ -3,13 +3,14 @@ import { QueryResults } from "../../types";
 import BarChart from "./BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
-import { AiOutlineBarChart } from "react-icons/ai";
+import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
 import { BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import PieChart from "./PieChart";
 import LineChart from "./LineChart";
 import TreeMap from "./TreeMap";
+import RadarChart from "./RadarChart";
 
 type ChartsProps = {
   results: QueryResults;
@@ -32,12 +33,24 @@ const Charts = ({ results }: ChartsProps) => {
         </>
       ),
       children: (
-        <BarChart
-          results={results}
-          width={Math.floor(
-            (window.screen.width - settings.sidebarWidth) * 0.75
-          )}
-          height={400}
+        <Tabs
+          defaultActiveKey="1"
+          items={results.header.slice(1).map((column, index) => {
+            return {
+              key: `${index}`,
+              label: column,
+              children: (
+                <BarChart
+                  results={results}
+                  width={Math.floor(
+                    (window.screen.width - settings.sidebarWidth) * 0.75
+                  )}
+                  height={400}
+                  columnIndex={index + 1}
+                />
+              ),
+            };
+          })}
         />
       ),
     },
@@ -125,6 +138,26 @@ const Charts = ({ results }: ChartsProps) => {
               ),
             };
           })}
+        />
+      ),
+    },
+    {
+      key: "6",
+      label: (
+        <>
+          <AiOutlineRadarChart size={18} /> Radar
+        </>
+      ),
+      children: (
+        <RadarChart
+          results={results}
+          width={Math.floor(
+            (window.screen.width - settings.sidebarWidth) * 0.75
+          )}
+          height={400}
+          featureIndices={results.header
+            .slice(1)
+            .map((column, index) => index + 1)}
         />
       ),
     },

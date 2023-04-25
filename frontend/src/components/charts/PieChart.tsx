@@ -38,7 +38,7 @@ const PieChart = ({ results, width, height, columnIndex }: PieChartProps) => {
         <div
           className="custom-tooltip"
           style={{
-            backgroundColor: settings.darkMode ? 'black' : "#ffff",
+            backgroundColor: settings.darkMode ? "black" : "#ffff",
             padding: "5px",
             border: "columnIndexpx solid #cccc",
           }}
@@ -54,25 +54,24 @@ const PieChart = ({ results, width, height, columnIndex }: PieChartProps) => {
   };
 
   return (
-      <PieRechart width={width} height={height}>
-        <Pie
-          data={data}
-          nameKey={results.header[0]}
-          dataKey={results.header[columnIndex]}
-          cx="50%"
-          cy="50%"
-          // outerRadius={50}
-          fill="#8884d8"
-          label
-        >
-          {data.map((entry, index: number) => (
-            <Cell key={`cell-${index}`} fill={randomColour()} />
-          ))}
-        </Pie>
-        <Tooltip content={CustomTooltip} />
-        <Legend />
-        {/* <Pie data={data02} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#82ca9d" label /> */}
-      </PieRechart>
+    <PieRechart width={width} height={height}>
+      <Pie
+        data={data}
+        nameKey={results.header[0]}
+        dataKey={results.header[columnIndex]}
+        cx="50%"
+        cy="50%"
+        // outerRadius={50}
+        fill="#8884d8"
+        label
+      >
+        {data.map((entry, index: number) => (
+          <Cell key={`cell-${index}`} fill={randomColour()} />
+        ))}
+      </Pie>
+      <Tooltip content={CustomTooltip} />
+      <Legend />
+    </PieRechart>
   );
 };
 
