@@ -12,16 +12,15 @@ import { removePrefix } from "../../utils/queryResults";
 
 type BarChartProps = {
   results: QueryResults;
+  columnIndex: number;
   width: number;
   height: number;
 };
 
-const BarChart = ({ results, width, height }: BarChartProps) => {
+const BarChart = ({ results, width, height, columnIndex }: BarChartProps) => {
   const data = results.data.map((row) => {
     const bar: any = { name: removePrefix(row[0]) };
-    for (let i = 1; i < row.length; i++) {
-      bar[results.header[i]] = row[i];
-    }
+    bar[results.header[columnIndex]] = row[columnIndex];
     return bar;
   });
   return (
@@ -31,9 +30,7 @@ const BarChart = ({ results, width, height }: BarChartProps) => {
       <YAxis />
       <Tooltip />
       <Legend />
-      {results.header.map(
-        (column, index) => index > 0 && <Bar key={`bar-${index}`} dataKey={column} fill="#8884d8" />
-      )}
+      <Bar dataKey={results.header[columnIndex]} fill="#8884d8" />
     </BarRechart>
   );
 };
