@@ -7,10 +7,12 @@ import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
 import { BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
+import { TbChartSankey } from 'react-icons/tb';
 import PieChart from "./PieChart";
 import LineChart from "./LineChart";
 import TreeMap from "./TreeMap";
 import RadarChart from "./RadarChart";
+import SankeyChart from "./SankeyChart";
 
 type ChartsProps = {
   results: QueryResults;
@@ -18,7 +20,10 @@ type ChartsProps = {
 
 const Charts = ({ results }: ChartsProps) => {
   const settings = useStore().settingsStore;
-
+  const chartWidth = Math.floor(
+    (window.screen.width - settings.sidebarWidth) * 0.75
+  );
+  const chartHeight = 400;
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -42,10 +47,8 @@ const Charts = ({ results }: ChartsProps) => {
               children: (
                 <BarChart
                   results={results}
-                  width={Math.floor(
-                    (window.screen.width - settings.sidebarWidth) * 0.75
-                  )}
-                  height={400}
+                  width={chartWidth}
+                  height={chartHeight}
                   columnIndex={index + 1}
                 />
               ),
@@ -71,10 +74,8 @@ const Charts = ({ results }: ChartsProps) => {
               children: (
                 <PieChart
                   results={results}
-                  width={Math.floor(
-                    (window.screen.width - settings.sidebarWidth) * 0.75
-                  )}
-                  height={400}
+                  width={chartWidth}
+                  height={chartHeight}
                   columnIndex={index + 1}
                 />
               ),
@@ -100,10 +101,8 @@ const Charts = ({ results }: ChartsProps) => {
               children: (
                 <LineChart
                   results={results}
-                  width={Math.floor(
-                    (window.screen.width - settings.sidebarWidth) * 0.75
-                  )}
-                  height={400}
+                  width={chartWidth}
+                  height={chartHeight}
                   columnIndex={index + 1}
                 />
               ),
@@ -129,10 +128,8 @@ const Charts = ({ results }: ChartsProps) => {
               children: (
                 <TreeMap
                   results={results}
-                  width={Math.floor(
-                    (window.screen.width - settings.sidebarWidth) * 0.75
-                  )}
-                  height={400}
+                  width={chartWidth}
+                  height={chartHeight}
                   columnIndex={index + 1}
                 />
               ),
@@ -151,13 +148,26 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <RadarChart
           results={results}
-          width={Math.floor(
-            (window.screen.width - settings.sidebarWidth) * 0.75
-          )}
-          height={400}
+          width={chartWidth}
+          height={chartHeight}
           featureIndices={results.header
             .slice(1)
             .map((column, index) => index + 1)}
+        />
+      ),
+    },
+    {
+      key: "7",
+      label: (
+        <>
+          <TbChartSankey size={18} /> Sankey
+        </>
+      ),
+      children: (
+        <SankeyChart
+          results={results}
+          width={chartWidth}
+          height={chartHeight}
         />
       ),
     },

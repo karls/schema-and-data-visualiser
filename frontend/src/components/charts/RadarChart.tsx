@@ -43,10 +43,11 @@ const RadarChart = ({
       <PolarGrid />
       <PolarAngleAxis dataKey="subject" />
       <PolarRadiusAxis angle={30} domain={[0, 150]} />
-      {results.data.map((row) => {
+      {results.data.map((row, index) => {
         const colour = randomColor();
         return (
           <Radar
+            key={`radar-${index}`}
             name={removePrefix(row[0])}
             dataKey={removePrefix(row[0])}
             stroke={colour}
