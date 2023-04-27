@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Button, Popover, Space, Typography } from "antd";
+import { Button, Popconfirm, Popover, Space, Typography } from "antd";
 import { useStore } from "../../stores/store";
 import { MdDelete } from "react-icons/md";
 
@@ -59,16 +59,34 @@ const QueryHistory = observer(() => {
             </Popover>
           ))}
       </Space>
+      <DeleteHistory />
+    </div>
+  );
+});
+
+const DeleteHistory = observer(() => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
+
+  return (
+    <Popconfirm
+      title={"Clear entire history"}
+      description={`Are you sure?`}
+      okText="Yes"
+      cancelText="No"
+      onConfirm={() => repositoryStore.clearQueryHistory()}
+      style={{ justifyContent: "center" }}
+      placement="right"
+    >
       <Button
         danger
-        style={{ margin: 5 }}
-        onClick={() => repositoryStore.clearQueryHistory()}
+        style={{ margin: "auto", width: '95%' }}
         disabled={repositoryStore.queryHistory.length === 0}
         title="Clear history"
       >
-        <MdDelete size={20}/>
+        <MdDelete size={20} />
       </Button>
-    </div>
+    </Popconfirm>
   );
 });
 
