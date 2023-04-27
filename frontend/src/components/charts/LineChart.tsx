@@ -1,16 +1,14 @@
 import {
-  Bar,
   LineChart as LineRechart,
-  CartesianGrid,
   Legend,
   Tooltip,
   XAxis,
   YAxis,
   Line,
-  ResponsiveContainer,
 } from "recharts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
+import { useMemo } from "react";
 
 type LineChartProps = {
   results: QueryResults;
@@ -20,12 +18,17 @@ type LineChartProps = {
 };
 
 const LineChart = ({ results, width, height, columnIndex }: LineChartProps) => {
-  const data = results.data.map((row) => {
-    return {
-      [results.header[0]]: removePrefix(row[0]),
-      [results.header[columnIndex]]: parseInt(row[columnIndex]),
-    };
-  });
+  const data = useMemo(
+    () =>
+      results.data.map((row) => {
+        return {
+          [results.header[0]]: removePrefix(row[0]),
+          [results.header[columnIndex]]: parseInt(row[columnIndex]),
+        };
+      }),
+    [results, columnIndex]
+  );
+  
   return (
     <LineRechart width={width} height={height} data={data}>
       <Line

@@ -2,6 +2,7 @@ import { Tooltip, Treemap } from "recharts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
+import { useMemo } from "react";
 
 type TreeMapProps = {
   results: QueryResults;
@@ -19,17 +20,20 @@ export const TreeMap = ({
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
-  const data = [
-    {
-      name: results.header[columnIndex],
-      children: results.data.map((row) => {
-        return {
-          name: removePrefix(row[0]),
-          value: parseInt(row[columnIndex]),
-        };
-      }),
-    },
-  ];
+  const data = useMemo(
+    () => [
+      {
+        name: results.header[columnIndex],
+        children: results.data.map((row) => {
+          return {
+            name: removePrefix(row[0]),
+            value: parseInt(row[columnIndex]),
+          };
+        }),
+      },
+    ],
+    [results, columnIndex]
+  );
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {

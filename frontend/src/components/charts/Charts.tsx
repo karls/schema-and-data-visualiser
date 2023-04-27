@@ -8,11 +8,13 @@ import { BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey } from 'react-icons/tb';
+import { VscGraphScatter } from 'react-icons/vsc';
 import PieChart from "./PieChart";
 import LineChart from "./LineChart";
 import TreeMap from "./TreeMap";
 import RadarChart from "./RadarChart";
 import SankeyChart from "./SankeyChart";
+import ScatterChart from "./ScatterChart";
 
 type ChartsProps = {
   results: QueryResults;
@@ -23,7 +25,7 @@ const Charts = ({ results }: ChartsProps) => {
   const chartWidth = Math.floor(
     (window.screen.width - settings.sidebarWidth) * 0.75
   );
-  const chartHeight = 400;
+  const chartHeight = Math.floor(window.screen.height * 0.4);
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -165,6 +167,21 @@ const Charts = ({ results }: ChartsProps) => {
       ),
       children: (
         <SankeyChart
+          results={results}
+          width={chartWidth}
+          height={chartHeight}
+        />
+      ),
+    },
+    {
+      key: "8",
+      label: (
+        <>
+          <VscGraphScatter size={18} /> Scatter
+        </>
+      ),
+      children: (
+        <ScatterChart
           results={results}
           width={chartWidth}
           height={chartHeight}
