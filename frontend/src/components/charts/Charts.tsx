@@ -25,7 +25,7 @@ const Charts = ({ results }: ChartsProps) => {
   const chartWidth = Math.floor(
     (window.screen.width - settings.sidebarWidth) * 0.75
   );
-  const chartHeight = 400;
+  const chartHeight = Math.floor(window.screen.height * 0.4);
   const items: TabsProps["items"] = [
     {
       key: "1",
