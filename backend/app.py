@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 from urllib import parse
-from db import add_query, get_queries
+from db import add_query, get_queries, delete_all_queries
 from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list
 
 app = Flask(__name__)
@@ -88,5 +88,13 @@ def run_query():
 @app.route('/query/history', methods=['GET'])
 def query_history():
     if request.method == 'GET':
-        repositoryId = request.args['repositoryId']
-        return jsonify(get_queries(repositoryId))
+        repository_id = request.args['repositoryId']
+        return jsonify(get_queries(repository_id))
+
+
+@app.route('/query/history/clear', methods=['POST'])
+def clear_history():
+    if request.method == 'POST':
+        repository_id = request.args['repositoryId']
+        return delete_all_queries(repository_id)
+
