@@ -1,9 +1,11 @@
 import { Button, Dropdown, Space, Switch, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { BiNetworkChart } from "react-icons/bi";
+import { BiHide, BiNetworkChart, BiShow } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
 import { BsBarChartSteps } from "react-icons/bs";
+import { FiPlay } from "react-icons/fi";
+import { RiGitRepositoryLine } from "react-icons/ri";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import {
@@ -65,13 +67,18 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
                 });
               }}
               disabled={repository === null}
+              style={{ alignItems: "center" }}
             >
-              Run
+              <Space>
+                <FiPlay size={20} /> Run
+              </Space>
             </Button>
           </Space>
           <Switch
             checked={prefix}
             onChange={(checked: boolean) => setPrefix(checked)}
+            checkedChildren={<BiShow size={15} style={{ marginBottom: 1 }} />}
+            unCheckedChildren={<BiHide size={15} style={{ marginBottom: 1 }} />}
           />{" "}
           Show Prefix
           <Results results={results} loading={loading} showPrefix={prefix} />
@@ -147,7 +154,12 @@ const SelectRepository = ({
         }),
       }}
     >
-      <Button>{repository || "Choose repository"}</Button>
+      <Button title="Choose repository">
+        <Space>
+          <RiGitRepositoryLine size={20} />
+          {repository || "Choose repository"}
+        </Space>
+      </Button>
     </Dropdown>
   );
 };

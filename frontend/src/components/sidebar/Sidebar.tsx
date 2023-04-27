@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button, Divider, Dropdown, Popover } from "antd";
+import { Button, Divider, Dropdown, Popover, Space } from "antd";
 import { allRepositories } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
 import { observer } from "mobx-react-lite";
+import { RiGitRepositoryLine } from "react-icons/ri";
 import QueryHistory from "./QueryHistory";
-
 
 const Sidebar = observer(() => {
   const rootStore = useStore();
@@ -43,8 +43,13 @@ const Sidebar = observer(() => {
           }),
         }}
       >
-        <Button style={{ width: "95%", margin: 5 }}>
-          <b>{repositoryStore.getCurrentRepository() || "Select repository"}</b>
+        <Button style={{ width: "95%", margin: 5 }} title="Choose repository">
+          <Space>
+            <RiGitRepositoryLine size={20} />
+            <b>
+              {repositoryStore.getCurrentRepository() || "Select repository"}
+            </b>
+          </Space>
         </Button>
       </Dropdown>
       <Divider />
