@@ -32,9 +32,9 @@ def add_query(sparql: str, repository_id: str) -> None:
     conn.commit()
 
 
-def delete_all_queries() -> None:
+def delete_all_queries(repository_id: str) -> None:
     conn = sqlite3.connect('./database.db')
-    conn.execute('DELETE FROM query')
+    conn.execute('DELETE FROM query WHERE repositoryId = ?', [repository_id])
     conn.commit()
 
 
