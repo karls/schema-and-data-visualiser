@@ -2,7 +2,7 @@ import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
 import { QueryRecord, RepositoryId } from "../types";
 import RootStore from "./root-store";
-import { getQueryHistory } from "../api/queries";
+import { clearQueryHistory, getQueryHistory } from "../api/queries";
 
 type RepositoryStoreState = {
   currentRepository: RepositoryId | null;
@@ -36,6 +36,14 @@ class RepositoryStore {
     this.state = state;
   }
 
+  get currentRepository() {
+    return this.state.currentRepository;
+  }
+
+  get queryHistory() {
+    return this.state.queryHistory;
+  }
+
   getCurrentRepository() {
     return this.state.currentRepository;
   }
@@ -53,6 +61,14 @@ class RepositoryStore {
     if (this.state.currentRepository) {
       getQueryHistory(this.state.currentRepository).then((queries: QueryRecord[]) => {
         this.setState({ ...this.state, queryHistory: queries });
+      });
+    }
+  }
+
+  clearQueryHistory() {
+    if (this.state.currentRepository) {
+      clearQueryHistory(this.state.currentRepository).then(() => {
+        this.updateQueryHistory();
       });
     }
   }
