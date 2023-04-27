@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Tabs } from "antd";
 import Query from "../../components/query/Query";
 import { useStore } from "../../stores/store";
@@ -9,11 +9,9 @@ type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 const QueryBrowser = observer(() => {
   const rootStore = useStore();
   const queriesStore = rootStore.queriesStore;
-  const [activeKey, setActiveKey] = useState(queriesStore.currentQueryId);
 
   const onTabChange = (newActiveKey: string) => {
     queriesStore.setCurrentQueryId(newActiveKey);
-    setActiveKey(newActiveKey);
   };
 
   const add = () => {
@@ -23,7 +21,7 @@ const QueryBrowser = observer(() => {
 
   const remove = (targetKey: TargetKey) => {
     queriesStore.removeQuery(targetKey as string);
-    if (targetKey === activeKey) {
+    if (targetKey === queriesStore.currentQueryId) {
       const newActiveKey = Object.keys(queriesStore.openQueries)[0];
       onTabChange(newActiveKey);
     }
@@ -44,7 +42,7 @@ const QueryBrowser = observer(() => {
     <Tabs
       type="editable-card"
       onChange={onTabChange}
-      activeKey={activeKey}
+      activeKey={queriesStore.currentQueryId}
       onEdit={onEdit}
       items={Object.keys(queriesStore.openQueries).map((qid: string) => {
         return {
