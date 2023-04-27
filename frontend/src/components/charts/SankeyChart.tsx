@@ -1,6 +1,7 @@
 import { Chart } from "react-google-charts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
+import { useMemo } from "react";
 
 type SankeyChartProps = {
   results: QueryResults;
@@ -18,7 +19,7 @@ function getLinks(results: QueryResults) {
 }
 
 const SankeyChart = ({ results, width, height }: SankeyChartProps) => {
-  const data = getLinks(results);
+  const data = useMemo(() => getLinks(results), [results]);
 
   const options = {};
   return (
