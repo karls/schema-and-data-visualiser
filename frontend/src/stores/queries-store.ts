@@ -55,7 +55,11 @@ class QueriesStore {
   }
 
   setQueryText(id: string, text: string) {
-    this.state.openQueries[id].text = text;
+    this.state.openQueries[id]!.text = text;
+  }
+
+  setQueryLabel(id: string, label: string) {
+    this.state.openQueries[id]!.label = label;
   }
 
   addQuery(text: string = ''): QueryId {
