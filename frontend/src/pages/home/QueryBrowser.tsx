@@ -1,8 +1,9 @@
 import React from "react";
-import { Tabs } from "antd";
+import { Input, Tabs } from "antd";
 import Query from "../../components/query/Query";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
+import "./QueryBrowser.css";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
@@ -44,9 +45,31 @@ const QueryBrowser = observer(() => {
       onChange={onTabChange}
       activeKey={queriesStore.currentQueryId}
       onEdit={onEdit}
+      style={{ padding: 0 }}
       items={Object.keys(queriesStore.openQueries).map((qid: string) => {
         return {
-          label: `Query ${qid}`,
+          label: (
+            <Input
+              title={queriesStore.openQueries[qid].label}
+              onKeyDown={(e) => e.stopPropagation()}
+              onChange={(e) => console.log(e.target.value)}
+              style={{
+                margin: 0,
+                cursor: "pointer",
+                background: "none",
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
+              }}
+              defaultValue={queriesStore.openQueries[qid].label}
+              onPressEnter={(e) =>
+                queriesStore.setQueryLabel(qid, e.currentTarget.value)
+              }
+              onBlur={(e) =>
+                queriesStore.setQueryLabel(qid, e.currentTarget.value)
+              }
+            />
+          ),
           children: (
             <Query
               getQueryText={() => queriesStore.openQueries[qid].text}
