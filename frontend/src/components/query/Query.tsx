@@ -1,7 +1,7 @@
 import { Button, Dropdown, Space, Switch, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
-import { BiHide, BiNetworkChart, BiShow } from "react-icons/bi";
+import { BiCopy, BiHide, BiNetworkChart, BiShow } from "react-icons/bi";
 import { TbVectorTriangle } from "react-icons/tb";
 import { BsBarChartSteps } from "react-icons/bs";
 import { FiPlay } from "react-icons/fi";
@@ -73,14 +73,22 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
                 <FiPlay size={20} /> Run
               </Space>
             </Button>
+            <CopyToClipboard text={getQueryText()} />
+            <Space.Compact>
+              <Switch
+                checked={prefix}
+                onChange={(checked: boolean) => setPrefix(checked)}
+                checkedChildren={
+                  <BiShow size={15} style={{ marginBottom: 1 }} />
+                }
+                unCheckedChildren={
+                  <BiHide size={15} style={{ marginBottom: 1 }} />
+                }
+              />
+              Show Prefix
+            </Space.Compact>
           </Space>
-          <Switch
-            checked={prefix}
-            onChange={(checked: boolean) => setPrefix(checked)}
-            checkedChildren={<BiShow size={15} style={{ marginBottom: 1 }} />}
-            unCheckedChildren={<BiHide size={15} style={{ marginBottom: 1 }} />}
-          />{" "}
-          Show Prefix
+
           <Results results={results} loading={loading} showPrefix={prefix} />
         </>
       ),
@@ -164,4 +172,14 @@ const SelectRepository = ({
   );
 };
 
+const CopyToClipboard = ({ text }: { text: string }) => {
+  return (
+    <Button onClick={() => navigator.clipboard.writeText(text)}>
+      <Space>
+        <BiCopy />
+        Copy
+      </Space>
+    </Button>
+  );
+};
 export default Query;
