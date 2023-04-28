@@ -33,7 +33,7 @@ const QueryHistory = observer(() => {
       )}
       {repositoryStore.getCurrentRepository() &&
         repositoryStore.getQueryHistory().length === 0 && (
-          <Text style={{ padding: 5 }}>
+          <Text style={{ width: '95%', padding: 5 }}>
             There are no queries for this repository
           </Text>
         )}
@@ -76,7 +76,7 @@ const DeleteHistory = observer(() => {
       cancelText="No"
       onConfirm={() => repositoryStore.clearQueryHistory()}
       style={{ justifyContent: "center" }}
-      placement="right"
+      placement="bottom"
     >
       <Button
         danger
