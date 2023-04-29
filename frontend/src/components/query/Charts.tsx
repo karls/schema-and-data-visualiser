@@ -203,14 +203,22 @@ const Charts = ({ results }: ChartsProps) => {
   const handle = useFullScreenHandle();
 
   useEffect(() => {
-    const escFunction = () => settings.setFullScreen(false);
-    document.addEventListener("keydown", escFunction, false);
-
+    const exitHandler = (e: any) => {
+      if (!document.fullscreenElement) {
+        settings.setFullScreen(false);
+      }
+    };
+    document.addEventListener('webkitfullscreenchange', exitHandler, false);
+    document.addEventListener('mozfullscreenchange', exitHandler, false);
+    document.addEventListener('fullscreenchange', exitHandler, false);
+    document.addEventListener('MSFullscreenChange', exitHandler, false);
     return () => {
-      document.removeEventListener("keydown", escFunction, false);
+      document.removeEventListener('webkitfullscreenchange', exitHandler, false);
+      document.removeEventListener('mozfullscreenchange', exitHandler, false);
+      document.removeEventListener('fullscreenchange', exitHandler, false);
+      document.removeEventListener('MSFullscreenChange', exitHandler, false);
     };
   }, [settings]);
-
 
   return (
     <>
