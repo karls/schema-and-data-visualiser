@@ -20,7 +20,7 @@ import { observer } from "mobx-react-lite";
 
 type ScatterChartProps = {
   results: QueryResults;
-  width: number;
+  width?: number;
   height: number;
 };
 
@@ -39,7 +39,7 @@ const ScatterChart = observer(
     });
 
     return (
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width={width || "100%"} height={height}>
         <ScatterRechart margin={{ top: 35, right: 30, left: 20, bottom: 5 }}>
           <CartesianGrid />
           {results.header[1] && (
