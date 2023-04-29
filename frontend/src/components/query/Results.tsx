@@ -12,42 +12,49 @@ type QueryResultsProps = {
   showPrefix: boolean;
 };
 
-const Results = observer(({ results, loading, showPrefix }: QueryResultsProps) => {
-  const rootStore = useStore();
-  const settings = rootStore.settingsStore;
-  const { header, data } = results;
-  
-  return (
-    <Fullscreen>
-      <Table
-        loading={loading}
-        pagination={{ pageSize: settings.fullScreen ? 20 : 4 }}
-        dataSource={data.map((row, index) => {
-          const values: any = {};
-          for (let i = 0; i < row.length; i++) {
-            values[header[i]] = showPrefix ? row[i] : removePrefix(row[i]);
-          }
-          values.key = `${index}`;
-          return values;
-        })}
-        columns={header.map((column) => {
-          return {
-            title: column,
-            dataIndex: column,
-            key: column,
-            ellipsis: {
-              showTitle: false,
-            },
-            render: (value) => (
-              <Tooltip placement="topLeft" title={value}>
-                {value}
-              </Tooltip>
-            ),
-          };
-        })}
-      />
-    </Fullscreen>
-  );
-});
+const Results = observer(
+  ({ results, loading, showPrefix }: QueryResultsProps) => {
+    const rootStore = useStore();
+    const settings = rootStore.settingsStore;
+    const { header, data } = results;
+    const cellHeight = 55;
+    return (
+      <Fullscreen>
+        <Table
+          loading={loading}
+          pagination={{
+            position: ['topCenter'],
+            pageSize: settings.fullScreen
+              ? Math.floor(window.screen.height / cellHeight) - 1
+              : 4,
+          }}
+          dataSource={data.map((row, index) => {
+            const values: any = {};
+            for (let i = 0; i < row.length; i++) {
+              values[header[i]] = showPrefix ? row[i] : removePrefix(row[i]);
+            }
+            values.key = `${index}`;
+            return values;
+          })}
+          columns={header.map((column) => {
+            return {
+              title: column,
+              dataIndex: column,
+              key: column,
+              ellipsis: {
+                showTitle: false,
+              },
+              render: (value) => (
+                <Tooltip placement="topLeft" title={value}>
+                  {value}
+                </Tooltip>
+              ),
+            };
+          })}
+        />
+      </Fullscreen>
+    );
+  }
+);
 
 export default Results;
