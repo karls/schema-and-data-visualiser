@@ -1,10 +1,17 @@
-import { Cell, Legend, Pie, PieChart as PieRechart, Tooltip } from "recharts";
+import { useMemo } from "react";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart as PieRechart,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
 import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
-import { useMemo } from "react";
 
 type PieChartProps = {
   results: QueryResults;
@@ -59,29 +66,31 @@ const PieChart = observer(
     };
 
     return (
-      <PieRechart width={width} height={height}>
-        <Pie
-          data={data}
-          nameKey={results.header[0]}
-          dataKey={results.header[columnIndex]}
-          cx="50%"
-          cy="50%"
-          // outerRadius={50}
-          fill="#8884d8"
-          label
-        >
-          {data.map((entry, index: number) => (
-            <Cell
-              key={`cell-${index}`}
-              fill={randomColor({
-                luminosity: settings.darkMode ? "light" : "dark",
-              })}
-            />
-          ))}
-        </Pie>
-        <Tooltip content={CustomTooltip} />
-        <Legend />
-      </PieRechart>
+      <ResponsiveContainer width="100%" height={height}>
+        <PieRechart>
+          <Pie
+            data={data}
+            nameKey={results.header[0]}
+            dataKey={results.header[columnIndex]}
+            cx="50%"
+            cy="50%"
+            // outerRadius={50}
+            fill="#8884d8"
+            label
+          >
+            {data.map((entry, index: number) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={randomColor({
+                  luminosity: settings.darkMode ? "light" : "dark",
+                })}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={CustomTooltip} />
+          <Legend />
+        </PieRechart>
+      </ResponsiveContainer>
     );
   }
 );

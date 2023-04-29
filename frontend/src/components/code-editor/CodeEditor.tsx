@@ -13,7 +13,7 @@ type CodeEditorProps = {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   language: string;
-  darkTheme: boolean
+  darkTheme: boolean;
 };
 
 const languageParsers: any = {
@@ -21,10 +21,25 @@ const languageParsers: any = {
 };
 
 const keywords: { [language: string]: string[] } = {
-  sparql: ["SELECT", "WHERE", "CONSTRUCT", "PREFIX", "LIMIT"],
+  sparql: [
+    "SELECT",
+    "WHERE",
+    "CONSTRUCT",
+    "PREFIX",
+    "LIMIT",
+    "ORDER BY",
+    "FILTER",
+    "DESC",
+    "DISTINCT",
+  ],
 };
 
-const CodeEditor = ({ code, setCode, language, darkTheme }: CodeEditorProps) => {
+const CodeEditor = ({
+  code,
+  setCode,
+  language,
+  darkTheme,
+}: CodeEditorProps) => {
   const myCompletions = (context: CompletionContext) => {
     let word = context.matchBefore(/\w*/)!;
     if (word.from === word.to && !context.explicit) return null;

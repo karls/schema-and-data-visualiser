@@ -1,20 +1,25 @@
 import { Tabs, TabsProps } from "antd";
 import { QueryResults } from "../../types";
-import BarChart from "./BarChart";
+import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
-import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
+import {
+  AiOutlineBarChart,
+  AiOutlineRadarChart,
+} from "react-icons/ai";
 import { BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
-import { TbChartSankey } from 'react-icons/tb';
-import { VscGraphScatter } from 'react-icons/vsc';
-import PieChart from "./PieChart";
-import LineChart from "./LineChart";
-import TreeMap from "./TreeMap";
-import RadarChart from "./RadarChart";
-import SankeyChart from "./SankeyChart";
-import ScatterChart from "./ScatterChart";
+import { TbChartSankey } from "react-icons/tb";
+import { VscGraphScatter } from "react-icons/vsc";
+import PieChart from "../charts/PieChart";
+import LineChart from "../charts/LineChart";
+import TreeMap from "../charts/TreeMap";
+import RadarChart from "../charts/RadarChart";
+import SankeyChart from "../charts/SankeyChart";
+import ScatterChart from "../charts/ScatterChart";
+import "./Charts.css";
+import Fullscreen from "./Fullscreen";
 
 type ChartsProps = {
   results: QueryResults;
@@ -25,7 +30,9 @@ const Charts = ({ results }: ChartsProps) => {
   const chartWidth = Math.floor(
     (window.screen.width - settings.sidebarWidth) * 0.75
   );
-  const chartHeight = Math.floor(window.screen.height * 0.4);
+  const chartHeight = Math.floor(
+    window.screen.height * (settings.fullScreen ? 0.8 : 0.4)
+  );
   const items: TabsProps["items"] = [
     {
       key: "1",
@@ -183,13 +190,18 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <ScatterChart
           results={results}
-          width={chartWidth}
+          // width={chartWidth}
           height={chartHeight}
         />
       ),
     },
   ];
-  return <Tabs defaultActiveKey="1" items={items} />;
+
+  return (
+    <Fullscreen>
+      <Tabs defaultActiveKey="1" items={items} style={{ padding: 5 }} />
+    </Fullscreen>
+  );
 };
 
 export default observer(Charts);

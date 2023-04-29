@@ -3,6 +3,7 @@ import {
   BarChart as BarRechart,
   CartesianGrid,
   Legend,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -19,21 +20,27 @@ type BarChartProps = {
 };
 
 const BarChart = ({ results, width, height, columnIndex }: BarChartProps) => {
-  const data = useMemo(() => results.data.map((row) => {
-    const bar: any = { name: removePrefix(row[0]) };
-    bar[results.header[columnIndex]] = row[columnIndex];
-    return bar;
-  }), [results, columnIndex]);
-  
+  const data = useMemo(
+    () =>
+      results.data.map((row) => {
+        const bar: any = { name: removePrefix(row[0]) };
+        bar[results.header[columnIndex]] = row[columnIndex];
+        return bar;
+      }),
+    [results, columnIndex]
+  );
+
   return (
-    <BarRechart width={width} height={height} data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-      <Bar dataKey={results.header[columnIndex]} fill="#8884d8" />
-    </BarRechart>
+    <ResponsiveContainer width="100%" height={height}>
+      <BarRechart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey={results.header[columnIndex]} fill="#8884d8" />
+      </BarRechart>
+    </ResponsiveContainer>
   );
 };
 
