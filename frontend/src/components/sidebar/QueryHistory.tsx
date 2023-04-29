@@ -76,7 +76,7 @@ const DeleteHistory = observer(() => {
       cancelText="No"
       onConfirm={() => repositoryStore.clearQueryHistory()}
       style={{ justifyContent: "center" }}
-      placement="bottom"
+      placement="top"
     >
       <Button
         danger
