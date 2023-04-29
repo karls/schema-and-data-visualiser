@@ -25,7 +25,7 @@ const SankeyChart = ({ results, width, height }: SankeyChartProps) => {
   return (
     <Chart
       chartType="Sankey"
-      width={width}
+      width="100%"
       height={height}
       data={data}
       options={options}
