@@ -5,6 +5,7 @@ import {
   XAxis,
   YAxis,
   Line,
+  ResponsiveContainer,
 } from "recharts";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
@@ -28,20 +29,22 @@ const LineChart = ({ results, width, height, columnIndex }: LineChartProps) => {
       }),
     [results, columnIndex]
   );
-  
+
   return (
-    <LineRechart width={width} height={height} data={data}>
-      <Line
-        type="monotone"
-        dataKey={results.header[columnIndex]}
-        stroke="#8884d8"
-        dot={false}
-      />
-      <XAxis dataKey={results.header[0]} />
-      <YAxis />
-      <Tooltip />
-      <Legend />
-    </LineRechart>
+    <ResponsiveContainer width="100%" height={height}>
+      <LineRechart width={width} height={height} data={data}>
+        <Line
+          type="monotone"
+          dataKey={results.header[columnIndex]}
+          stroke="#8884d8"
+          dot={false}
+        />
+        <XAxis dataKey={results.header[0]} />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+      </LineRechart>
+    </ResponsiveContainer>
   );
 };
 

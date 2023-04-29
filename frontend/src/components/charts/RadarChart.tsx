@@ -5,6 +5,7 @@ import {
   PolarRadiusAxis,
   Radar,
   RadarChart as RadarRechart,
+  ResponsiveContainer,
   Tooltip,
 } from "recharts";
 import { QueryResults } from "../../types";
@@ -37,37 +38,38 @@ const RadarChart = observer(
         }),
       [results, featureIndices]
     );
-    
+
     return (
-      <RadarRechart
-        cx="50%"
-        cy="50%"
-        outerRadius="80%"
-        width={width}
-        height={height}
-        data={data}
-      >
-        <PolarGrid />
-        <PolarAngleAxis dataKey="subject" />
-        <PolarRadiusAxis angle={30} domain={[0, 150]} />
-        {results.data.map((row, index) => {
-          const colour = randomColor({
-            luminosity: settings.darkMode ? "light" : "dark",
-          });
-          return (
-            <Radar
-              key={`radar-${index}`}
-              name={removePrefix(row[0])}
-              dataKey={removePrefix(row[0])}
-              stroke={colour}
-              fill={colour}
-              fillOpacity={0.6}
-            />
-          );
-        })}
-        <Tooltip />
-        <Legend />
-      </RadarRechart>
+      <ResponsiveContainer width="100%" height={height}>
+        <RadarRechart
+          cx="50%"
+          cy="50%"
+          outerRadius="80%"
+          height={height}
+          data={data}
+        >
+          <PolarGrid />
+          <PolarAngleAxis dataKey="subject" />
+          <PolarRadiusAxis angle={30} domain={[0, 150]} />
+          {results.data.map((row, index) => {
+            const colour = randomColor({
+              luminosity: settings.darkMode ? "light" : "dark",
+            });
+            return (
+              <Radar
+                key={`radar-${index}`}
+                name={removePrefix(row[0])}
+                dataKey={removePrefix(row[0])}
+                stroke={colour}
+                fill={colour}
+                fillOpacity={0.6}
+              />
+            );
+          })}
+          <Tooltip />
+          <Legend />
+        </RadarRechart>
+      </ResponsiveContainer>
     );
   }
 );
