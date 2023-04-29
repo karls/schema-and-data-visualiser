@@ -18,7 +18,7 @@ import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import Editor from "./Editor";
 import Results from "./Results";
-import Charts from "../charts/Charts";
+import Charts from "./Charts";
 
 type QueryProps = {
   getQueryText: () => string;
