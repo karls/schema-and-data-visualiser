@@ -1,13 +1,10 @@
-import { useEffect } from "react";
-import { FloatButton, Tabs, TabsProps } from "antd";
+import { Tabs, TabsProps } from "antd";
 import { QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import {
   AiOutlineBarChart,
-  AiOutlineFullscreen,
-  AiOutlineFullscreenExit,
   AiOutlineRadarChart,
 } from "react-icons/ai";
 import { BsPieChart } from "react-icons/bs";
@@ -15,7 +12,6 @@ import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey } from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
-import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
@@ -23,6 +19,7 @@ import RadarChart from "../charts/RadarChart";
 import SankeyChart from "../charts/SankeyChart";
 import ScatterChart from "../charts/ScatterChart";
 import "./Charts.css";
+import Fullscreen from "./Fullscreen";
 
 type ChartsProps = {
   results: QueryResults;
@@ -193,72 +190,17 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <ScatterChart
           results={results}
-          width={chartWidth}
+          // width={chartWidth}
           height={chartHeight}
         />
       ),
     },
   ];
 
-  const handle = useFullScreenHandle();
-
-  useEffect(() => {
-    const exitHandler = (e: any) => {
-      if (!document.fullscreenElement) {
-        settings.setFullScreen(false);
-      }
-    };
-    document.addEventListener('webkitfullscreenchange', exitHandler, false);
-    document.addEventListener('mozfullscreenchange', exitHandler, false);
-    document.addEventListener('fullscreenchange', exitHandler, false);
-    document.addEventListener('MSFullscreenChange', exitHandler, false);
-    return () => {
-      document.removeEventListener('webkitfullscreenchange', exitHandler, false);
-      document.removeEventListener('mozfullscreenchange', exitHandler, false);
-      document.removeEventListener('fullscreenchange', exitHandler, false);
-      document.removeEventListener('MSFullscreenChange', exitHandler, false);
-    };
-  }, [settings]);
-
   return (
-    <>
-      <FullScreen
-        handle={handle}
-        className={settings.darkMode ? "fullscreen-dark" : "fullscreen-light"}
-      >
-        <Tabs defaultActiveKey="1" items={items} style={{ padding: 5 }} />
-        {handle.active && (
-          <FloatButton
-            icon={
-              <AiOutlineFullscreenExit
-                title="Exit fullscreen"
-                size={20}
-                style={{ paddingRight: 1, paddingBottom: 2 }}
-              />
-            }
-            style={{ right: 75 }}
-            onClick={() => {
-              settings.setFullScreen(false);
-              handle.exit();
-            }}
-          />
-        )}
-      </FullScreen>
-      <FloatButton
-        tooltip="Fullscreen"
-        icon={
-          <AiOutlineFullscreen
-            size={20}
-            style={{ paddingRight: 1, paddingBottom: 2 }}
-          />
-        }
-        style={{ right: 75 }}
-        onClick={() => {
-          settings.setFullScreen(true);
-          handle.enter();
-        }}
-      />
-    </>
+    <Fullscreen>
+      <Tabs defaultActiveKey="1" items={items} style={{ padding: 5 }} />
+    </Fullscreen>
   );
 };
 

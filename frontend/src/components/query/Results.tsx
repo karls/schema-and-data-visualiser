@@ -2,6 +2,9 @@ import React from "react";
 import { Table, Tooltip } from "antd";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
+import Fullscreen from "./Fullscreen";
+import { useStore } from "../../stores/store";
+import { observer } from "mobx-react-lite";
 
 type QueryResultsProps = {
   results: QueryResults;
@@ -9,14 +12,16 @@ type QueryResultsProps = {
   showPrefix: boolean;
 };
 
-const Results = ({ results, loading, showPrefix }: QueryResultsProps) => {
+const Results = observer(({ results, loading, showPrefix }: QueryResultsProps) => {
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
   const { header, data } = results;
-
+  
   return (
-    <>
+    <Fullscreen>
       <Table
         loading={loading}
-        pagination={{ pageSize: 5 }}
+        pagination={{ pageSize: settings.fullScreen ? 20 : 4 }}
         dataSource={data.map((row, index) => {
           const values: any = {};
           for (let i = 0; i < row.length; i++) {
@@ -41,8 +46,8 @@ const Results = ({ results, loading, showPrefix }: QueryResultsProps) => {
           };
         })}
       />
-    </>
+    </Fullscreen>
   );
-};
+});
 
 export default Results;
