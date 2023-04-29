@@ -12,7 +12,6 @@ import { removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
 import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
-import { ResizableBox } from "react-resizable";
 
 type PieChartProps = {
   results: QueryResults;
