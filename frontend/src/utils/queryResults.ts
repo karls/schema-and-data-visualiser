@@ -12,9 +12,10 @@ export function isEmpty(results: QueryResults) {
 
 export function isURL(text: string) {
   const URL_REGEX =
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+    /https?:\/\/(www\.)?(([-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})|localhost)\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
   return text.match(URL_REGEX);
 }
+
 export function removePrefix(text: string): string {
   if (!isURL(text)) return text;
   const uri = text;
