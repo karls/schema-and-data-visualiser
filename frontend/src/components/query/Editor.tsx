@@ -1,7 +1,7 @@
 import { observer } from "mobx-react-lite";
 import React from "react";
 import { useStore } from "../../stores/store";
-import CodeEditor from "../code-editor/CodeEditor";
+import CodeEditor from "./CodeEditor";
 
 type QueryEditorProps = {
   query: string;
@@ -9,10 +9,17 @@ type QueryEditorProps = {
 };
 
 const Editor = ({ query, onChange }: QueryEditorProps) => {
-  const settings  = useStore().settingsStore;
+  const settings = useStore().settingsStore;
+
   return (
     <>
-      <CodeEditor code={query} setCode={onChange} language="sparql" darkTheme={settings.darkMode} />
+      <CodeEditor
+        code={query}
+        setCode={onChange}
+        language="sparql"
+        completions={query.split(/[\s,]+/).map((token) => token.trim())}
+        darkTheme={settings.darkMode}
+      />
     </>
   );
 };
