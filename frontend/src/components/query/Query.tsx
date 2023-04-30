@@ -74,7 +74,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
               </Space>
             </Button>
             <CopyToClipboard text={getQueryText()} />
-            <Space.Compact>
+            <Space>
               <Switch
                 checked={prefix}
                 onChange={(checked: boolean) => setPrefix(checked)}
@@ -86,7 +86,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
                 }
               />
               Show Prefix
-            </Space.Compact>
+            </Space>
           </Space>
 
           <Results results={results} loading={loading} showPrefix={prefix} />
