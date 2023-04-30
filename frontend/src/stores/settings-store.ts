@@ -6,6 +6,7 @@ type SettingsState = {
   darkMode: boolean;
   sidebarWidth: number;
   fullScreen: boolean;
+  graphdbURL: string;
 };
 
 class SettingsStore {
@@ -14,6 +15,7 @@ class SettingsStore {
     darkMode: false,
     sidebarWidth: 200,
     fullScreen: false,
+    graphdbURL: 'http://localhost:7200',
   };
 
   constructor(rootStore: RootStore) {
@@ -46,6 +48,14 @@ class SettingsStore {
 
   get fullScreen(): boolean {
     return this.state.fullScreen;
+  }
+
+  get graphdbURL(): string {
+    return this.state.graphdbURL;
+  }
+
+  setGraphdbURL(url: string) {
+    this.state.graphdbURL = url;
   }
 
   setDarkMode(value: boolean) {
