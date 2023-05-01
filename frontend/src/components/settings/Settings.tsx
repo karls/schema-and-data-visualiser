@@ -52,6 +52,8 @@ const Settings = () => {
         <Text>Dark Mode</Text>
         <Divider />
         <GraphDBLink />
+        <Divider />
+        <Alert message="The backend currently supports the N-Triples syntax." banner />
       </Drawer>
     </>
   );
