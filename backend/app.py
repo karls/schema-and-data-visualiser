@@ -98,3 +98,19 @@ def clear_history():
         repository_id = request.args['repositoryId']
         return delete_all_queries(repository_id)
 
+
+@app.route('/graphdb/setURL', methods=['POST'])
+def set_graphdb_url():
+    global GRAPHDB_API
+    if request.method == 'POST':
+        graphdb_url = request.args['graphdbURL']
+        GRAPHDB_API = graphdb_url
+        return GRAPHDB_API
+
+
+@app.route('/graphdb/getURL', methods=['GET'])
+def get_graphdb_url():
+    global GRAPHDB_API
+    if request.method == 'GET':
+        return GRAPHDB_API
+

@@ -13,6 +13,7 @@ type CodeEditorProps = {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   language: string;
+  completions: string[],
   darkTheme: boolean;
 };
 
@@ -20,7 +21,7 @@ const languageParsers: any = {
   sparql: sparql,
 };
 
-const keywords: { [language: string]: string[] } = {
+const keywords: any = {
   sparql: [
     "SELECT",
     "WHERE",
@@ -38,14 +39,15 @@ const CodeEditor = ({
   code,
   setCode,
   language,
+  completions,
   darkTheme,
 }: CodeEditorProps) => {
   const myCompletions = (context: CompletionContext) => {
-    let word = context.matchBefore(/\w*/)!;
+    let word = context.matchBefore(/(\w|[:<>])*/)!;
     if (word.from === word.to && !context.explicit) return null;
     return {
       from: word.from,
-      options: keywords[language].map((kw) => {
+      options: [...keywords[language], ...completions].map((kw) => {
         return { label: kw, type: "keyword" };
       }),
     };
