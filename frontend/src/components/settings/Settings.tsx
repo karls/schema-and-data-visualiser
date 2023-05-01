@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Divider,
   Drawer,
@@ -9,12 +10,13 @@ import {
   Tooltip,
 } from "antd";
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useStore } from "../../stores/store";
 import { Typography } from "antd";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 import { isURL } from "../../utils/queryResults";
+import { getGraphdbURL, updateGraphdbURL } from "../../api/graphdb";
 
 const { Text } = Typography;
 
@@ -56,10 +58,16 @@ const Settings = () => {
 };
 
 const GraphDBLink = observer(() => {
-  const rootStore = useStore();
-  const settings = rootStore.settingsStore;
+  const [url, setUrl] = useState("");
+  const [initialUrl, setInitialUrl] = useState("");
+  const [visible, setVisible] = useState(false);
 
-  const [url, setUrl] = useState(settings.graphdbURL);
+  useEffect(() => {
+    getGraphdbURL().then((url) => {
+      setInitialUrl(url);
+      setUrl(url);
+    });
+  }, []);
 
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
@@ -67,10 +75,28 @@ const GraphDBLink = observer(() => {
       <Input
         status={!isURL(url) ? "error" : ""}
         value={url}
-        onChange={(e) => setUrl(e.target.value)}
+        onChange={(e) => {
+          setUrl(e.target.value);
+          setVisible(false);
+        }}
         style={{ width: "100%" }}
       />
-      <Button disabled={!isURL(url)} onClick={() => settings.setGraphdbURL(url)}>Update</Button>
+      {!visible && (
+        <Button
+          disabled={!isURL(url) || url === initialUrl}
+          title={!isURL(url) ? 'URL is not valid' : ''}
+          onClick={() => {
+            updateGraphdbURL(url).then(() => {
+              setInitialUrl(url);
+              setVisible(true);
+              setTimeout(() => setVisible(false), 1000);
+            });
+          }}
+        >
+          Update
+        </Button>
+      )}
+      {visible && <Alert message="Update was successful!" type="success" />}
     </Space>
   );
 });
