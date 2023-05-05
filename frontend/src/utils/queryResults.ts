@@ -24,3 +24,30 @@ export function removePrefix(text: string): string {
   const name = tokens.at(-1);
   return (name!.split("#").at(-1) ?? "").replaceAll("+", " ");
 }
+
+export function convertToJSON(results: QueryResults, columnIndices: number[], newColumnNames: string[] = []) {
+  return results.data.map((row) => {
+    const values: { [key: string]: any } = {};
+    columnIndices.forEach((i) => {
+      values[newColumnNames[i] || results.header[i]] = row[i];
+    });
+    return values;
+  });
+}
+
+
+export function numericColumns(results: QueryResults): number[] {
+  if (isEmpty(results)) {
+    return [];
+  }
+
+  const columnIndices: number[] = [];
+  const row = results.data[0];
+  for (let i = 0; i < row.length; i++) {
+    if (!isNaN(row[i] as any) && !isNaN(parseFloat(row[i]))) {
+      columnIndices.push(i);
+    }
+    columnIndices.push();
+  }
+  return columnIndices;
+}
