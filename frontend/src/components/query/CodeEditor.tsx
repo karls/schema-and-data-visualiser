@@ -73,6 +73,7 @@ const CodeEditor = ({
         setCode(value);
       }}
       theme={darkTheme ? duotoneDark : duotoneLight}
+      style={{ margin: 5 }}
     />
   );
 };
