@@ -28,7 +28,7 @@ type ChartsProps = {
 const Charts = ({ results }: ChartsProps) => {
   const settings = useStore().settingsStore;
   const chartWidth = Math.floor(
-    (window.screen.width - settings.sidebarWidth) * 0.75
+    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) * (settings.fullScreen ? 0.95 : 0.8)
   );
   const chartHeight = Math.floor(
     window.screen.height * (settings.fullScreen ? 0.8 : 0.4)
@@ -190,7 +190,7 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <ScatterChart
           results={results}
-          // width={chartWidth}
+          width={chartWidth}
           height={chartHeight}
         />
       ),
@@ -199,7 +199,7 @@ const Charts = ({ results }: ChartsProps) => {
 
   return (
     <Fullscreen>
-      <Tabs defaultActiveKey="1" items={items} style={{ padding: 5 }} />
+      <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />
     </Fullscreen>
   );
 };

@@ -6,7 +6,7 @@ import { useStore } from "../../stores/store";
 
 const { Content, Sider } = Layout;
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 

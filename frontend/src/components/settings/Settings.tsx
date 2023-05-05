@@ -40,6 +40,7 @@ const Settings = () => {
         <FloatButton
           icon={<IoMdSettings size={25} style={{ paddingRight: 7 }} />}
           onClick={showDrawer}
+          style={{ bottom: 10 }}
         />
       </Tooltip>
       <Drawer title="Settings" placement="right" onClose={onClose} open={open}>
@@ -53,7 +54,10 @@ const Settings = () => {
         <Divider />
         <GraphDBLink />
         <Divider />
-        <Alert message="The backend currently supports the N-Triples syntax." banner />
+        <Alert
+          message="The backend currently supports the N-Triples syntax."
+          banner
+        />
       </Drawer>
     </>
   );
@@ -86,7 +90,7 @@ const GraphDBLink = observer(() => {
       {!visible && (
         <Button
           disabled={!isURL(url) || url === initialUrl}
-          title={!isURL(url) ? 'URL is not valid' : ''}
+          title={!isURL(url) ? "URL is not valid" : ""}
           onClick={() => {
             updateGraphdbURL(url).then(() => {
               setInitialUrl(url);

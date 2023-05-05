@@ -21,15 +21,23 @@ function getLinks(results: QueryResults) {
 const SankeyChart = ({ results, width, height }: SankeyChartProps) => {
   const data = useMemo(() => getLinks(results), [results]);
 
-  const options = {};
+  const options = {
+    width,
+    height,
+    sankey: {
+      node: {
+        label: {
+          fontName: "Times-Roman",
+          fontSize: 14,
+          // color: "#871b47",
+          bold: true,
+          italic: true,
+        },
+      },
+    },
+  };
   return (
-    <Chart
-      chartType="Sankey"
-      width="100%"
-      height={height}
-      data={data}
-      options={options}
-    />
+    <Chart chartType="Sankey" data={data} options={options} />
   );
 };
 
