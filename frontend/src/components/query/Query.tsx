@@ -57,10 +57,8 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
             setResults(results);
             setGraphKey((key) => key + 1);
             repositoryStore.updateQueryHistory();
-            setTimeout(() => {
-              setActiveTab("table");
-              setLoading(false);
-            }, 1000);
+            setLoading(false)
+            setActiveTab("table");
           }}
           width={width}
           height={height}

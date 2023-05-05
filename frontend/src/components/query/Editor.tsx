@@ -4,7 +4,7 @@ import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
 import { QueryResults, RepositoryId, RepositoryInfo } from "../../types";
-import { Button, Dropdown, Space } from "antd";
+import { Button, Dropdown, Space, App as AntdApp } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
@@ -36,6 +36,17 @@ const Editor = ({
     repositoryStore.getCurrentRepository()
   );
 
+  const { notification } = AntdApp.useApp();
+
+  const showNotification = (time: number) => {
+    notification.info({
+      message: "Query finished!",
+      description: `Got results in ${time} ms`,
+      placement: "top",
+      duration: 3,
+    });
+  };
+
   return (
     <Space direction="vertical">
       <Space>
@@ -49,9 +60,11 @@ const Editor = ({
           loading={loading}
           onClick={() => {
             setLoading(true);
-            runSparqlQuery(repository!, getQueryText()).then((results) =>
-              onRun(results)
-            );
+            const start = new Date().getTime();
+            runSparqlQuery(repository!, getQueryText()).then((results) => {
+              showNotification(new Date().getTime() - start);
+              onRun(results);
+            });
           }}
           disabled={repository === null}
           style={{ alignItems: "center" }}
