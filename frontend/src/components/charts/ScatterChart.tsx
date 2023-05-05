@@ -12,7 +12,7 @@ import {
   VictoryTooltip,
   VictoryZoomContainer,
 } from "victory";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type ScatterChartProps = {
   results: QueryResults;
@@ -29,67 +29,73 @@ const ScatterChart = observer(
     const [col2, setCol2] = useState(numIdxs[1]);
     const [col3, setCol3] = useState(numIdxs[2]);
 
-    const data = results.data.map((row) => {
-      const label = `${removePrefix(row[0])}
+    const data = useMemo(
+      () =>
+        results.data.map((row) => {
+          const label = `${removePrefix(row[0])}
 
       ${results.header[col1]}: ${row[col1]}
       ${results.header[col2]}: ${row[col2]}`;
 
-      return {
-        label,
-        x: parseFloat(row[col1]),
-        y: parseFloat(row[col2]),
-        z: parseFloat(row[col3] ?? 1),
-        fill: randomColor({
-          luminosity: settings.darkMode ? "light" : "dark",
+          return {
+            label,
+            x: parseFloat(row[col1]),
+            y: parseFloat(row[col2]),
+            z: parseFloat(row[col3] ?? 1),
+            fill: randomColor({
+              luminosity: settings.darkMode ? "light" : "dark",
+            }),
+            amount: 2,
+          };
         }),
-        amount: 2,
-      };
-    });
+      [col1, col2, col3, results.data, results.header, settings.darkMode]
+    );
 
     return (
-      <VictoryChart
-        width={width}
-        height={height}
-        theme={VictoryTheme.material}
-        padding={{ bottom: 50, left: 100, right: 10, top: 10 }}
-        domainPadding={{ x: 10, y: 10 }}
-        containerComponent={
-          <VictoryZoomContainer
-            width={width}
-            height={height}
-            responsive={false}
+      <>
+        <VictoryChart
+          width={width}
+          height={height}
+          theme={VictoryTheme.material}
+          padding={{ bottom: 40, left: 100, right: 10, top: 10 }}
+          domainPadding={{ x: 10, y: 10 }}
+          containerComponent={
+            <VictoryZoomContainer
+              width={width}
+              height={height}
+              responsive={false}
+            />
+          }
+        >
+          <VictoryAxis
+            label={results.header[col1]}
+            axisLabelComponent={<VictoryLabel dy={20} />}
+            style={{
+              tickLabels: { fontSize: 15, padding: 5 },
+            }}
+            fixLabelOverlap
+            domainPadding={{ x: [10, -10], y: 5 }}
           />
-        }
-      >
-        <VictoryAxis
-          label={results.header[col1]}
-          axisLabelComponent={<VictoryLabel dy={20}/>}
-          style={{
-            tickLabels: { fontSize: 15, padding: 5 },
-          }}
-          fixLabelOverlap
-          domainPadding={{ x: [10, -10], y: 5 }}
-        />
-        <VictoryAxis
-          label={results.header[col2]}
-          axisLabelComponent={<VictoryLabel dy={-75}/>}
-          style={{
-            tickLabels: { fontSize: 15, padding: 5 },
-          }}
-          dependentAxis
-          fixLabelOverlap
-          domainPadding={{ x: [10, -10], y: 5 }}
-        />
-        <VictoryScatter
-          bubbleProperty="z"
-          maxBubbleSize={10}
-          minBubbleSize={5}
-          labelComponent={<VictoryTooltip style={{ fontSize: 15 }} />}
-          style={{ data: { fill: ({ datum }) => datum.fill } }}
-          data={data}
-        />
-      </VictoryChart>
+          <VictoryAxis
+            label={results.header[col2]}
+            axisLabelComponent={<VictoryLabel dy={-75} />}
+            style={{
+              tickLabels: { fontSize: 15, padding: 5 },
+            }}
+            dependentAxis
+            fixLabelOverlap
+            domainPadding={{ x: [10, -10], y: 5 }}
+          />
+          <VictoryScatter
+            bubbleProperty="z"
+            maxBubbleSize={10}
+            minBubbleSize={5}
+            labelComponent={<VictoryTooltip style={{ fontSize: 15 }} />}
+            style={{ data: { fill: ({ datum }) => datum.fill } }}
+            data={data}
+          />
+        </VictoryChart>
+      </>
     );
   }
 );
