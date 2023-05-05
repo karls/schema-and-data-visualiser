@@ -1,24 +1,17 @@
-import { Button, Dropdown, Space, Switch, Tabs, TabsProps } from "antd";
+import React, { useState } from "react";
+import { Space, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
-import { BiCopy, BiHide, BiNetworkChart, BiShow } from "react-icons/bi";
-import { TbVectorTriangle } from "react-icons/tb";
-import { BsBarChartSteps } from "react-icons/bs";
-import { FiPlay } from "react-icons/fi";
-import { RiGitRepositoryLine } from "react-icons/ri";
-import { allRepositories, runSparqlQuery } from "../../api/graphdb";
+import { BiNetworkChart } from "react-icons/bi";
+import { BsBarChartSteps, BsTable } from "react-icons/bs";
+import { runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
-import {
-  QueryResults,
-  RepositoryId,
-  RepositoryInfo,
-  Triplet,
-} from "../../types";
+import { QueryResults, Triplet } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
 import Editor from "./Editor";
-import Results from "./Results";
+import ResultsTable from "./Results";
 import Charts from "./Charts";
+import { MdOutlineEditNote } from "react-icons/md";
 
 type QueryProps = {
   getQueryText: () => string;
@@ -27,79 +20,72 @@ type QueryProps = {
 
 const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
   const rootStore = useStore();
+  const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
-  const [repository, setRepository] = useState<RepositoryId | null>(
-    repositoryStore.getCurrentRepository()
-  );
+
   const [results, setResults] = useState<QueryResults>({
     header: [],
     data: [],
   });
+
   const [graphKey, setGraphKey] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [prefix, setPrefix] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("editor");
+
+  const width = Math.floor(
+    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
+      (settings.fullScreen ? 0.95 : 0.85)
+  );
+  const height = Math.floor(
+    window.screen.height * (settings.fullScreen ? 0.75 : 0.6)
+  );
 
   const items: TabsProps["items"] = [
     {
-      key: "1",
+      key: "editor",
       label: (
-        <>
-          <TbVectorTriangle size={20} style={{ margin: 5 }} />
+        <Space.Compact>
+          <MdOutlineEditNote size={25} />
           Query Editor
-        </>
+        </Space.Compact>
       ),
       children: (
-        <>
-          <Editor query={getQueryText()} onChange={setQueryText} />
-          <Space style={{ margin: 5 }}>
-            <SelectRepository
-              repository={repository}
-              setRepository={setRepository}
-            />
-            <Button
-              onClick={() => {
-                setLoading(true);
-                runSparqlQuery(repository!, getQueryText()).then((results) => {
-                  setResults(results);
-                  setLoading(false);
-                  setGraphKey((key) => key + 1);
-                  repositoryStore.updateQueryHistory();
-                });
-              }}
-              disabled={repository === null}
-              style={{ alignItems: "center" }}
-            >
-              <Space>
-                <FiPlay size={20} /> Run
-              </Space>
-            </Button>
-            <CopyToClipboard text={getQueryText()} />
-            <Space>
-              <Switch
-                checked={prefix}
-                onChange={(checked: boolean) => setPrefix(checked)}
-                checkedChildren={
-                  <BiShow size={15} style={{ marginBottom: 1 }} />
-                }
-                unCheckedChildren={
-                  <BiHide size={15} style={{ marginBottom: 1 }} />
-                }
-              />
-              Show Prefix
-            </Space>
-          </Space>
-
-          <Results results={results} loading={loading} showPrefix={prefix} />
-        </>
+        <Editor
+          getQueryText={getQueryText}
+          onChange={setQueryText}
+          onRun={(results) => {
+            setResults(results);
+            setGraphKey((key) => key + 1);
+            repositoryStore.updateQueryHistory();
+            setTimeout(() => {
+              setActiveTab("table");
+              setLoading(false);
+            }, 1000);
+          }}
+          width={width}
+          height={height}
+          loading={loading}
+          setLoading={setLoading}
+        />
       ),
     },
     {
-      key: "2",
+      key: "table",
       label: (
-        <div title="Use CONSTRUCT for a graph">
+        <Space.Compact>
+          <BsTable size={15} style={{ margin: 5 }} />
+          Table
+        </Space.Compact>
+      ),
+      children: <ResultsTable results={results} loading={loading} />,
+    },
+    {
+      key: "graph",
+      label: (
+        <Space.Compact title="Use CONSTRUCT for a graph">
           <BiNetworkChart size={20} style={{ margin: 5 }} />
           Graph
-        </div>
+        </Space.Compact>
       ),
       disabled: results.data.length === 0 || !isGraph(results),
       children: (
@@ -110,12 +96,12 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       ),
     },
     {
-      key: "3",
+      key: "charts",
       label: (
-        <>
-          <BsBarChartSteps size={20} style={{ margin: 5 }} />
+        <Space.Compact>
+          <BsBarChartSteps size={15} style={{ margin: 5 }} />
           Charts
-        </>
+        </Space.Compact>
       ),
       disabled: isEmpty(results),
       children: <Charts results={results} />,
@@ -124,62 +110,13 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
 
   return (
     <>
-      <Tabs items={items} onChange={() => {}} />
+      <Tabs
+        activeKey={activeTab}
+        items={items}
+        onChange={(activeKey) => setActiveTab(activeKey)}
+      />
     </>
   );
 });
 
-const SelectRepository = ({
-  repository,
-  setRepository,
-}: {
-  repository: string | null;
-  setRepository: React.Dispatch<React.SetStateAction<string | null>>;
-}) => {
-  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
-
-  useEffect(() => {
-    allRepositories().then((repositories) => {
-      setRepositories(repositories);
-    });
-  }, []);
-
-  return (
-    <Dropdown
-      menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
-          return {
-            key: `${index}`,
-            label: (
-              <Button
-                onClick={() => setRepository(id)}
-                style={{ width: "100%", height: "100%" }}
-              >
-                {id}
-              </Button>
-            ),
-          };
-        }),
-      }}
-    >
-      <Button title="Choose repository">
-        <Space>
-          <RiGitRepositoryLine size={20} />
-          {repository || "Choose repository"}
-        </Space>
-      </Button>
-    </Dropdown>
-  );
-};
-
-const CopyToClipboard = ({ text }: { text: string }) => {
-  return (
-    <Button onClick={() => navigator.clipboard.writeText(text)}>
-      <Space>
-        <BiCopy />
-        Copy
-      </Space>
-    </Button>
-  );
-};
 export default Query;
