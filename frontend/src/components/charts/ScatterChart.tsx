@@ -35,7 +35,8 @@ const ScatterChart = observer(
           const label = `${removePrefix(row[0])}
 
       ${results.header[col1]}: ${row[col1]}
-      ${results.header[col2]}: ${row[col2]}`;
+      ${results.header[col2]}: ${row[col2]}
+      ${col3 ? `${results.header[col2]}: ${row[col2]}` : ''}`;
 
           return {
             label,
@@ -88,7 +89,7 @@ const ScatterChart = observer(
           />
           <VictoryScatter
             bubbleProperty="z"
-            maxBubbleSize={10}
+            maxBubbleSize={20}
             minBubbleSize={5}
             labelComponent={<VictoryTooltip style={{ fontSize: 15 }} />}
             style={{ data: { fill: ({ datum }) => datum.fill } }}
