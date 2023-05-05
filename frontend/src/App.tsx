@@ -1,5 +1,5 @@
 import React from "react";
-import { ConfigProvider, Layout, theme } from "antd";
+import { ConfigProvider, Layout, theme, App as AntdApp } from "antd";
 import Navbar from "./components/navbar/Navbar";
 import { Route, Routes } from "react-router-dom";
 import { observer } from "mobx-react-lite";
@@ -7,7 +7,7 @@ import Settings from "./components/settings/Settings";
 import { useStore } from "./stores/store";
 import HomePage from "./pages/home/HomePage";
 import ContactPage from "./pages/contact/ContactPage";
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 
 const { Header } = Layout;
 const { darkAlgorithm, defaultAlgorithm } = theme;
@@ -22,18 +22,20 @@ const App = () => {
         algorithm: settings.darkMode ? darkAlgorithm : defaultAlgorithm,
       }}
     >
-      <Layout style={{ height: "100vh" }}>
-        <Header className="header">
-          <Navbar />
-        </Header>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/contact" element={<ContactPage />} />
-          </Routes>
+      <AntdApp>
+        <Layout style={{ height: "100vh" }}>
+          <Header className="header">
+            <Navbar />
+          </Header>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/contact" element={<ContactPage />} />
+            </Routes>
+          </Layout>
+          <Settings />
         </Layout>
-        <Settings />
-      </Layout>
+      </AntdApp>
     </ConfigProvider>
   );
 };

@@ -15,6 +15,8 @@ type CodeEditorProps = {
   language: string;
   completions: string[],
   darkTheme: boolean;
+  width: number;
+  height: number
 };
 
 const languageParsers: any = {
@@ -41,6 +43,8 @@ const CodeEditor = ({
   language,
   completions,
   darkTheme,
+  width,
+  height
 }: CodeEditorProps) => {
   const myCompletions = (context: CompletionContext) => {
     let word = context.matchBefore(/(\w|[:<>])*/)!;
@@ -59,7 +63,8 @@ const CodeEditor = ({
       basicSetup={{
         autocompletion: true,
       }}
-      height="200px"
+      width={`${width}px`}
+      height="auto"
       extensions={[
         StreamLanguage.define(languageParsers[language]),
         autocompletion({ override: [myCompletions] }),
@@ -68,6 +73,7 @@ const CodeEditor = ({
         setCode(value);
       }}
       theme={darkTheme ? duotoneDark : duotoneLight}
+      style={{ margin: 5 }}
     />
   );
 };
