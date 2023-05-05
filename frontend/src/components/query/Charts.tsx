@@ -31,7 +31,7 @@ const Charts = ({ results }: ChartsProps) => {
     (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) * (settings.fullScreen ? 0.95 : 0.8)
   );
   const chartHeight = Math.floor(
-    window.screen.height * (settings.fullScreen ? 0.9 : 0.4)
+    window.screen.height * (settings.fullScreen ? 0.8 : 0.4)
   );
   const items: TabsProps["items"] = [
     {
