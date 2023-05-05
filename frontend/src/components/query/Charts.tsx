@@ -199,7 +199,7 @@ const Charts = ({ results }: ChartsProps) => {
 
   return (
     <Fullscreen>
-      <Tabs defaultActiveKey="1" items={items} style={{ padding: 5 }} />
+      <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />
     </Fullscreen>
   );
 };
