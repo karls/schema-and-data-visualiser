@@ -28,10 +28,10 @@ type ChartsProps = {
 const Charts = ({ results }: ChartsProps) => {
   const settings = useStore().settingsStore;
   const chartWidth = Math.floor(
-    (window.screen.width - settings.sidebarWidth) * 0.75
+    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) * (settings.fullScreen ? 0.95 : 0.8)
   );
   const chartHeight = Math.floor(
-    window.screen.height * (settings.fullScreen ? 0.8 : 0.4)
+    window.screen.height * (settings.fullScreen ? 0.9 : 0.4)
   );
   const items: TabsProps["items"] = [
     {
@@ -190,7 +190,7 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <ScatterChart
           results={results}
-          // width={chartWidth}
+          width={chartWidth}
           height={chartHeight}
         />
       ),
