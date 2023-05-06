@@ -3,10 +3,7 @@ import { QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
-import {
-  AiOutlineBarChart,
-  AiOutlineRadarChart,
-} from "react-icons/ai";
+import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
 import { BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
@@ -20,6 +17,7 @@ import SankeyChart from "../charts/SankeyChart";
 import ScatterChart from "../charts/ScatterChart";
 import "./Charts.css";
 import Fullscreen from "./Fullscreen";
+import { numericColumns } from "../../utils/queryResults";
 
 type ChartsProps = {
   results: QueryResults;
@@ -28,7 +26,8 @@ type ChartsProps = {
 const Charts = ({ results }: ChartsProps) => {
   const settings = useStore().settingsStore;
   const chartWidth = Math.floor(
-    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) * (settings.fullScreen ? 0.95 : 0.8)
+    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
+      (settings.fullScreen ? 0.95 : 0.8)
   );
   const chartHeight = Math.floor(
     window.screen.height * (settings.fullScreen ? 0.8 : 0.4)
@@ -49,16 +48,16 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <Tabs
           defaultActiveKey="1"
-          items={results.header.slice(1).map((column, index) => {
+          items={numericColumns(results).map((index) => {
             return {
               key: `${index}`,
-              label: column,
+              label: results.header[index],
               children: (
                 <BarChart
                   results={results}
                   width={chartWidth}
                   height={chartHeight}
-                  columnIndex={index + 1}
+                  columnIndex={index}
                 />
               ),
             };
@@ -76,16 +75,16 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <Tabs
           defaultActiveKey="1"
-          items={results.header.slice(1).map((column, index) => {
+          items={numericColumns(results).map((index) => {
             return {
               key: `${index}`,
-              label: column,
+              label: results.header[index],
               children: (
                 <PieChart
                   results={results}
                   width={chartWidth}
                   height={chartHeight}
-                  columnIndex={index + 1}
+                  columnIndex={index}
                 />
               ),
             };
@@ -101,23 +100,7 @@ const Charts = ({ results }: ChartsProps) => {
         </>
       ),
       children: (
-        <Tabs
-          defaultActiveKey="1"
-          items={results.header.slice(1).map((column, index) => {
-            return {
-              key: `${index}`,
-              label: column,
-              children: (
-                <LineChart
-                  results={results}
-                  width={chartWidth}
-                  height={chartHeight}
-                  columnIndex={index + 1}
-                />
-              ),
-            };
-          })}
-        />
+        <LineChart results={results} width={chartWidth} height={chartHeight} />
       ),
     },
     {
@@ -130,16 +113,16 @@ const Charts = ({ results }: ChartsProps) => {
       children: (
         <Tabs
           defaultActiveKey="1"
-          items={results.header.slice(1).map((column, index) => {
+          items={numericColumns(results).map((index) => {
             return {
               key: `${index}`,
-              label: column,
+              label: results.header[index],
               children: (
                 <TreeMap
                   results={results}
                   width={chartWidth}
                   height={chartHeight}
-                  columnIndex={index + 1}
+                  columnIndex={index}
                 />
               ),
             };
