@@ -13,6 +13,7 @@ import {
   VictoryZoomContainer,
 } from "victory";
 import { useMemo, useState } from "react";
+import { Select, Space } from "antd";
 
 type ScatterChartProps = {
   results: QueryResults;
@@ -36,7 +37,7 @@ const ScatterChart = observer(
 
       ${results.header[col1]}: ${row[col1]}
       ${results.header[col2]}: ${row[col2]}
-      ${col3 ? `${results.header[col2]}: ${row[col2]}` : ''}`;
+      ${col3 ? `${results.header[col2]}: ${row[col2]}` : ""}`;
 
           return {
             label,
@@ -54,6 +55,42 @@ const ScatterChart = observer(
 
     return (
       <>
+        <Space>
+          <Select
+            value={col1}
+            style={{ width: 120 }}
+            onChange={setCol1}
+            options={numIdxs.map((i) => {
+              return {
+                label: results.header[i],
+                value: i,
+              };
+            })}
+          />
+          <Select
+            value={col2}
+            style={{ width: 120 }}
+            onChange={setCol2}
+            options={numIdxs.map((i) => {
+              return {
+                label: results.header[i],
+                value: i,
+              };
+            })}
+          />
+          <Select
+            placeholder={'Bubble property'}
+            value={col3}
+            style={{ width: 120 }}
+            onChange={setCol3}
+            options={numIdxs.map((i) => {
+              return {
+                label: results.header[i],
+                value: i,
+              };
+            })}
+          />
+        </Space>
         <VictoryChart
           width={width}
           height={height}

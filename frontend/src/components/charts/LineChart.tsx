@@ -13,6 +13,7 @@ import {
   createContainer,
 } from "victory";
 import { useMemo, useState } from "react";
+import { Select, Space } from "antd";
 
 type LineChartProps = {
   results: QueryResults;
@@ -50,7 +51,31 @@ const LineChart = observer(({ results, width, height }: LineChartProps) => {
   const VictoryZoomVoronoiContainer: any = createContainer("zoom", "voronoi");
 
   return (
-    <>
+    <div>
+      <Space>
+        <Select
+          value={col1}
+          style={{ width: 120 }}
+          onChange={setCol1}
+          options={numIdxs.map((i) => {
+            return {
+              label: results.header[i],
+              value: i,
+            };
+          })}
+        />
+        <Select
+          value={col2}
+          style={{ width: 120 }}
+          onChange={setCol2}
+          options={numIdxs.map((i) => {
+            return {
+              label: results.header[i],
+              value: i,
+            };
+          })}
+        />
+      </Space>
       <VictoryChart
         width={width}
         height={height}
@@ -77,7 +102,7 @@ const LineChart = observer(({ results, width, height }: LineChartProps) => {
         />
         <VictoryAxis
           label={results.header[col2]}
-          axisLabelComponent={<VictoryLabel dy={-75} />}
+          // axisLabelComponent={<VictoryLabel dy={-75} />}
           style={{
             tickLabels: { fontSize: 15, padding: 5 },
           }}
@@ -91,7 +116,7 @@ const LineChart = observer(({ results, width, height }: LineChartProps) => {
           data={data}
         />
       </VictoryChart>
-    </>
+    </div>
   );
 });
 
