@@ -22,9 +22,10 @@ ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 def get_api():
     api = {
         '/repositories': 'GET - returns list of all repository ids',
-        '/upload': 'POST: [file] - upload file with RDF data',
-        '/query': 'POST: [repository, query] - runs query on given repository '
-                  'id '
+        '/upload': 'POST [file] - upload file with RDF data',
+        '/query': 'POST [repository, query] - runs query on given repository '
+                  'id ',
+        '/query/history': 'GET - Get all queries run on current repository'
     }
     return jsonify(api)
 
@@ -62,17 +63,19 @@ def upload_file():
             return {}
 
 
-@app.route('/query', methods=['POST'])
+@app.route('/query/run', methods=['POST'])
 def run_query():
     if request.method == 'POST':
         repository = request.json['repository']
         query = request.json['query']
 
-        add_query(query, repository)
+        add_query(repository_id=repository,
+                  sparql=query['sparql'],
+                  title=query['title'])
 
         response = requests.get(
             f'{GRAPHDB_API}/repositories/{repository}'
-            f'?query={parse.quote(query, safe="")}')
+            f'?query={parse.quote(query["sparql"], safe="")}')
 
         results = response.text
         if is_csv(results):

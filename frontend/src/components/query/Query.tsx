@@ -3,7 +3,6 @@ import { Space, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
 import { BiNetworkChart } from "react-icons/bi";
 import { BsBarChartSteps, BsTable } from "react-icons/bs";
-import { runSparqlQuery } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { QueryResults, Triplet } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";

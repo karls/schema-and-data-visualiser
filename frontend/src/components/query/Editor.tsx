@@ -31,6 +31,7 @@ const Editor = ({
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
+  const queriesStore = rootStore.queriesStore;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
     repositoryStore.getCurrentRepository()
@@ -61,7 +62,7 @@ const Editor = ({
           onClick={() => {
             setLoading(true);
             const start = new Date().getTime();
-            runSparqlQuery(repository!, getQueryText()).then((results) => {
+            runSparqlQuery(repository!, queriesStore.currentQuery).then((results) => {
               showNotification(new Date().getTime() - start);
               onRun(results);
             });

@@ -8,6 +8,7 @@ const { Title, Text } = Typography;
 
 const QueryHistory = observer(() => {
   const rootStore = useStore();
+  const queriesStore = rootStore.queriesStore;
   const repositoryStore = rootStore.repositoryStore;
 
   useEffect(() => {
@@ -47,15 +48,15 @@ const QueryHistory = observer(() => {
       >
         {repositoryStore
           .getQueryHistory()
-          .map(({ id, sparql, repositoryId, date }) => (
+          .map(({ id, sparql, date, title }) => (
             <Popover
               key={`query-${id}`}
               placement="right"
-              title={`Repository: ${repositoryId}`}
+              title={title}
               content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
               trigger="hover"
             >
-              <Button onClick={() => {}}>{date}</Button>
+              <Button title="Click to open tab" onClick={() => queriesStore.addQuery(sparql, title) }>{date}</Button>
             </Popover>
           ))}
       </Space>
