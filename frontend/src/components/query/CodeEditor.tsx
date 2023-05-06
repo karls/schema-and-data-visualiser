@@ -65,6 +65,8 @@ const CodeEditor = ({
       }}
       width={`${width}px`}
       height="auto"
+      minHeight="200px"
+      placeholder="Enter your SPARQl query here"
       extensions={[
         StreamLanguage.define(languageParsers[language]),
         autocompletion({ override: [myCompletions] }),
