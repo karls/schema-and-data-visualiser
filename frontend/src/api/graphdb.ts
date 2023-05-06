@@ -1,5 +1,10 @@
 import axios from "axios";
-import { QueryResults, RepositoryId, RepositoryInfo } from "../types";
+import {
+  QueryInfo,
+  QueryResults,
+  RepositoryId,
+  RepositoryInfo,
+} from "../types";
 
 export async function allRepositories(): Promise<RepositoryInfo[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
@@ -14,11 +19,11 @@ export async function allRepositories(): Promise<RepositoryInfo[]> {
 
 export async function runSparqlQuery(
   repository: RepositoryId,
-  query: string
+  query: QueryInfo
 ): Promise<QueryResults> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/query`;
+    const endpoint = `${BACKEND_API}/query/run`;
     const response = await axios.post(endpoint, {
       repository,
       query,
@@ -51,5 +56,5 @@ export async function getGraphdbURL(): Promise<string> {
   } catch (error) {
     console.log(error);
   }
-  return '';
+  return "";
 }

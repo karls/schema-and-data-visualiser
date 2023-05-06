@@ -15,8 +15,8 @@ class QueriesStore {
     totalQueries: 1,
     openQueries: {
       "1": {
-        label: "Query 1",
-        text: "",
+        title: "Query 1",
+        sparql: "",
       },
     },
     currentQueryId: "1",
@@ -49,24 +49,28 @@ class QueriesStore {
   get currentQueryId(): string {
     return this.state.currentQueryId;
   }
+  
+  get currentQuery(): QueryInfo {
+    return this.openQueries[this.currentQueryId];
+  }
 
   setCurrentQueryId(key: string): void {
     this.state.currentQueryId = key;
   }
 
-  setQueryText(id: string, text: string) {
-    this.state.openQueries[id]!.text = text;
+  setQueryText(id: string, sparql: string) {
+    this.state.openQueries[id]!.sparql = sparql;
   }
 
-  setQueryLabel(id: string, label: string) {
-    this.state.openQueries[id]!.label = label;
+  setQueryTitle(id: string, title: string) {
+    this.state.openQueries[id]!.title = title;
   }
 
-  addQuery(text: string = ''): QueryId {
+  addQuery(sparql: string = '', title: string = ''): QueryId {
     const qid = `${++this.state.totalQueries}`
     this.state.openQueries[qid] = {
-      label: `Query ${qid}`,
-      text,
+      title: title || `Query ${qid}`,
+      sparql,
     };
     return qid;
   }

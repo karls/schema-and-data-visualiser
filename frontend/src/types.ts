@@ -19,10 +19,11 @@ export type QueryResults = {
 
 export type QueryRecord = {
   id: number;
+  title: string;
   sparql: string;
   repositoryId: string;
   date: string;
 };
 
 export type QueryId = string;
-export type QueryInfo = { label: string; text: string };
+export type QueryInfo = { title: string; sparql: string };
