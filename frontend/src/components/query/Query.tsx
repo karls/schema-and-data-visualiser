@@ -6,7 +6,7 @@ import { BsBarChartSteps, BsTable } from "react-icons/bs";
 import { useStore } from "../../stores/store";
 import { QueryResults, Triplet } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
-import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
+import Graph from "./Graph";
 import Editor from "./Editor";
 import ResultsTable from "./Results";
 import Charts from "./Charts";
@@ -86,7 +86,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       ),
       disabled: results.data.length === 0 || !isGraph(results),
       children: (
-        <GraphVisualisation
+        <Graph
           key={graphKey}
           results={results.data as Triplet[]}
         />
