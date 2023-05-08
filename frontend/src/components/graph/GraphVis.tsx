@@ -34,15 +34,6 @@ const GraphVis = observer(({ results, width, height }: GraphVisProps) => {
     height: `${height}px`,
     physics: {
       enabled: true,
-      forceAtlas2Based: {
-        theta: 0.5,
-        gravitationalConstant: -50,
-        centralGravity: 0.01,
-        springConstant: 0.08,
-        springLength: 100,
-        damping: 0.4,
-        avoidOverlap: 0
-      },
     },
   };
 
