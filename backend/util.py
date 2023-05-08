@@ -31,5 +31,5 @@ def convert_graph_to_list(string: str) -> [[str]]:
     triplets: [[str, str, str]] = list(map(
         lambda line: list(map(remove_brackets, line.split(' '))),
         string.split('.\n')[:-1]))
-    print(triplets)
+
     return triplets
