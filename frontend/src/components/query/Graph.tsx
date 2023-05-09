@@ -17,7 +17,7 @@ const Graph = observer(({ results }: { results: Triplet[]}) => {
   );
   return (
     <Fullscreen>
-      <GraphVis results={results} width={width} height={height} />
+      <GraphVis triplets={results} width={width} height={height} />
     </Fullscreen>
   );
 });
