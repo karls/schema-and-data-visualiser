@@ -1,23 +1,68 @@
-import { Tabs, TabsProps } from "antd";
+import { Button, Modal, Space, Tabs, TabsProps } from "antd";
 import { RepositoryId } from "../../types";
+import { Summary } from "../dataset/Summary";
+import ClassHierarchy from "../dataset/ClassHierarchy";
+import { useState } from "react";
+import { MdOutlineExplore } from "react-icons/md";
+import { useStore } from "../../stores/store";
 
-type ExploreDatasetProps = {
-  repository: RepositoryId;
+export type ExploreDatasetProps = {
+  repository: RepositoryId | null;
 };
 
 const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const width = Math.floor(window.screen.width * 0.75);
+  const height = Math.floor(window.screen.height * 0.5);
+
   const items: TabsProps["items"] = [
     {
-      key: "1",
-      label: `General`,
-      children: <GeneralInfo repository={repository}></GeneralInfo>,
+      key: "summary",
+      label: `Summary`,
+      children: <Summary repository={repository!} />,
+    },
+    {
+      key: "class hierarchy",
+      label: `Class Hierarchy`,
+      children: (
+        <ClassHierarchy
+          repository={repository!}
+          width={width - 50}
+          height={height}
+        />
+      ),
     },
   ];
-  return <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />;
-};
-
-const GeneralInfo = ({ repository }: ExploreDatasetProps) => {
-  return <></>;
+  return (
+    <>
+      <Button
+        type="primary"
+        disabled={repositoryStore.currentRepository === null}
+        onClick={() => setIsModalOpen(true)}
+        style={{ width: "95%", margin: 5 }}
+      >
+        <Space>
+          <MdOutlineExplore size={20} />
+          Explore Dataset
+        </Space>
+      </Button>
+      {repository && (
+        <Modal
+          title={`${repository}`}
+          open={isModalOpen}
+          footer={null}
+          onCancel={() => setIsModalOpen(false)}
+          width={width}
+          maskClosable
+        >
+          <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />
+        </Modal>
+      )}
+    </>
+  );
 };
 
 export default ExploreDataset;

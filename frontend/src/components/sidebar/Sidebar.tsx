@@ -14,7 +14,6 @@ const Sidebar = observer(() => {
   const repositoryStore = rootStore.repositoryStore;
 
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     allRepositories().then((repositories) => setRepositories(repositories));
@@ -54,30 +53,7 @@ const Sidebar = observer(() => {
         </Button>
       </Dropdown>
 
-      <Button
-        type="primary"
-        disabled={repositoryStore.currentRepository === null}
-        onClick={() => setIsModalOpen(true)}
-        style={{ width: "95%", margin: "auto" }}
-      >
-        <Space>
-          <MdOutlineExplore size={20} />
-          Explore Dataset
-        </Space>
-      </Button>
-      {repositoryStore.currentRepository && (
-        <Modal
-          title={`${repositoryStore.currentRepository}`}
-          open={isModalOpen}
-          footer={null}
-          onCancel={() => setIsModalOpen(false)}
-          width={Math.floor(window.screen.width * 0.75)}
-          maskClosable
-        >
-          <ExploreDataset repository={repositoryStore.currentRepository} />
-        </Modal>
-      )}
-
+      <ExploreDataset repository={repositoryStore.currentRepository} />
       <Divider />
       <QueryHistory />
     </div>
