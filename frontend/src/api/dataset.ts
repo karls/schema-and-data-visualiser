@@ -35,4 +35,13 @@ export async function getNoOfTriplets(repository: RepositoryId): Promise<number>
   return 0;
 }
 
-
+export async function getTypes(repository: RepositoryId): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/types?repository=${repository}`;
+    const response = await axios.get(endpoint);
+    const classes = response.data;
+    return classes;
+  } catch (error) {}
+  return [];
+}
