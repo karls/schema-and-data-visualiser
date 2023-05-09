@@ -113,7 +113,7 @@ def graphdb_url():
 def classes():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/get_classes.sparql', 'r') as query:
+        with open('queries/all_classes.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
@@ -150,3 +150,15 @@ def triplets():
         result = response.text
         print(result)
         return result.split('\n')[1]
+
+
+@app.route('/dataset/types', methods=['GET'])
+def all_types():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('queries/all_types.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}')
+
+        return parse_csv_text(response.text, header=True)
