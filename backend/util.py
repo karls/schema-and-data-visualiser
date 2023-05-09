@@ -20,6 +20,15 @@ def is_csv(string):
     return ',' in string
 
 
+def is_ntriples_format(result: str) -> bool:
+    if result == '':
+        return False
+
+    lines = result.split('\n')
+
+    return lines[0][-1] == '.' and len(lines[0].split(' ')) == 4
+
+
 def remove_brackets(text):
     if len(text) >= 2:
         if (text[0], text[-1]) == ('<', '>'):
