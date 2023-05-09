@@ -1,5 +1,7 @@
 export type RepositoryId = string;
 
+export type URI = string;
+
 export interface RepositoryInfo {
   uri: String;
   id: RepositoryId;
@@ -16,6 +18,11 @@ export type QueryResults = {
   header: string[];
   data: Row[];
 };
+
+export type RDFGraph = {
+  header: ['Subject', 'Predicate', 'Object'],
+  data: Triplet[],
+}
 
 export type QueryRecord = {
   id: number;
