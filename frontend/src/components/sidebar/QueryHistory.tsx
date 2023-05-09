@@ -81,7 +81,7 @@ const DeleteHistory = observer(() => {
     >
       <Button
         danger
-        style={{ margin: "auto", width: '95%' }}
+        style={{ margin: 5, width: '95%' }}
         disabled={repositoryStore.queryHistory.length === 0}
         title="Clear history"
       >
