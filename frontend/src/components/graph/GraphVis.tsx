@@ -14,9 +14,10 @@ type GraphVisProps = {
   triplets: Triplet[];
   width: number;
   height: number;
+  hierarchical?: boolean;
 };
 
-const GraphVis = observer(({ triplets, width, height }: GraphVisProps) => {
+const GraphVis = observer(({ triplets, width, height, hierarchical }: GraphVisProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
@@ -27,7 +28,7 @@ const GraphVis = observer(({ triplets, width, height }: GraphVisProps) => {
 
   const options: Options = {
     layout: {
-      hierarchical: false,
+      hierarchical: hierarchical ?? false,
     },
     edges: {
       color: settings.darkMode ? "white" : "black",
