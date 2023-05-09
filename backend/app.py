@@ -6,7 +6,8 @@ import requests
 from flask_cors import CORS
 from urllib import parse
 from db import add_query, get_queries, delete_all_queries
-from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list
+from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list, \
+    is_ntriples_format
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
@@ -63,7 +64,7 @@ def upload_file():
             return {}
 
 
-@app.route('/query/run', methods=['POST'])
+@app.route('/query', methods=['POST'])
 def run_query():
     if request.method == 'POST':
         repository = request.json['repository']
@@ -78,42 +79,34 @@ def run_query():
             f'?query={parse.quote(query["sparql"], safe="")}')
 
         results = response.text
-        if is_csv(results):
-            header = results.split('\n')[0].split(',')
-            data = csv_to_list(results)
-        else:
+        if is_ntriples_format(results):
             header = ['Subject', 'Predicate', 'Object']
             data = convert_graph_to_list(results)
+        else:
+            header = results.split('\n')[0].split(',')
+            data = csv_to_list(results)
 
         return jsonify({'header': header, 'data': data})
 
 
-@app.route('/query/history', methods=['GET'])
-def query_history():
+@app.route('/history', methods=['GET', 'DELETE'])
+def history():
     if request.method == 'GET':
         repository_id = request.args['repositoryId']
         return jsonify(get_queries(repository_id))
-
-
-@app.route('/query/history/clear', methods=['POST'])
-def clear_history():
-    if request.method == 'POST':
+    elif request.method == 'DELETE':
         repository_id = request.args['repositoryId']
         return delete_all_queries(repository_id)
 
 
-@app.route('/graphdb/setURL', methods=['POST'])
-def set_graphdb_url():
-    global GRAPHDB_API
-    if request.method == 'POST':
-        graphdb_url = request.args['graphdbURL']
-        GRAPHDB_API = graphdb_url
-        return GRAPHDB_API
-
-
-@app.route('/graphdb/getURL', methods=['GET'])
-def get_graphdb_url():
+@app.route('/graphdb/url', methods=['GET', 'POST'])
+def graphdb_url():
     global GRAPHDB_API
     if request.method == 'GET':
         return GRAPHDB_API
+    elif request.method == 'POST':
+        GRAPHDB_API = request.args['graphdbURL']
+        return GRAPHDB_API
+
+
 
