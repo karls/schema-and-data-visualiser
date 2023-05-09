@@ -107,7 +107,7 @@ def graphdb_url():
     elif request.method == 'POST':
         GRAPHDB_API = request.args['graphdbURL']
         return GRAPHDB_API
-    
+
 
 @app.route('/dataset/classes', methods=['GET'])
 def classes():
@@ -120,4 +120,23 @@ def classes():
             f'{GRAPHDB_API}/repositories/{repository}'
             f'?query={parse.quote(query, safe="")}')
 
-        return response.text.strip().replace('\r', '').split('\n')[1:]
+        return csv_to_list(response.text, header=True)
+
+
+@app.route('/dataset/class-hierarchy', methods=['GET'])
+def classes():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('./queries/class_hierarchy.sparql', 'r') as get_classes:
+            query = get_classes.read()
+
+        response = requests.get(
+            f'{GRAPHDB_API}/repositories/{repository}'
+            f'?query={parse.quote(query, safe="")}')
+
+        result = response.text
+
+        header = ['Subject', 'Predicate', 'Object']
+        data = convert_graph_to_list(result)
+
+        return jsonify({'header': header, 'data': data})

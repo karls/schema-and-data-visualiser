@@ -9,6 +9,7 @@ def csv_to_json(string):
 
 
 def csv_to_list(string: str, header=True) -> [[str]]:
+    string = string.replace('\r', '')
     rows = csv.reader(string.splitlines())
     if header:
         next(rows)
@@ -36,9 +37,9 @@ def remove_brackets(text):
     return text
 
 
-def convert_graph_to_list(string: str) -> [[str]]:
+def convert_graph_to_list(result: str) -> [[str]]:
     triplets: [[str, str, str]] = list(map(
         lambda line: list(map(remove_brackets, line.split(' '))),
-        string.split('.\n')[:-1]))
+        result.strip().split('.\n')))
 
     return triplets
