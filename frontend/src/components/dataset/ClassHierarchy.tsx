@@ -15,14 +15,18 @@ const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
 
   useEffect(() => {
     getClassHierarchy(repository).then((res: RDFGraph) => {
-      console.log(res);
       setTriplets(res.data);
-  });
+    });
   }, [repository]);
 
   return (
-    <GraphVis triplets={triplets} width={width} height={height} />
-  )
+    <GraphVis
+      triplets={triplets}
+      width={width}
+      height={height}
+      hierarchical={true}
+    />
+  );
 };
 
 export default ClassHierarchy;
