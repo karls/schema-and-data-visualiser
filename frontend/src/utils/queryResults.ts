@@ -1,9 +1,16 @@
-import { QueryResults } from "../types";
+import { RDFGraph, QueryResults } from "../types";
 
 export function isGraph(results: QueryResults) {
   return (
     results.header.toString() === ["Subject", "Predicate", "Object"].toString()
   );
+}
+
+export function emptyGraph(): RDFGraph {
+  return {
+    header: ["Subject", "Predicate", "Object"],
+    data: [],
+  };
 }
 
 export function isEmpty(results: QueryResults) {
@@ -13,7 +20,7 @@ export function isEmpty(results: QueryResults) {
 export function isURL(text: string) {
   const URL_REGEX =
     /https?:\/\/(www\.)?(([-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})|localhost)\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)/;
-  return text.match(URL_REGEX);
+  return text && text.match(URL_REGEX);
 }
 
 export function removePrefix(text: string): string {
@@ -25,7 +32,11 @@ export function removePrefix(text: string): string {
   return (name!.split("#").at(-1) ?? "").replaceAll("+", " ");
 }
 
-export function convertToJSON(results: QueryResults, columnIndices: number[], newColumnNames: string[] = []) {
+export function convertToJSON(
+  results: QueryResults,
+  columnIndices: number[],
+  newColumnNames: string[] = []
+) {
   return results.data.map((row) => {
     const values: { [key: string]: any } = {};
     columnIndices.forEach((i) => {
@@ -34,7 +45,6 @@ export function convertToJSON(results: QueryResults, columnIndices: number[], ne
     return values;
   });
 }
-
 
 export function numericColumns(results: QueryResults): number[] {
   if (isEmpty(results)) {

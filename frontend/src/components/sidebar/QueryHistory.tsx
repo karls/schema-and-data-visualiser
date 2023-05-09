@@ -25,7 +25,7 @@ const QueryHistory = observer(() => {
       }}
     >
       <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
-        History
+        Query History
       </Title>
       {repositoryStore.getCurrentRepository() === null && (
         <Text style={{ padding: 5 }}>

@@ -11,16 +11,19 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 
 type GraphVisProps = {
-  results: Triplet[];
+  triplets: Triplet[];
   width: number;
   height: number;
-}
+};
 
-const GraphVis = observer(({ results, width, height }: GraphVisProps) => {
+const GraphVis = observer(({ triplets, width, height }: GraphVisProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
-  const graph: GraphData = useMemo(() => getNodesAndEdges(results), [results]);
+  const graph: GraphData = useMemo(
+    () => getNodesAndEdges(triplets),
+    [triplets]
+  );
 
   const options: Options = {
     layout: {
@@ -34,15 +37,6 @@ const GraphVis = observer(({ results, width, height }: GraphVisProps) => {
     height: `${height}px`,
     physics: {
       enabled: true,
-      forceAtlas2Based: {
-        theta: 0.5,
-        gravitationalConstant: -50,
-        centralGravity: 0.01,
-        springConstant: 0.08,
-        springLength: 100,
-        damping: 0.4,
-        avoidOverlap: 0
-      },
     },
   };
 
