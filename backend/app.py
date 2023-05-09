@@ -107,6 +107,17 @@ def graphdb_url():
     elif request.method == 'POST':
         GRAPHDB_API = request.args['graphdbURL']
         return GRAPHDB_API
+    
 
+@app.route('/dataset/classes', methods=['GET'])
+def classes():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('./queries/get_classes.sparql', 'r') as get_classes:
+            query = get_classes.read()
 
+        response = requests.get(
+            f'{GRAPHDB_API}/repositories/{repository}'
+            f'?query={parse.quote(query, safe="")}')
 
+        return response.text.strip().replace('\r', '').split('\n')[1:]
