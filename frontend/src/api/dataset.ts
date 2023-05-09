@@ -7,8 +7,8 @@ export async function getClasses(repository: RepositoryId): Promise<URI[]> {
     try {
       const endpoint = `${BACKEND_API}/dataset/classes?repository=${repository}`;
       const response = await axios.get(endpoint);
-      const repositories = response.data;
-      return repositories;
+      const classes = response.data;
+      return classes;
     } catch (error) {}
     return [];
 }
@@ -16,11 +16,23 @@ export async function getClasses(repository: RepositoryId): Promise<URI[]> {
 export async function getClassHierarchy(repository: RepositoryId): Promise<RDFGraph> {
     const BACKEND_API = process.env.REACT_APP_BACKEND_API;
     try {
-      const endpoint = `${BACKEND_API}/dataset/classes?repository=${repository}`;
+      const endpoint = `${BACKEND_API}/dataset/class-hierarchy?repository=${repository}`;
       const response = await axios.get(endpoint);
-      const repositories = response.data;
-      return repositories;
+      const graph = response.data;
+      return graph;
     } catch (error) {}
     return emptyGraph();
 }
-  
+
+export async function getNoOfTriplets(repository: RepositoryId): Promise<number> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/triplet-count?repository=${repository}`;
+    const response = await axios.get(endpoint);
+    const totalTriplets = parseInt(response.data);
+    return totalTriplets;
+  } catch (error) {}
+  return 0;
+}
+
+
