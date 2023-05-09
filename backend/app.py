@@ -92,10 +92,10 @@ def run_query():
 @app.route('/history', methods=['GET', 'DELETE'])
 def history():
     if request.method == 'GET':
-        repository_id = request.args['repositoryId']
+        repository_id = request.args['repository']
         return jsonify(get_queries(repository_id))
     elif request.method == 'DELETE':
-        repository_id = request.args['repositoryId']
+        repository_id = request.args['repository']
         return delete_all_queries(repository_id)
 
 
@@ -118,7 +118,7 @@ def classes():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
 
-        return parse_csv_text(response.text, header=True)
+        return response.text.replace('\r', '').splitlines()[1:]
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
@@ -161,4 +161,4 @@ def all_types():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
 
-        return parse_csv_text(response.text, header=True)
+        return response.text.replace('\r', '').splitlines()[1:]
