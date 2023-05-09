@@ -6,7 +6,7 @@ import requests
 from flask_cors import CORS
 from urllib import parse
 from db import add_query, get_queries, delete_all_queries
-from util import csv_to_json, csv_to_list, is_csv, convert_graph_to_list, \
+from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
     is_ntriples_format
 
 app = Flask(__name__)
@@ -81,10 +81,10 @@ def run_query():
         results = response.text
         if is_ntriples_format(results):
             header = ['Subject', 'Predicate', 'Object']
-            data = convert_graph_to_list(results)
+            data = parse_ntriples_graph(results)
         else:
             header = results.split('\n')[0].split(',')
-            data = csv_to_list(results)
+            data = parse_csv_text(results)
 
         return jsonify({'header': header, 'data': data})
 
@@ -113,30 +113,40 @@ def graphdb_url():
 def classes():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/get_classes.sparql', 'r') as get_classes:
-            query = get_classes.read()
+        with open('./queries/get_classes.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}')
 
-        response = requests.get(
-            f'{GRAPHDB_API}/repositories/{repository}'
-            f'?query={parse.quote(query, safe="")}')
-
-        return csv_to_list(response.text, header=True)
+        return parse_csv_text(response.text, header=True)
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
-def classes():
+def class_hierarchy():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/class_hierarchy.sparql', 'r') as get_classes:
-            query = get_classes.read()
-
-        response = requests.get(
-            f'{GRAPHDB_API}/repositories/{repository}'
-            f'?query={parse.quote(query, safe="")}')
+        with open('./queries/class_hierarchy.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}')
 
         result = response.text
 
         header = ['Subject', 'Predicate', 'Object']
-        data = convert_graph_to_list(result)
+        data = parse_ntriples_graph(result)
 
         return jsonify({'header': header, 'data': data})
+
+
+@app.route('/dataset/triplet-count', methods=['GET'])
+def triplets():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('./queries/count_triplets.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}')
+
+        result = response.text
+        print(result)
+        return result.split('\n')[1]
