@@ -7,7 +7,7 @@ from flask_cors import CORS
 from urllib import parse
 from db import add_query, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
-    is_ntriples_format
+    is_ntriples_format, remove_blank_nodes, is_blank_node
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
@@ -118,7 +118,8 @@ def classes():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
 
-        return response.text.replace('\r', '').splitlines()[1:]
+        return remove_blank_nodes(
+            response.text.replace('\r', '').splitlines()[1:])
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
@@ -134,7 +135,9 @@ def class_hierarchy():
 
         header = ['Subject', 'Predicate', 'Object']
         data = parse_ntriples_graph(result)
-
+        data = list(filter(
+            lambda row: not is_blank_node(row[0]) and not is_blank_node(row[2]),
+            data))
         return jsonify({'header': header, 'data': data})
 
 
@@ -161,7 +164,8 @@ def all_types():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
 
-        return response.text.replace('\r', '').splitlines()[1:]
+        types = response.text.replace('\r', '').splitlines()[1:]
+        return remove_blank_nodes(types)
 
 
 @app.route('/dataset/type-properties', methods=['GET'])
