@@ -5,6 +5,7 @@ import { removePrefix } from "../../utils/queryResults";
 import { getTypeProperties, getTypes } from "../../api/dataset";
 
 const { Panel } = Collapse;
+const { Text } = Typography;
 
 type TypesProps = {
   repository: RepositoryId;
@@ -41,7 +42,7 @@ type PropertiesProps = {
 const Properties = ({ repository, type }: PropertiesProps) => {
   const [properties, setProperties] = useState<URI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  
+
   useEffect(() => {
     getTypeProperties(repository, type).then((res: URI[]) => {
       setProperties(res);
@@ -51,12 +52,14 @@ const Properties = ({ repository, type }: PropertiesProps) => {
 
   return (
     <List
-      header="Properties"
-      // bordered
+      grid={{ column: 3 }}
+      header={<Text style={{ fontWeight: 'bold' }}>Properties</Text>}
       dataSource={properties}
       renderItem={(item) => (
         <Skeleton active loading={loading}>
-          <List.Item>{removePrefix(item)}</List.Item>
+          <List.Item>
+            <Text>{removePrefix(item)}</Text>
+          </List.Item>
         </Skeleton>
       )}
     />
