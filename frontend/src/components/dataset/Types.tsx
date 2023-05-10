@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Collapse, Skeleton } from "antd";
+import { Collapse, List, Skeleton, Typography } from "antd";
 import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
-import { getTypes } from "../../api/dataset";
+import { getTypeProperties, getTypes } from "../../api/dataset";
 
 const { Panel } = Collapse;
 
@@ -39,7 +39,28 @@ type PropertiesProps = {
   type: URI;
 };
 const Properties = ({ repository, type }: PropertiesProps) => {
-  return <></>;
+  const [properties, setProperties] = useState<URI[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  
+  useEffect(() => {
+    getTypeProperties(repository, type).then((res: URI[]) => {
+      setProperties(res);
+      setLoading(false);
+    });
+  }, [repository, type]);
+
+  return (
+    <List
+      header="Properties"
+      // bordered
+      dataSource={properties}
+      renderItem={(item) => (
+        <Skeleton active loading={loading}>
+          <List.Item>{removePrefix(item)}</List.Item>
+        </Skeleton>
+      )}
+    />
+  );
 };
 
 export default Types;
