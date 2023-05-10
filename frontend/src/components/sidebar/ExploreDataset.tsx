@@ -5,6 +5,7 @@ import ClassHierarchy from "../dataset/ClassHierarchy";
 import { useState } from "react";
 import { MdOutlineExplore } from "react-icons/md";
 import { useStore } from "../../stores/store";
+import Types from "../dataset/Types";
 
 export type ExploreDatasetProps = {
   repository: RepositoryId | null;
@@ -15,8 +16,8 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
   const repositoryStore = rootStore.repositoryStore;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const width = Math.floor(window.screen.width * 0.75);
-  const height = Math.floor(window.screen.height * 0.5);
+  const width = Math.floor(window.screen.width * 0.8);
+  const height = Math.floor(window.screen.height * 0.75);
 
   const items: TabsProps["items"] = [
     {
@@ -34,6 +35,11 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
           height={height}
         />
       ),
+    },
+    {
+      key: "types",
+      label: `Types`,
+      children: <Types repository={repository!} />,
     },
   ];
   return (

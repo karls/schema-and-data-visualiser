@@ -7,7 +7,7 @@ from flask_cors import CORS
 from urllib import parse
 from db import add_query, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
-    is_ntriples_format
+    is_ntriples_format, remove_blank_nodes, is_blank_node
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
@@ -92,10 +92,10 @@ def run_query():
 @app.route('/history', methods=['GET', 'DELETE'])
 def history():
     if request.method == 'GET':
-        repository_id = request.args['repositoryId']
+        repository_id = request.args['repository']
         return jsonify(get_queries(repository_id))
     elif request.method == 'DELETE':
-        repository_id = request.args['repositoryId']
+        repository_id = request.args['repository']
         return delete_all_queries(repository_id)
 
 
@@ -113,12 +113,13 @@ def graphdb_url():
 def classes():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/get_classes.sparql', 'r') as query:
+        with open('queries/all_classes.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
 
-        return parse_csv_text(response.text, header=True)
+        return remove_blank_nodes(
+            response.text.replace('\r', '').splitlines()[1:])
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
@@ -134,7 +135,9 @@ def class_hierarchy():
 
         header = ['Subject', 'Predicate', 'Object']
         data = parse_ntriples_graph(result)
-
+        data = list(filter(
+            lambda row: not is_blank_node(row[0]) and not is_blank_node(row[2]),
+            data))
         return jsonify({'header': header, 'data': data})
 
 
@@ -148,5 +151,32 @@ def triplets():
                 f'?query={parse.quote(query.read(), safe="")}')
 
         result = response.text
-        print(result)
+
         return result.split('\n')[1]
+
+
+@app.route('/dataset/types', methods=['GET'])
+def all_types():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('queries/all_types.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}')
+
+        types = response.text.replace('\r', '').splitlines()[1:]
+        return remove_blank_nodes(types)
+
+
+@app.route('/dataset/type-properties', methods=['GET'])
+def type_properties():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        rdf_type = request.args['type']
+        with open('queries/type_properties.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")} '
+            )
+
+        return response.text.replace('\r', '').splitlines()[1:]
