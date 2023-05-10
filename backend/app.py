@@ -148,7 +148,7 @@ def triplets():
                 f'?query={parse.quote(query.read(), safe="")}')
 
         result = response.text
-        print(result)
+
         return result.split('\n')[1]
 
 
@@ -160,5 +160,19 @@ def all_types():
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read(), safe="")}')
+
+        return response.text.replace('\r', '').splitlines()[1:]
+
+
+@app.route('/dataset/type-properties', methods=['GET'])
+def type_properties():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        rdf_type = request.args['type']
+        with open('queries/type_properties.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")} '
+            )
 
         return response.text.replace('\r', '').splitlines()[1:]
