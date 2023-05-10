@@ -43,3 +43,11 @@ def parse_ntriples_graph(result: str) -> [[str]]:
         result.strip().split('.\n')))
 
     return triplets
+
+
+def is_blank_node(uri: str):
+    return uri.startswith('_:')
+
+
+def remove_blank_nodes(uris: [str]):
+    return list(filter(lambda uri: not is_blank_node(uri), uris))
