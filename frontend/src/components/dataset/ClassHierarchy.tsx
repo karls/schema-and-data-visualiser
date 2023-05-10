@@ -24,7 +24,6 @@ const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
       triplets={triplets}
       width={width}
       height={height}
-      hierarchical={true}
     />
   );
 };
