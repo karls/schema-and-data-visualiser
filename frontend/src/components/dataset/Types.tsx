@@ -27,7 +27,10 @@ const Types = ({ repository }: TypesProps) => {
     <Skeleton active loading={loading}>
       <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
         {types.map((type: URI, index) => (
-          <Panel header={removePrefix(type)} key={`type-${index}`}>
+          <Panel
+            header={<Tooltip title={type}>{removePrefix(type)}</Tooltip>}
+            key={`type-${index}`}
+          >
             <MetaInfo repository={repository} uri={type} />
             <Properties repository={repository} type={type} />
           </Panel>
