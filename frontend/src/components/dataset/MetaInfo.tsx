@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Descriptions, List, Skeleton, Typography } from "antd";
+import { Descriptions, Skeleton } from "antd";
 import { Metadata, RepositoryId, URI } from "../../types";
 import { getMetaInformation } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";

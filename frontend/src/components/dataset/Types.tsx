@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, Collapse, List, Skeleton, Tooltip, Typography } from "antd";
+import { Collapse, List, Skeleton, Tooltip, Typography } from "antd";
 import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { getTypeProperties, getTypes } from "../../api/dataset";
