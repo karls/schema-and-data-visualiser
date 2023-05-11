@@ -1,5 +1,5 @@
 import { Chart } from "react-google-charts";
-import { QueryResults } from "../../types";
+import { QueryResults, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { useMemo } from "react";
 
@@ -10,7 +10,7 @@ type SankeyChartProps = {
 };
 
 function getLinks(results: QueryResults) {
-  const links = [];
+  const links: [URI, URI, number][] = [];
   for (let row of results.data) {
     links.push([removePrefix(row[0]), removePrefix(row[1]), parseInt(row[2])]);
   }
