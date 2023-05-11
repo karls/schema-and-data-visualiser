@@ -82,3 +82,20 @@ export async function getMetaInformation(
 
   return { comment: "", label: "", range: "", domain: "" };
 }
+
+export async function getOutgoingLinks(
+  repository: RepositoryId,
+  uri: URI
+): Promise<{ [key: URI]: number }> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/outgoing-links?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint, {});
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+
+  return {};
+}
