@@ -62,10 +62,12 @@ const Editor = ({
           onClick={() => {
             setLoading(true);
             const start = new Date().getTime();
-            runSparqlQuery(repository!, queriesStore.currentQuery).then((results) => {
-              showNotification(new Date().getTime() - start);
-              onRun(results);
-            });
+            runSparqlQuery(repository!, queriesStore.currentQuery).then(
+              (results) => {
+                showNotification(new Date().getTime() - start);
+                onRun(results);
+              }
+            );
           }}
           disabled={repository === null}
           style={{ alignItems: "center" }}
@@ -80,9 +82,7 @@ const Editor = ({
         code={getQueryText()}
         setCode={onChange}
         language="sparql"
-        completions={getQueryText()
-          .split(/[\s,]+/)
-          .map((token) => token.trim())}
+        completions={[...getTokens(getQueryText()), ]}
         darkTheme={settings.darkMode}
         width={width}
         height={height}
@@ -90,6 +90,10 @@ const Editor = ({
     </Space>
   );
 };
+
+function getTokens(text: string): string[] {
+  return text.split(/[\s,]+/).map((token) => token.trim());
+}
 
 const SelectRepository = ({
   repository,
