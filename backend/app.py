@@ -200,3 +200,24 @@ def meta_information():
         values = info.split('\n')[1].split(',')
 
         return jsonify(dict(zip(fields, values)))
+
+
+@app.route('/dataset/outgoing-links', methods=['GET'])
+def outgoing_links():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/outgoing_links.sparql', 'r') as query:
+            # print(query.read().format(uri=uri))
+            # query.seek(0)
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")} '
+            )
+        result = parse_csv_text(response.text, header=True)
+        links = {}
+        for [uri, count] in result:
+            links[uri] = int(count)
+        print(result)
+        print(response.text)
+        return jsonify(links)
