@@ -6,6 +6,7 @@ import { useState } from "react";
 import { MdOutlineExplore } from "react-icons/md";
 import { useStore } from "../../stores/store";
 import Types from "../dataset/Types";
+import ClassLinks from "../dataset/ClassLinks";
 
 export type ExploreDatasetProps = {
   repository: RepositoryId | null;
@@ -40,6 +41,11 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
       key: "types",
       label: `Types`,
       children: <Types repository={repository!} />,
+    },
+    {
+      key: "links",
+      label: `Links`,
+      children: <ClassLinks repository={repository!} />,
     },
   ];
   return (
