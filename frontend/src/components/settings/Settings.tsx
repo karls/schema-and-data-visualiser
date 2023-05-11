@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "antd";
 import { observer } from "mobx-react-lite";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useStore } from "../../stores/store";
 import { Typography } from "antd";
