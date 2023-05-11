@@ -218,6 +218,5 @@ def outgoing_links():
         links = {}
         for [uri, count] in result:
             links[uri] = int(count)
-        print(result)
-        print(response.text)
+
         return jsonify(links)
