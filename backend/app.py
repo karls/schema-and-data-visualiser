@@ -180,3 +180,23 @@ def type_properties():
             )
 
         return response.text.replace('\r', '').splitlines()[1:]
+
+
+@app.route('/dataset/meta-information', methods=['GET'])
+def meta_information():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/meta_information.sparql', 'r') as query:
+            # print(query.read().format(uri=uri))
+            # query.seek(0)
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")} '
+            )
+        info = response.text
+
+        fields = info.split('\n')[0].split(',')
+        values = info.split('\n')[1].split(',')
+
+        return jsonify(dict(zip(fields, values)))
