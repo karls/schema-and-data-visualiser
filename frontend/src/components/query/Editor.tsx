@@ -3,11 +3,13 @@ import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
 import { allRepositories, runSparqlQuery } from "../../api/graphdb";
-import { QueryResults, RepositoryId, RepositoryInfo } from "../../types";
+import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
 import { Button, Dropdown, Space, App as AntdApp } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
+import { getAllProperties } from "../../api/dataset";
+import { removePrefix } from "../../utils/queryResults";
 
 type QueryEditorProps = {
   getQueryText: () => string;
@@ -36,6 +38,15 @@ const Editor = ({
   const [repository, setRepository] = useState<RepositoryId | null>(
     repositoryStore.getCurrentRepository()
   );
+  const [properties, setProperties] = useState<URI[]>([]);
+
+  useEffect(() => {
+    if (repository !== null) {
+      getAllProperties(repository).then((res) => {
+        setProperties(res);
+      });
+    }
+  }, [repository]);
 
   const { notification } = AntdApp.useApp();
 
@@ -82,7 +93,21 @@ const Editor = ({
         code={getQueryText()}
         setCode={onChange}
         language="sparql"
-        completions={[...getTokens(getQueryText()), ]}
+        completions={{
+          keywords: [
+            "SELECT",
+            "FROM",
+            "WHERE",
+            "ORDER BY",
+            "FILTER",
+            "OPTIONAL",
+            "HAVING",
+          ],
+          properties: properties.map((prop) => removePrefix(prop)),
+          variables: getTokens(getQueryText()).filter(
+            (token) => isVariable(token)
+          ),
+        }}
         darkTheme={settings.darkMode}
         width={width}
         height={height}
@@ -93,6 +118,10 @@ const Editor = ({
 
 function getTokens(text: string): string[] {
   return text.split(/[\s,]+/).map((token) => token.trim());
+}
+
+function isVariable(text) {
+  return text.length > 1 && text.charAt(0) === "?"
 }
 
 const SelectRepository = ({
