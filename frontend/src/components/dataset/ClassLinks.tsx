@@ -4,7 +4,7 @@ import { RepositoryId, URI } from "../../types";
 import {
   getIncomingLinks,
   getOutgoingLinks,
-  getTypes,
+  getAllTypes,
 } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
@@ -23,7 +23,7 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
   const [types, setTypes] = useState<URI[]>([]);
 
   useEffect(() => {
-    getTypes(repository).then((res: URI[]) => {
+    getAllTypes(repository).then((res: URI[]) => {
       setTypes(res);
     });
   }, [repository]);

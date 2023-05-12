@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { URI } from "../../types";
-import { getInstances, getPropertyValues, getTypes } from "../../api/dataset";
+import { getInstances, getPropertyValues, getAllTypes } from "../../api/dataset";
 import {
   Collapse,
   Descriptions,
@@ -19,7 +19,7 @@ const Instances = ({ repository }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    getTypes(repository).then((res) => {
+    getAllTypes(repository).then((res) => {
       setAllTypes(res);
     });
   }, [repository]);
