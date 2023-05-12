@@ -45,7 +45,7 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
     {
       key: "links",
       label: `Links`,
-      children: <ClassLinks repository={repository!} />,
+      children: <ClassLinks repository={repository!} width={width} />,
     },
   ];
   return (
