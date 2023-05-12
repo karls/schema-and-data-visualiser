@@ -136,7 +136,7 @@ export async function getPropertyValues(
 ): Promise<{ [key: string]: string }> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
+    const endpoint = `${BACKEND_API}/dataset/data-property-values?repository=${repository}&uri=${encodeURIComponent(
       uri
     )}`;
     const response = await axios.get(endpoint);
