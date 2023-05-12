@@ -1,0 +1,4 @@
+SELECT ?property ?value
+WHERE {{
+  <{uri}> ?property ?value .
+}}
