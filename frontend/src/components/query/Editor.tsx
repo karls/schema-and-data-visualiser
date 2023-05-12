@@ -126,7 +126,7 @@ function getTokens(text: string): string[] {
   return text.split(/[\s,]+/).map((token) => token.trim());
 }
 
-function isVariable(text) {
+function isVariable(text: string): boolean {
   return text.length > 1 && text.charAt(0) === "?";
 }
 

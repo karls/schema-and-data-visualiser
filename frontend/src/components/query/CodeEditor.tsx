@@ -13,7 +13,12 @@ type CodeEditorProps = {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   language: string;
-  completions: { keywords?; properties?; variables?; types? };
+  completions: {
+    keywords?: string[];
+    properties?: string[];
+    variables?: string[];
+    types?: string[];
+  };
   darkTheme: boolean;
   width: number;
   height: number;
