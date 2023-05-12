@@ -145,3 +145,20 @@ export async function getPropertyValues(
   } catch (error) {}
   return {};
 }
+
+export async function getInstances(
+  repository: RepositoryId,
+  type: URI
+): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/type-instances?repository=${repository}&type=${encodeURIComponent(
+      type
+    )}`;
+    const response = await axios.get(endpoint);
+    const data = response.data;
+    return data;
+  } catch (error) {}
+
+  return [];
+}
