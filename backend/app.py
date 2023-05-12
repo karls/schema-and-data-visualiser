@@ -251,6 +251,20 @@ def all_properties():
         return response.text.replace('\r', '').splitlines()[1:]
 
 
+@app.route('/dataset/type-instances', methods=['GET'])
+def type_instances():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        type_ = request.args['type']
+        with open('queries/type_instances.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(type=type_), safe="")}'
+            )
+        # Remove carriage return character and skip header on first line
+        return response.text.replace('\r', '').splitlines()[1:]
+
+
 @app.route('/dataset/property-values', methods=['GET'])
 def property_values():
     if request.method == 'GET':
