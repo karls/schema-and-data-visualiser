@@ -8,7 +8,7 @@ import { Button, Dropdown, Space, App as AntdApp } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
-import { getAllProperties } from "../../api/dataset";
+import { getAllProperties, getTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 
 type QueryEditorProps = {
@@ -39,11 +39,15 @@ const Editor = ({
     repositoryStore.getCurrentRepository()
   );
   const [properties, setProperties] = useState<URI[]>([]);
+  const [types, setTypes] = useState<URI[]>([]);
 
   useEffect(() => {
     if (repository !== null) {
       getAllProperties(repository).then((res) => {
         setProperties(res);
+      });
+      getTypes(repository).then((res) => {
+        setTypes(res);
       });
     }
   }, [repository]);
@@ -102,10 +106,12 @@ const Editor = ({
             "FILTER",
             "OPTIONAL",
             "HAVING",
+            "PREFIX",
           ],
           properties: properties.map((prop) => removePrefix(prop)),
-          variables: getTokens(getQueryText()).filter(
-            (token) => isVariable(token)
+          types: types.map((t) => removePrefix(t)),
+          variables: getTokens(getQueryText()).filter((token) =>
+            isVariable(token)
           ),
         }}
         darkTheme={settings.darkMode}
@@ -121,7 +127,7 @@ function getTokens(text: string): string[] {
 }
 
 function isVariable(text) {
-  return text.length > 1 && text.charAt(0) === "?"
+  return text.length > 1 && text.charAt(0) === "?";
 }
 
 const SelectRepository = ({
