@@ -8,7 +8,7 @@ import {
 } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
-import { Divider } from "antd";
+import { Alert, Divider } from "antd";
 
 type ClassLinksProps = {
   repository: RepositoryId;
@@ -32,6 +32,7 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
         flexDirection: "column",
       }}
     >
+      <Alert message="Hover or click on a node to hide other ribbons" />
       <Divider>Outgoing</Divider>
       <OutgoingLinks repository={repository} types={types} width={width} />
       <Divider>Incoming</Divider>
