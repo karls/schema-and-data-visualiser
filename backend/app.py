@@ -236,3 +236,16 @@ def incoming_links():
             links[uri] = int(count)
 
         return jsonify(links)
+
+
+@app.route('/dataset/all-properties', methods=['GET'])
+def all_properties():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('queries/all_properties.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")} '
+            )
+        # Remove carriage return character and skip header on first line
+        return response.text.replace('\r', '').splitlines()[1:]
