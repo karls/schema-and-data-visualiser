@@ -166,16 +166,16 @@ export async function getInstances(
 export async function getType(
   repository: RepositoryId,
   uri: URI
-): Promise<URI[]> {
+): Promise<URI> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type?repository=${repository}&uri=${encodeURIComponent(
       uri
     )}`;
     const response = await axios.get(endpoint);
-    const data = response.data;
-    return data;
+    const type = response.data;
+    return type;
   } catch (error) {}
 
-  return [];
+  return '';
 }
