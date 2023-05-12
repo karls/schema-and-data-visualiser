@@ -261,5 +261,9 @@ def property_values():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
-        # Remove carriage return character and skip header on first line
-        return response.text.replace('\r', '').splitlines()[1:]
+        result = parse_csv_text(response.text, header=True)
+        data = {}
+        for [prop, value] in result:
+            data[prop] = value
+
+        return jsonify(data)
