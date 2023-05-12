@@ -176,7 +176,7 @@ def type_properties():
         with open('queries/type_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")} '
+                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")}'
             )
 
         return response.text.replace('\r', '').splitlines()[1:]
@@ -192,7 +192,7 @@ def meta_information():
             # query.seek(0)
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")} '
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
         info = response.text
 
@@ -210,7 +210,7 @@ def outgoing_links():
         with open('queries/outgoing_links.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")} '
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, header=True)
         links = {}
@@ -228,7 +228,7 @@ def incoming_links():
         with open('queries/incoming_links.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")} '
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, header=True)
         links = {}
@@ -245,21 +245,21 @@ def all_properties():
         with open('queries/all_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")} '
+                f'?query={parse.quote(query.read(), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
 
 
-@app.route('/dataset/all-properties', methods=['GET'])
-def all_properties():
+@app.route('/dataset/property-values', methods=['GET'])
+def property_values():
     if request.method == 'GET':
         repository = request.args['repository']
-        type = request.args['type']
-        with open('queries/type_instances.sparql', 'r') as query:
+        uri = request.args['uri']
+        with open('queries/property_values.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=type), safe="")} '
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
