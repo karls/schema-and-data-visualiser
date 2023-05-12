@@ -1,0 +1,4 @@
+SELECT ?sub
+WHERE {{
+    ?sub a <{type}> .
+}}
