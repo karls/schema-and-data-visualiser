@@ -176,7 +176,108 @@ def type_properties():
         with open('queries/type_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")} '
+                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")}'
             )
 
         return response.text.replace('\r', '').splitlines()[1:]
+
+
+@app.route('/dataset/meta-information', methods=['GET'])
+def meta_information():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/meta_information.sparql', 'r') as query:
+            # print(query.read().format(uri=uri))
+            # query.seek(0)
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+            )
+        info = response.text
+
+        fields = info.split('\n')[0].split(',')
+        values = info.split('\n')[1].split(',')
+
+        return jsonify(dict(zip(fields, values)))
+
+
+@app.route('/dataset/outgoing-links', methods=['GET'])
+def outgoing_links():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/outgoing_links.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+            )
+        result = parse_csv_text(response.text, header=True)
+        links = {}
+        for [uri, count] in result:
+            links[uri] = int(count)
+
+        return jsonify(links)
+
+
+@app.route('/dataset/incoming-links', methods=['GET'])
+def incoming_links():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/incoming_links.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+            )
+        result = parse_csv_text(response.text, header=True)
+        links = {}
+        for [uri, count] in result:
+            links[uri] = int(count)
+
+        return jsonify(links)
+
+
+@app.route('/dataset/all-properties', methods=['GET'])
+def all_properties():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        with open('queries/all_properties.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read(), safe="")}'
+            )
+        # Remove carriage return character and skip header on first line
+        return response.text.replace('\r', '').splitlines()[1:]
+
+
+@app.route('/dataset/type-instances', methods=['GET'])
+def type_instances():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        type_ = request.args['type']
+        with open('queries/type_instances.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(type=type_), safe="")}'
+            )
+        # Remove carriage return character and skip header on first line
+        return response.text.replace('\r', '').splitlines()[1:]
+
+
+@app.route('/dataset/property-values', methods=['GET'])
+def property_values():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/property_values.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+            )
+        result = parse_csv_text(response.text, header=True)
+        data = {}
+        for [prop, value] in result:
+            data[prop] = value
+
+        return jsonify(data)

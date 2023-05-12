@@ -1,5 +1,5 @@
 import axios from "axios";
-import { RDFGraph, RepositoryId, URI } from "../types";
+import { Metadata, RDFGraph, RepositoryId, URI } from "../types";
 import { emptyGraph } from "../utils/queryResults";
 
 export async function getClasses(repository: RepositoryId): Promise<URI[]> {
@@ -56,10 +56,109 @@ export async function getTypeProperties(
 ): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/type-properties?repository=${repository}&type=${encodeURIComponent(type)}`;
-    const response = await axios.get(endpoint, {});
+    const endpoint = `${BACKEND_API}/dataset/type-properties?repository=${repository}&type=${encodeURIComponent(
+      type
+    )}`;
+    const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
   } catch (error) {}
+  return [];
+}
+
+export async function getMetaInformation(
+  repository: RepositoryId,
+  uri: URI
+): Promise<Metadata> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/meta-information?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint);
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+
+  return { comment: "", label: "", range: "", domain: "" };
+}
+
+export async function getOutgoingLinks(
+  repository: RepositoryId,
+  uri: URI
+): Promise<{ [key: URI]: number }> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/outgoing-links?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint);
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+
+  return {};
+}
+
+export async function getIncomingLinks(
+  repository: RepositoryId,
+  uri: URI
+): Promise<{ [key: URI]: number }> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/incoming-links?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint);
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+
+  return {};
+}
+
+export async function getAllProperties(
+  repository: RepositoryId
+): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/all-properties?repository=${repository}`;
+    const response = await axios.get(endpoint);
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+  return [];
+}
+
+export async function getPropertyValues(
+  repository: RepositoryId,
+  uri: URI
+): Promise<{ [key: string]: string }> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint);
+    const data = response.data;
+    return data;
+  } catch (error) {}
+  return {};
+}
+
+export async function getInstances(
+  repository: RepositoryId,
+  type: URI
+): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/type-instances?repository=${repository}&type=${encodeURIComponent(
+      type
+    )}`;
+    const response = await axios.get(endpoint);
+    const data = response.data;
+    return data;
+  } catch (error) {}
+
   return [];
 }

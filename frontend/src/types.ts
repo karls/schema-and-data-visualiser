@@ -34,3 +34,10 @@ export type QueryRecord = {
 
 export type QueryId = string;
 export type QueryInfo = { title: string; sparql: string };
+
+export type Metadata = {
+  label: string;
+  comment: string;
+  domain: string;
+  range: string;
+}

@@ -13,28 +13,14 @@ type CodeEditorProps = {
   code: string;
   setCode: React.Dispatch<React.SetStateAction<string>>;
   language: string;
-  completions: string[],
+  completions: { keywords?; properties?; variables?; types? };
   darkTheme: boolean;
   width: number;
-  height: number
+  height: number;
 };
 
 const languageParsers: any = {
   sparql: sparql,
-};
-
-const keywords: any = {
-  sparql: [
-    "SELECT",
-    "WHERE",
-    "CONSTRUCT",
-    "PREFIX",
-    "LIMIT",
-    "ORDER BY",
-    "FILTER",
-    "DESC",
-    "DISTINCT",
-  ],
 };
 
 const CodeEditor = ({
@@ -44,16 +30,14 @@ const CodeEditor = ({
   completions,
   darkTheme,
   width,
-  height
+  height,
 }: CodeEditorProps) => {
   const myCompletions = (context: CompletionContext) => {
-    let word = context.matchBefore(/(\w|[:<>])*/)!;
+    let word = context.matchBefore(/(\w|[<>?])*/)!;
     if (word.from === word.to && !context.explicit) return null;
     return {
       from: word.from,
-      options: [...keywords[language], ...completions].map((kw) => {
-        return { label: kw, type: "keyword" };
-      }),
+      options: getCompletions(completions),
     };
   };
 
@@ -79,5 +63,48 @@ const CodeEditor = ({
     />
   );
 };
+
+function getCompletions({
+  keywords,
+  properties,
+  variables,
+  types,
+}: {
+  keywords?: string[];
+  properties?: string[];
+  variables?: string[];
+  types?: string[];
+}) {
+  return [
+    ...(keywords ?? []).map((kw) => {
+      return {
+        label: kw,
+        type: "keyword",
+        detail: "SPARQL keyword",
+      };
+    }),
+    ...(properties ?? []).map((prop) => {
+      return {
+        label: prop,
+        type: "property",
+        detail: "property",
+      };
+    }),
+    ...(variables ?? []).map((v) => {
+      return {
+        label: v,
+        type: "variable",
+        detail: "variable",
+      };
+    }),
+    ...(types ?? []).map((t) => {
+      return {
+        label: t,
+        type: "type",
+        detail: "type",
+      };
+    }),
+  ];
+}
 
 export default CodeEditor;

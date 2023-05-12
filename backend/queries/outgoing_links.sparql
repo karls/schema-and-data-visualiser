@@ -1,0 +1,8 @@
+SELECT DISTINCT ?type (COUNT(*) AS ?links)
+WHERE {{
+    ?sub ?prop ?obj .
+    ?sub a <{uri}> .
+    ?obj a ?type .
+}}
+GROUP BY ?type
+ORDER BY ?type

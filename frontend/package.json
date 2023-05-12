@@ -31,6 +31,7 @@
     "mobx-react-lite": "^3.4.0",
     "randomcolor": "^0.6.2",
     "react": "^18.2.0",
+    "react-chord-diagram": "1.8.0",
     "react-codemirror2": "^7.2.1",
     "react-dom": "^18.2.0",
     "react-full-screen": "^1.1.1",

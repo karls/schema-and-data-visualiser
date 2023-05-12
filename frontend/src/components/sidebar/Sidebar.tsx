@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Divider, Dropdown, Modal, Popover, Space } from "antd";
+import { Button, Divider, Dropdown, Popover, Space } from "antd";
 import { allRepositories } from "../../api/graphdb";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
@@ -7,7 +7,6 @@ import { observer } from "mobx-react-lite";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import QueryHistory from "./QueryHistory";
 import ExploreDataset from "./ExploreDataset";
-import { MdOutlineExplore } from "react-icons/md";
 
 const Sidebar = observer(() => {
   const rootStore = useStore();

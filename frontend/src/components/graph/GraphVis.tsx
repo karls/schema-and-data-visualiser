@@ -43,7 +43,7 @@ const GraphVis = observer(({ triplets, width, height, hierarchical }: GraphVisPr
 
   const events = {
     select: function (event: any) {
-      var { nodes, edges } = event;
+      // var { nodes, edges } = event;
     },
   };
 

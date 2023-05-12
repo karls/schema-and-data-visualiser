@@ -1,0 +1,4 @@
+SELECT DISTINCT ?sub
+WHERE {{
+    ?sub a <{type}> .
+}}
