@@ -59,7 +59,7 @@ export async function getTypeProperties(
     const endpoint = `${BACKEND_API}/dataset/type-properties?repository=${repository}&type=${encodeURIComponent(
       type
     )}`;
-    const response = await axios.get(endpoint, {});
+    const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
   } catch (error) {}
@@ -75,7 +75,7 @@ export async function getMetaInformation(
     const endpoint = `${BACKEND_API}/dataset/meta-information?repository=${repository}&uri=${encodeURIComponent(
       uri
     )}`;
-    const response = await axios.get(endpoint, {});
+    const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
   } catch (error) {}
@@ -92,7 +92,7 @@ export async function getOutgoingLinks(
     const endpoint = `${BACKEND_API}/dataset/outgoing-links?repository=${repository}&uri=${encodeURIComponent(
       uri
     )}`;
-    const response = await axios.get(endpoint, {});
+    const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
   } catch (error) {}
@@ -109,10 +109,23 @@ export async function getIncomingLinks(
     const endpoint = `${BACKEND_API}/dataset/incoming-links?repository=${repository}&uri=${encodeURIComponent(
       uri
     )}`;
-    const response = await axios.get(endpoint, {});
+    const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
   } catch (error) {}
 
   return {};
+}
+
+export async function getAllProperties(
+  repository: RepositoryId,
+): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/all-properties?repository=${repository}`;
+    const response = await axios.get(endpoint);
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+  return [];
 }
