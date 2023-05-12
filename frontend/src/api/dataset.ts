@@ -99,3 +99,20 @@ export async function getOutgoingLinks(
 
   return {};
 }
+
+export async function getIncomingLinks(
+  repository: RepositoryId,
+  uri: URI
+): Promise<{ [key: URI]: number }> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/incoming-links?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint, {});
+    const properties = response.data;
+    return properties;
+  } catch (error) {}
+
+  return {};
+}
