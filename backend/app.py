@@ -178,7 +178,7 @@ def get_type():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read().format(uri=uri), safe="")}')
 
-        return response.text.replace('\r', '').splitlines()[1]
+        return response.text.replace('\r', '').splitlines()[1:]
 
 
 @app.route('/dataset/type-properties', methods=['GET'])

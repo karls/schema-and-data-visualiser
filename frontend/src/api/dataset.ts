@@ -166,7 +166,7 @@ export async function getInstances(
 export async function getType(
   repository: RepositoryId,
   uri: URI
-): Promise<URI> {
+): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type?repository=${repository}&uri=${encodeURIComponent(
@@ -177,5 +177,5 @@ export async function getType(
     return type;
   } catch (error) {}
 
-  return '';
+  return [];
 }
