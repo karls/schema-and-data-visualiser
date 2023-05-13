@@ -45,5 +45,7 @@ export type Metadata = {
 export enum PropertyType {
   DatatypeProperty,
   ObjectProperty, 
-  FunctionalProperty
+  FunctionalProperty,
+  TransitiveProperty,
+  SymmetricProperty,
 }
