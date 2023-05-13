@@ -130,7 +130,7 @@ export async function getAllProperties(
   return [];
 }
 
-export async function getPropertyValues(
+export async function getDataPropertyValues(
   repository: RepositoryId,
   uri: URI
 ): Promise<{ [key: string]: string }> {
