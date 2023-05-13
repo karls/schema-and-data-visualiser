@@ -9,7 +9,6 @@ import {
   Collapse,
   Descriptions,
   Divider,
-  Empty,
   Select,
   Skeleton,
   Tooltip,
@@ -53,7 +52,7 @@ const Instances = ({ repository }) => {
           };
         })}
       />
-      <Divider />
+      <Divider>{instances.length > 0 ? `${instances.length} results` : ""}</Divider>
       {type && (
         <Skeleton active loading={loading}>
           <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
