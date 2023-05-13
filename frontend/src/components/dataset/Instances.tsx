@@ -20,7 +20,7 @@ const Instances = ({ repository }) => {
   return (
     <>
       <Select
-        placeholder={"Select type"}
+        placeholder={"Select class"}
         style={{ width: 200 }}
         value={type}
         showSearch
