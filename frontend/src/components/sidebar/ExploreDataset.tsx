@@ -8,6 +8,7 @@ import { useStore } from "../../stores/store";
 import Types from "../dataset/Types";
 import ClassLinks from "../dataset/ClassLinks";
 import Instances from "../dataset/Instances";
+import Details from "../dataset/Details";
 
 export type ExploreDatasetProps = {
   repository: RepositoryId | null;
@@ -52,6 +53,11 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
       key: "instances",
       label: `Instances`,
       children: <Instances repository={repository!} />,
+    },
+    {
+      key: "details",
+      label: `Details`,
+      children: <Details repository={repository!} />,
     },
   ];
   return (
