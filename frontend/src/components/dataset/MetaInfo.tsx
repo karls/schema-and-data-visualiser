@@ -33,8 +33,8 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
     <Skeleton loading={loading}>
       <Descriptions size="small" bordered>
         <Descriptions.Item key="type" label="Type">
-          {types.map((t) => (
-            <Tag>{removePrefix(t)}</Tag>
+          {types.map((t, index) => (
+            <Tag key={`type-${index}`}>{removePrefix(t)}</Tag>
           ))}
         </Descriptions.Item>
 
