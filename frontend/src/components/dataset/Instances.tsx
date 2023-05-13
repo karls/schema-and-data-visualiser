@@ -52,20 +52,23 @@ const Instances = ({ repository }) => {
           };
         })}
       />
-      <Divider>{instances.length > 0 ? `${instances.length} results` : ""}</Divider>
+
       {type && (
-        <Skeleton active loading={loading}>
-          <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
-            {instances.map((uri: URI, index) => (
-              <Collapse.Panel
-                header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
-                key={`type-${index}`}
-              >
-                <PropertyValues repository={repository} uri={uri} />
-              </Collapse.Panel>
-            ))}
-          </Collapse>
-        </Skeleton>
+        <>
+          <Divider>{instances.length} results</Divider>
+          <Skeleton active loading={loading}>
+            <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
+              {instances.map((uri: URI, index) => (
+                <Collapse.Panel
+                  header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
+                  key={`type-${index}`}
+                >
+                  <PropertyValues repository={repository} uri={uri} />
+                </Collapse.Panel>
+              ))}
+            </Collapse>
+          </Skeleton>
+        </>
       )}
     </>
   );
