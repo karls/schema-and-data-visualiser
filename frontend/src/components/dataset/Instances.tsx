@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import { URI } from "../../types";
 import {
   getInstances,
-  getPropertyValues,
   getAllTypes,
 } from "../../api/dataset";
 import {
   Collapse,
-  Descriptions,
   Divider,
   Select,
   Skeleton,
   Tooltip,
 } from "antd";
 import { removePrefix } from "../../utils/queryResults";
+import { DataProperties } from "./DataProperties";
 
 const Instances = ({ repository }) => {
   const [allTypes, setAllTypes] = useState<URI[]>([]);
@@ -63,7 +62,7 @@ const Instances = ({ repository }) => {
                   header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
                   key={`type-${index}`}
                 >
-                  <PropertyValues repository={repository} uri={uri} />
+                  <DataProperties repository={repository} uri={uri} />
                 </Collapse.Panel>
               ))}
             </Collapse>
@@ -71,31 +70,6 @@ const Instances = ({ repository }) => {
         </>
       )}
     </>
-  );
-};
-
-const PropertyValues = ({ repository, uri }) => {
-  const [data, setData] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getPropertyValues(repository, uri).then((res) => {
-      setData(res);
-      setLoading(false);
-    });
-  }, [repository, uri]);
-
-  return (
-    <Skeleton loading={loading}>
-      <Descriptions size="small" bordered>
-        {Object.keys(data).map((prop: string) => (
-          <Descriptions.Item key={prop} label={removePrefix(prop)}>
-            {removePrefix((data as any)[prop])}
-          </Descriptions.Item>
-        ))}
-      </Descriptions>
-    </Skeleton>
   );
 };
 
