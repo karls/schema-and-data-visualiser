@@ -139,7 +139,7 @@ export async function getPropertyValues(
   try {
     const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}&propType=${propType}`;
+    )}&propType=${PropertyType[propType]}`;
     const response = await axios.get(endpoint);
     const data = response.data;
     return data;
