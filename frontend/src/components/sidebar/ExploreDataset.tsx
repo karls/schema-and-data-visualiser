@@ -40,8 +40,8 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
       ),
     },
     {
-      key: "types",
-      label: `Types`,
+      key: "metadata",
+      label: `Metadata`,
       children: <Types repository={repository!} />,
     },
     {
