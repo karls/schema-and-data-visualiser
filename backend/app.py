@@ -278,15 +278,16 @@ def type_instances():
         return response.text.replace('\r', '').splitlines()[1:]
 
 
-@app.route('/dataset/data-property-values', methods=['GET'])
+@app.route('/dataset/property-values', methods=['GET'])
 def property_values():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
-        with open('queries/data_property_values.sparql', 'r') as query:
+        prop_type = request.args['propType']
+        with open('queries/property_values.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'?query={parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
             )
         result = parse_csv_text(response.text, header=True)
         data = {}

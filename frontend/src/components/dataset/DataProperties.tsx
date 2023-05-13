@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
-import { getDataPropertyValues } from "../../api/dataset";
+import { getPropertyValues } from "../../api/dataset";
 import { Descriptions, Skeleton } from "antd";
 import { removePrefix } from "../../utils/queryResults";
+import { PropertyType, RepositoryId, URI } from "../../types";
 
-export const DataProperties = ({ repository, uri }) => {
-  const [data, setData] = useState<{ [key: string]: string; }>({});
+type PropertyValuesProps = {
+  repository: RepositoryId;
+  uri: URI;
+  propType: PropertyType;
+};
+
+export const PropertyValues = ({
+  repository,
+  uri,
+  propType,
+}: PropertyValuesProps) => {
+  const [data, setData] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
-    getDataPropertyValues(repository, uri).then((res) => {
+    getPropertyValues(repository, uri, propType).then((res) => {
       setData(res);
       setLoading(false);
     });
-  }, [repository, uri]);
+  }, [repository, uri, propType]);
 
   return (
     <Skeleton loading={loading}>

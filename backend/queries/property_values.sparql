@@ -3,5 +3,5 @@ PREFIX owl: <http://www.w3.org/2002/07/owl#>
 SELECT ?property ?value
 WHERE {{
   <{uri}> ?property ?value .
-  ?property a  owl:DatatypeProperty .
+  ?property a  owl:{prop_type} .
 }}

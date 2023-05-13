@@ -41,3 +41,9 @@ export type Metadata = {
   domain: string;
   range: string;
 }
+
+export enum PropertyType {
+  DatatypeProperty,
+  ObjectProperty, 
+  FunctionalProperty
+}

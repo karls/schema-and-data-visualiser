@@ -1,18 +1,9 @@
 import { useEffect, useState } from "react";
-import { URI } from "../../types";
-import {
-  getInstances,
-  getAllTypes,
-} from "../../api/dataset";
-import {
-  Collapse,
-  Divider,
-  Select,
-  Skeleton,
-  Tooltip,
-} from "antd";
+import { PropertyType, URI } from "../../types";
+import { getInstances, getAllTypes } from "../../api/dataset";
+import { Collapse, Divider, Select, Skeleton, Tooltip } from "antd";
 import { removePrefix } from "../../utils/queryResults";
-import { DataProperties } from "./DataProperties";
+import { PropertyValues } from "./DataProperties";
 
 const Instances = ({ repository }) => {
   const [allTypes, setAllTypes] = useState<URI[]>([]);
@@ -62,7 +53,11 @@ const Instances = ({ repository }) => {
                   header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
                   key={`type-${index}`}
                 >
-                  <DataProperties repository={repository} uri={uri} />
+                  <PropertyValues
+                    repository={repository}
+                    uri={uri}
+                    propType={PropertyType.DatatypeProperty}
+                  />
                 </Collapse.Panel>
               ))}
             </Collapse>

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Input, Space } from "antd";
-import { DataProperties } from "./DataProperties";
-import { URI } from "../../types";
+import { PropertyValues } from "./DataProperties";
+import { PropertyType, URI } from "../../types";
 import { isURL } from "../../utils/queryResults";
 
 const Details = ({ repository }) => {
-  const [uri, setUri] = useState<URI>();
+  const [uri, setUri] = useState<URI>("");
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
       <Input
@@ -18,7 +18,11 @@ const Details = ({ repository }) => {
         style={{ width: "100%" }}
       />
       {isURL(uri as string) && (
-        <DataProperties repository={repository} uri={uri} />
+        <PropertyValues
+          repository={repository}
+          uri={uri}
+          propType={PropertyType.DatatypeProperty}
+        />
       )}
     </Space>
   );
