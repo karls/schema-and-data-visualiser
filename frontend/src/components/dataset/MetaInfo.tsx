@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Descriptions, Skeleton } from "antd";
+import { Descriptions, Skeleton, Tag } from "antd";
 import { Metadata, RepositoryId, URI } from "../../types";
-import { getMetaInformation } from "../../api/dataset";
+import { getMetaInformation, getType } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 
 type MetaInfoProps = {
@@ -15,6 +15,8 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
     range: "",
     domain: "",
   });
+  const [types, setTypes] = useState<URI[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -22,11 +24,20 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
       setMetadata(res);
       setLoading(false);
     });
+    getType(repository, uri).then((res: URI[]) => {
+      setTypes(res);
+    });
   }, [repository, uri]);
 
   return (
     <Skeleton loading={loading}>
       <Descriptions size="small" bordered>
+        <Descriptions.Item key="type" label="Type">
+          {types.map((t) => (
+            <Tag>{removePrefix(t)}</Tag>
+          ))}
+        </Descriptions.Item>
+
         {Object.keys(metadata).map(
           (field: string) =>
             (metadata as any)[field].trim() && (
