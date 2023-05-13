@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { URI } from "../../types";
-import { getInstances, getPropertyValues, getAllTypes } from "../../api/dataset";
+import {
+  getInstances,
+  getPropertyValues,
+  getAllTypes,
+} from "../../api/dataset";
 import {
   Collapse,
   Descriptions,
@@ -50,23 +54,20 @@ const Instances = ({ repository }) => {
         })}
       />
       <Divider />
-      {type &&
-        (instances.length === 0 ? (
-          <Empty />
-        ) : (
-          <Skeleton active loading={loading}>
-            <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
-              {instances.map((uri: URI, index) => (
-                <Collapse.Panel
-                  header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
-                  key={`type-${index}`}
-                >
-                  <PropertyValues repository={repository} uri={uri} />
-                </Collapse.Panel>
-              ))}
-            </Collapse>
-          </Skeleton>
-        ))}
+      {type && (
+        <Skeleton active loading={loading}>
+          <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
+            {instances.map((uri: URI, index) => (
+              <Collapse.Panel
+                header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
+                key={`type-${index}`}
+              >
+                <PropertyValues repository={repository} uri={uri} />
+              </Collapse.Panel>
+            ))}
+          </Collapse>
+        </Skeleton>
+      )}
     </>
   );
 };
