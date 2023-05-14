@@ -40,7 +40,7 @@ export const TreeMap = ({
           color: randomColor({
             luminosity: settings.darkMode ? "light" : "dark",
           }),
-          size: parseInt(row[columnIndex]),
+          size: parseFloat(row[columnIndex]),
         };
       }),
     };
