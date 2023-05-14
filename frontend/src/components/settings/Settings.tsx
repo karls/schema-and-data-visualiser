@@ -40,7 +40,7 @@ const Settings = () => {
         <FloatButton
           icon={<IoMdSettings size={25} style={{ paddingRight: 7 }} />}
           onClick={showDrawer}
-          style={{ bottom: 10 }}
+          style={{ top: 10 }}
         />
       </Tooltip>
       <Drawer title="Settings" placement="right" onClose={onClose} open={open}>
