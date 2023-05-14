@@ -49,7 +49,7 @@ const Fullscreen = observer(({ children }: any) => {
                 style={{ paddingRight: 1, paddingBottom: 2 }}
               />
             }
-            style={{ bottom: 10, right: 75 }}
+            style={{ top: 10, right: 75 }}
             onClick={() => {
               settings.setFullScreen(false);
               handle.exit();
@@ -65,7 +65,7 @@ const Fullscreen = observer(({ children }: any) => {
             style={{ paddingRight: 1, paddingBottom: 2 }}
           />
         }
-        style={{ bottom: 10, right: 75 }}
+        style={{ top: 10, right: 75 }}
         onClick={() => {
           settings.setFullScreen(true);
           handle.enter();
