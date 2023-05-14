@@ -8,7 +8,7 @@ import { Button, Dropdown, Space, App as AntdApp } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
-import { getAllProperties, getTypes } from "../../api/dataset";
+import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 
 type QueryEditorProps = {
@@ -46,7 +46,7 @@ const Editor = ({
       getAllProperties(repository).then((res) => {
         setProperties(res);
       });
-      getTypes(repository).then((res) => {
+      getAllTypes(repository).then((res) => {
         setTypes(res);
       });
     }

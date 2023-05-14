@@ -10,6 +10,10 @@ WHERE {
           ?subject != rdfs:Datatype &&
           ?subject != rdfs:ContainerMembershipProperty &&
           ?subject != owl:DatatypeProperty &&
+          ?subject != owl:FunctionalProperty &&
+          ?subject != owl:ObjectProperty &&
+          ?subject != owl:TransitiveProperty &&
+          ?subject != owl:SymmetricProperty &&
           ?subject != owl:NamedIndividual &&
           ?subject != owl:Ontology )
 }

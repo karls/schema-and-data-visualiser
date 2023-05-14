@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Triplet } from "../../types";
 import NetworkGraph, {
   Edge,
@@ -9,6 +9,7 @@ import NetworkGraph, {
 import { removePrefix } from "../../utils/queryResults";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
+import './network.css';
 
 type GraphVisProps = {
   triplets: Triplet[];
@@ -17,53 +18,72 @@ type GraphVisProps = {
   hierarchical?: boolean;
 };
 
-const GraphVis = observer(({ triplets, width, height, hierarchical }: GraphVisProps) => {
-  const rootStore = useStore();
-  const settings = rootStore.settingsStore;
+const GraphVis = observer(
+  ({ triplets, width, height, hierarchical }: GraphVisProps) => {
+    const rootStore = useStore();
+    const settings = rootStore.settingsStore;
+    const [loading, setLoading] = useState<boolean>(true);
 
-  const graph: GraphData = useMemo(
-    () => getNodesAndEdges(triplets),
-    [triplets]
-  );
+    const graph: GraphData = useMemo(
+      () => getNodesAndEdges(triplets),
+      [triplets]
+    );
 
-  const options: Options = {
-    layout: {
-      hierarchical: hierarchical ?? false,
-    },
-    edges: {
-      color: settings.darkMode ? "white" : "black",
-      font: { size: 10 },
-    },
-    width: `${width}px`,
-    height: `${height}px`,
-    physics: {
-      enabled: true,
-    },
-  };
+    const idToNode: { [key: number]: Node } = useMemo(() => {
+      const dict: { [key: number]: Node } = {};
+      for (let node of graph.nodes) {
+        dict[node.id as number] = node;
+      }
 
-  const events = {
-    select: function (event: any) {
-      // var { nodes, edges } = event;
-    },
-  };
+      return dict;
+    }, [graph]);
 
-  return (
-    <NetworkGraph
-      graph={graph}
-      options={options}
-      events={events}
-      getNetwork={(network: any) => {
-        //  if you want access to vis.js network api you can set the state in a parent component using this property
-      }}
-    />
-  );
-});
+    const options: Options = {
+      layout: {
+        hierarchical: hierarchical ?? false,
+      },
+      edges: {
+        color: settings.darkMode ? "white" : "black",
+        font: { size: 10 },
+      },
+      width: `${width}px`,
+      height: `${height}px`,
+      physics: {
+        enabled: true,
+      },
+    };
 
-function getNodesAndEdges(results: Triplet[]) {
-  const nodes: { [key: string]: Node } = {};
+    const events = {
+      select: function (event: any) {
+        var { nodes, edges } = event;
+        console.log(nodes.map((id) => idToNode[id]));
+      },
+      beforeDrawing: () => setLoading(true),
+      afterDrawing: () => setLoading(false),
+      doubleClick: function (event: any) {
+        var { nodes, edges } = event;
+        console.log(nodes.map((id) => idToNode[id]));
+      },
+    };
+
+    return (
+      <NetworkGraph
+        graph={graph}
+        options={options}
+        events={events}
+        getNetwork={(network: any) => {
+          //  if you want access to vis.js network api you can set the state in a parent component using this property
+        }}
+      />
+    );
+  }
+);
+
+function getNodesAndEdges(results: Triplet[], initialNodes?) {
+  const nodes: { [key: string]: Node } = initialNodes ?? {};
   const edges: Edge[] = [];
 
-  let totalNodes = 0;
+  let totalNodes: number = Object.keys(nodes).length;
 
   for (let [sub, pred, obj] of results) {
     let nodeA: Node;
@@ -74,6 +94,7 @@ function getNodesAndEdges(results: Triplet[]) {
       nodeA = {
         id: totalNodes++,
         label: removePrefix(sub),
+        title: sub,
       };
       nodes[sub] = nodeA;
     }
@@ -84,11 +105,17 @@ function getNodesAndEdges(results: Triplet[]) {
       nodeB = {
         id: totalNodes++,
         label: removePrefix(obj),
+        title: obj,
       };
       nodes[obj] = nodeB;
     }
 
-    const edge = { from: nodeA.id, to: nodeB.id, label: removePrefix(pred) };
+    const edge = {
+      from: nodeA.id,
+      to: nodeB.id,
+      label: removePrefix(pred),
+      title: pred,
+    };
     edges.push(edge);
   }
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Collapse, List, Skeleton, Tooltip, Typography } from "antd";
 import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
-import { getTypeProperties, getTypes } from "../../api/dataset";
+import { getTypeProperties, getAllTypes } from "../../api/dataset";
 import { MetaInfo } from "./MetaInfo";
 
 const { Panel } = Collapse;
@@ -17,7 +17,7 @@ const Types = ({ repository }: TypesProps) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getTypes(repository).then((res: URI[]) => {
+    getAllTypes(repository).then((res: URI[]) => {
       setTypes(res);
       setLoading(false);
     });

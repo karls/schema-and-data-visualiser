@@ -1,0 +1,4 @@
+SELECT ?type
+WHERE {{
+    <{uri}> a ?type .
+}}

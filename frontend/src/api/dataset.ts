@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Metadata, RDFGraph, RepositoryId, URI } from "../types";
+import { Metadata, PropertyType, RDFGraph, RepositoryId, URI } from "../types";
 import { emptyGraph } from "../utils/queryResults";
 
 export async function getClasses(repository: RepositoryId): Promise<URI[]> {
@@ -39,10 +39,10 @@ export async function getNoOfTriplets(
   return 0;
 }
 
-export async function getTypes(repository: RepositoryId): Promise<URI[]> {
+export async function getAllTypes(repository: RepositoryId): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/types?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/all-types?repository=${repository}`;
     const response = await axios.get(endpoint);
     const classes = response.data;
     return classes;
@@ -132,13 +132,14 @@ export async function getAllProperties(
 
 export async function getPropertyValues(
   repository: RepositoryId,
-  uri: URI
+  uri: URI,
+  propType: PropertyType
 ): Promise<{ [key: string]: string }> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}`;
+    )}&propType=${PropertyType[propType]}`;
     const response = await axios.get(endpoint);
     const data = response.data;
     return data;
@@ -158,6 +159,23 @@ export async function getInstances(
     const response = await axios.get(endpoint);
     const data = response.data;
     return data;
+  } catch (error) {}
+
+  return [];
+}
+
+export async function getType(
+  repository: RepositoryId,
+  uri: URI
+): Promise<URI[]> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/dataset/type?repository=${repository}&uri=${encodeURIComponent(
+      uri
+    )}`;
+    const response = await axios.get(endpoint);
+    const type = response.data;
+    return type;
   } catch (error) {}
 
   return [];

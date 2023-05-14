@@ -1,16 +1,9 @@
 import { useEffect, useState } from "react";
-import { URI } from "../../types";
-import { getInstances, getPropertyValues, getTypes } from "../../api/dataset";
-import {
-  Collapse,
-  Descriptions,
-  Divider,
-  Empty,
-  Select,
-  Skeleton,
-  Tooltip,
-} from "antd";
+import { PropertyType, URI } from "../../types";
+import { getInstances, getAllTypes } from "../../api/dataset";
+import { Collapse, Divider, Select, Skeleton, Tooltip } from "antd";
 import { removePrefix } from "../../utils/queryResults";
+import { PropertyValues } from "./DataProperties";
 
 const Instances = ({ repository }) => {
   const [allTypes, setAllTypes] = useState<URI[]>([]);
@@ -19,7 +12,7 @@ const Instances = ({ repository }) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    getTypes(repository).then((res) => {
+    getAllTypes(repository).then((res) => {
       setAllTypes(res);
     });
   }, [repository]);
@@ -27,7 +20,7 @@ const Instances = ({ repository }) => {
   return (
     <>
       <Select
-        placeholder={"Select type"}
+        placeholder={"Select class"}
         style={{ width: 200 }}
         value={type}
         showSearch
@@ -49,11 +42,10 @@ const Instances = ({ repository }) => {
           };
         })}
       />
-      <Divider />
-      {type &&
-        (instances.length === 0 ? (
-          <Empty />
-        ) : (
+
+      {type && (
+        <>
+          <Divider>{instances.length} results</Divider>
           <Skeleton active loading={loading}>
             <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
               {instances.map((uri: URI, index) => (
@@ -61,38 +53,18 @@ const Instances = ({ repository }) => {
                   header={<Tooltip title={uri}>{removePrefix(uri)}</Tooltip>}
                   key={`type-${index}`}
                 >
-                  <PropertyValues repository={repository} uri={uri} />
+                  <PropertyValues
+                    repository={repository}
+                    uri={uri}
+                    propType={PropertyType.DatatypeProperty}
+                  />
                 </Collapse.Panel>
               ))}
             </Collapse>
           </Skeleton>
-        ))}
+        </>
+      )}
     </>
-  );
-};
-
-const PropertyValues = ({ repository, uri }) => {
-  const [data, setData] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getPropertyValues(repository, uri).then((res) => {
-      setData(res);
-      setLoading(false);
-    });
-  }, [repository, uri]);
-
-  return (
-    <Skeleton loading={loading}>
-      <Descriptions size="small" bordered>
-        {Object.keys(data).map((prop: string) => (
-          <Descriptions.Item key={prop} label={removePrefix(prop)}>
-            {removePrefix((data as any)[prop])}
-          </Descriptions.Item>
-        ))}
-      </Descriptions>
-    </Skeleton>
   );
 };
 

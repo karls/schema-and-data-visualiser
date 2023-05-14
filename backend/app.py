@@ -155,7 +155,7 @@ def triplets():
         return result.split('\n')[1]
 
 
-@app.route('/dataset/types', methods=['GET'])
+@app.route('/dataset/all-types', methods=['GET'])
 def all_types():
     if request.method == 'GET':
         repository = request.args['repository']
@@ -166,6 +166,19 @@ def all_types():
 
         types = response.text.replace('\r', '').splitlines()[1:]
         return remove_blank_nodes(types)
+
+
+@app.route('/dataset/type', methods=['GET'])
+def get_type():
+    if request.method == 'GET':
+        repository = request.args['repository']
+        uri = request.args['uri']
+        with open('queries/get_type.sparql', 'r') as query:
+            response = requests.get(
+                f'{GRAPHDB_API}/repositories/{repository}'
+                f'?query={parse.quote(query.read().format(uri=uri), safe="")}')
+
+        return response.text.replace('\r', '').splitlines()[1:]
 
 
 @app.route('/dataset/type-properties', methods=['GET'])
@@ -270,10 +283,11 @@ def property_values():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
+        prop_type = request.args['propType']
         with open('queries/property_values.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'?query={parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
             )
         result = parse_csv_text(response.text, header=True)
         data = {}
