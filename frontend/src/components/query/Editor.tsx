@@ -10,6 +10,7 @@ import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
+import sparql from './sparql.json';
 
 type QueryEditorProps = {
   getQueryText: () => string;
@@ -98,16 +99,7 @@ const Editor = ({
         setCode={onChange}
         language="sparql"
         completions={{
-          keywords: [
-            "SELECT",
-            "FROM",
-            "WHERE",
-            "ORDER BY",
-            "FILTER",
-            "OPTIONAL",
-            "HAVING",
-            "PREFIX",
-          ],
+          keywords: sparql.keywords,
           properties: properties.map((prop) => removePrefix(prop)),
           types: types.map((t) => removePrefix(t)),
           variables: getTokens(getQueryText()).filter((token) =>
