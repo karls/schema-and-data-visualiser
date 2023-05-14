@@ -45,7 +45,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       label: (
         <Space.Compact>
           <MdOutlineEditNote size={25} />
-          Query Editor
+          Query
         </Space.Compact>
       ),
       children: (
@@ -57,7 +57,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
             setGraphKey((key) => key + 1);
             repositoryStore.updateQueryHistory();
             setLoading(false)
-            setActiveTab("table");
+            setActiveTab("results");
           }}
           width={width}
           height={height}
@@ -67,11 +67,11 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       ),
     },
     {
-      key: "table",
+      key: "results",
       label: (
         <Space.Compact>
           <BsTable size={15} style={{ margin: 5 }} />
-          Table
+          Results
         </Space.Compact>
       ),
       children: <ResultsTable results={results} loading={loading} />,
