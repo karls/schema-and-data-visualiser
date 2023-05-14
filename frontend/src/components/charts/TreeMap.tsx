@@ -1,8 +1,13 @@
-import { Tooltip, Treemap } from "recharts";
+import { Treemap, TreemapPoint } from "react-vis";
+import "react-vis/dist/style.css";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import randomColor from "randomcolor";
+import { Segmented, Space, Typography } from "antd";
+import { BsFillCircleFill } from "react-icons/bs";
+import { MdRectangle } from "react-icons/md";
 
 type TreeMapProps = {
   results: QueryResults;
@@ -10,6 +15,8 @@ type TreeMapProps = {
   width: number;
   height: number;
 };
+
+type ModeOption = "squarify" | "circlePack";
 
 export const TreeMap = ({
   results,
@@ -20,51 +27,57 @@ export const TreeMap = ({
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
-  const data = useMemo(
-    () => [
-      {
-        name: results.header[columnIndex],
-        children: results.data.map((row) => {
-          return {
-            name: removePrefix(row[0]),
-            value: parseInt(row[columnIndex]),
-          };
-        }),
-      },
-    ],
-    [results, columnIndex]
-  );
+  const [mode, setMode] = useState<ModeOption>("squarify");
+  const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div
-          style={{
-            backgroundColor: settings.darkMode ? "black" : "#ffff",
-            padding: "5px",
-            border: "columnIndexpx solid #cccc",
-          }}
-        >
-          {`${payload[0].payload.name} : ${payload[0].value}`}
-        </div>
-      );
-    }
-
-    return null;
-  };
+  const data = useMemo(() => {
+    return {
+      title: results.header[columnIndex],
+      color: "transparent",
+      children: results.data.map((row) => {
+        return {
+          title: removePrefix(row[0]),
+          color: randomColor({
+            luminosity: settings.darkMode ? "light" : "dark",
+          }),
+          size: parseInt(row[columnIndex]),
+        };
+      }),
+    };
+  }, [results, columnIndex, settings.darkMode]);
 
   return (
-    <Treemap
-      width={width}
-      height={height}
-      data={data}
-      dataKey="value"
-      aspectRatio={4 / 3}
-      stroke="#fff"
-      fill="#8884d8"
-    >
-      <Tooltip content={CustomTooltip} />
-    </Treemap>
+    <Space direction="vertical">
+      <Space>
+        <Typography.Text>Layout:</Typography.Text>
+        <Segmented
+          onChange={(value) => setMode(value as ModeOption)}
+          options={[
+            { icon: <MdRectangle size={20} />, value: "squarify" },
+            { icon: <BsFillCircleFill size={15} />, value: "circlePack" },
+          ]}
+        />
+        {hoveredNode && (
+          <Typography.Text>
+            {hoveredNode.data.title}: {hoveredNode.data.size}
+          </Typography.Text>
+        )}
+      </Space>
+      <Treemap
+        data={data}
+        animation={{
+          damping: 9,
+          stiffness: 300,
+        }}
+        onLeafMouseOver={(x) => setHoveredNode(x)}
+        onLeafMouseOut={() => setHoveredNode(null)}
+        width={width}
+        height={height}
+        mode={mode}
+        colorType="literal"
+        getLabel={(x) => x.title}
+      />
+    </Space>
   );
 };
 
