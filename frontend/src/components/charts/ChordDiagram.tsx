@@ -28,7 +28,7 @@ const ChordDiagram = ({ results, width, height }) => {
   const numIdxs = numericColumns(results);
   const [valueColumn, setValueColumn] = useState<number>(numIdxs[0]);
   const [labels, setLabels] = useState<URI[]>([]);
-  const [directed, setDirected] = useState<boolean>(true);
+  const [symmetric, setSymmetric] = useState<boolean>(true);
 
   const matrix: number[][] = useMemo(() => {
     const uniqueLabels = new Set<URI>();
@@ -43,7 +43,7 @@ const ChordDiagram = ({ results, width, height }) => {
 
       links[row[col1]][row[col2]] = parseFloat(row[valueColumn]);
 
-      if (!directed) {
+      if (symmetric) {
         if (!links[row[col2]]) {
             links[row[col2]] = {};
           }
@@ -61,7 +61,7 @@ const ChordDiagram = ({ results, width, height }) => {
       )
     );
     return m;
-  }, [results, col1, col2, valueColumn, directed]);
+  }, [results, col1, col2, valueColumn, symmetric]);
 
   return (
     <Space direction="vertical" style={{ width, height }}>
@@ -101,10 +101,10 @@ const ChordDiagram = ({ results, width, height }) => {
         />
         <Space>
           <Switch
-            checked={directed}
-            onChange={(checked: boolean) => setDirected(checked)}
+            checked={symmetric}
+            onChange={(checked: boolean) => setSymmetric(checked)}
           />
-          Directed
+          Symmetric
         </Space>
       </Space>
       <ReactChordDiagram
