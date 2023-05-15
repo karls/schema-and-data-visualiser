@@ -28,7 +28,7 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
     });
   }, [repository]);
 
-  const outMatrix = useMemo(() => {
+  const outMatrix: number[][] = useMemo(() => {
     const links = {};
     for (let source of types) {
       links[source] = [];
@@ -42,7 +42,7 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
     return m;
   }, [repository, types]);
 
-  const inMatrix = useMemo(() => {
+  const inMatrix: number[][] = useMemo(() => {
     const links = {};
     for (let source of types) {
       links[source] = [];

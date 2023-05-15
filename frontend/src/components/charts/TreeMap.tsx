@@ -1,32 +1,27 @@
 import { Treemap, TreemapPoint } from "react-vis";
 import "react-vis/dist/style.css";
 import { QueryResults } from "../../types";
-import { removePrefix } from "../../utils/queryResults";
+import { numericColumns, removePrefix } from "../../utils/queryResults";
 import { useStore } from "../../stores/store";
 import { useMemo, useState } from "react";
 import randomColor from "randomcolor";
-import { Segmented, Space, Typography } from "antd";
+import { Segmented, Select, Space, Typography } from "antd";
 import { BsFillCircleFill } from "react-icons/bs";
 import { MdRectangle } from "react-icons/md";
 
 type TreeMapProps = {
   results: QueryResults;
-  columnIndex: number;
   width: number;
   height: number;
 };
 
 type ModeOption = "squarify" | "circlePack";
 
-export const TreeMap = ({
-  results,
-  columnIndex,
-  width,
-  height,
-}: TreeMapProps) => {
+export const TreeMap = ({ results, width, height }: TreeMapProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
-
+  const numIdxs = numericColumns(results);
+  const [columnIndex, setColumnIndex] = useState<number>(numIdxs[0]);
   const [mode, setMode] = useState<ModeOption>("squarify");
   const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
@@ -40,7 +35,7 @@ export const TreeMap = ({
           color: randomColor({
             luminosity: settings.darkMode ? "light" : "dark",
           }),
-          size: parseInt(row[columnIndex]),
+          size: parseFloat(row[columnIndex]),
         };
       }),
     };
@@ -49,14 +44,30 @@ export const TreeMap = ({
   return (
     <Space direction="vertical">
       <Space>
-        <Typography.Text>Layout:</Typography.Text>
-        <Segmented
-          onChange={(value) => setMode(value as ModeOption)}
-          options={[
-            { icon: <MdRectangle size={20} />, value: "squarify" },
-            { icon: <BsFillCircleFill size={15} />, value: "circlePack" },
-          ]}
-        />
+        <Space>
+          <Typography.Text>Value column: </Typography.Text>
+          <Select
+            value={columnIndex}
+            style={{ width: 120 }}
+            onChange={setColumnIndex}
+            options={numIdxs.map((i) => {
+              return {
+                label: results.header[i],
+                value: i,
+              };
+            })}
+          />
+        </Space>
+        <Space>
+          <Typography.Text>Layout:</Typography.Text>
+          <Segmented
+            onChange={(value) => setMode(value as ModeOption)}
+            options={[
+              { icon: <MdRectangle size={20} />, value: "squarify" },
+              { icon: <BsFillCircleFill size={15} />, value: "circlePack" },
+            ]}
+          />
+        </Space>
         {hoveredNode && (
           <Typography.Text>
             {hoveredNode.data.title}: {hoveredNode.data.size}

@@ -8,7 +8,7 @@ import { QueryResults, Triplet } from "../../types";
 import { isEmpty, isGraph } from "../../utils/queryResults";
 import Graph from "./Graph";
 import Editor from "./Editor";
-import ResultsTable from "./Results";
+import Results from "./Results";
 import Charts from "./Charts";
 import { MdOutlineEditNote } from "react-icons/md";
 
@@ -74,7 +74,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
           Results
         </Space.Compact>
       ),
-      children: <ResultsTable results={results} loading={loading} />,
+      children: <Results results={results} loading={loading} />,
     },
     {
       key: "graph",

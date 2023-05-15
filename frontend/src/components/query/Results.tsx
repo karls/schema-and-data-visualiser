@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Space, Switch, Table, Tooltip } from "antd";
+import { Space, Switch, Table, Tooltip, Typography } from "antd";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import Fullscreen from "./Fullscreen";
@@ -12,7 +12,7 @@ type QueryResultsProps = {
   loading: boolean;
 };
 
-const ResultsTable = observer(({ results, loading }: QueryResultsProps) => {
+const Results = observer(({ results, loading }: QueryResultsProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const { header, data } = results;
@@ -24,6 +24,7 @@ const ResultsTable = observer(({ results, loading }: QueryResultsProps) => {
   return (
     <Fullscreen>
       <Space>
+        <Typography.Text strong>{data.length} results</Typography.Text>
         <Switch
           checked={showPrefix}
           onChange={(checked: boolean) => setShowPrefix(checked)}
@@ -66,4 +67,4 @@ const ResultsTable = observer(({ results, loading }: QueryResultsProps) => {
   );
 });
 
-export default ResultsTable;
+export default Results;

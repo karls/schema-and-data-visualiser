@@ -9,7 +9,7 @@ import {
   Tooltip,
 } from "recharts";
 import { QueryResults } from "../../types";
-import { removePrefix } from "../../utils/queryResults";
+import { numericColumns, removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
@@ -19,24 +19,23 @@ type RadarChartProps = {
   results: QueryResults;
   width: number;
   height: number;
-  featureIndices: number[];
 };
 
 const RadarChart = observer(
-  ({ results, width, height, featureIndices }: RadarChartProps) => {
+  ({ results, width, height }: RadarChartProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
 
     const data = useMemo(
       () =>
-        featureIndices.map((i) => {
+        numericColumns(results).map((i) => {
           const values: any = { name: results.header[i] };
           results.data.forEach((row) => {
             values[removePrefix(row[0])] = row[i];
           });
           return values;
         }),
-      [results, featureIndices]
+      [results]
     );
 
     return (
