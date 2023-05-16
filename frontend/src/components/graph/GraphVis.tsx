@@ -6,7 +6,7 @@ import NetworkGraph, {
   Node,
   Options,
 } from "react-graph-vis";
-import { removePrefix } from "../../utils/queryResults";
+import { isURL, removePrefix } from "../../utils/queryResults";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import "./network.css";
@@ -81,7 +81,7 @@ const GraphVis = observer(
       physics: {
         forceAtlas2Based: {
           gravitationalConstant: -126,
-          springLength: 200,
+          springLength: 250,
           springConstant: 0.01,
         },
         maxVelocity: 50,
@@ -98,10 +98,12 @@ const GraphVis = observer(
       // beforeDrawing: () => setLoading(true),
       // afterDrawing: () => setLoading(false),
       doubleClick: function (event: any) {
-        var { nodes, edges } = event;
+        const { nodes, edges } = event;
         // Double clicking on a node adds all its data properties
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
+          if (!isURL(uri)) continue; // Skip if node already contains a literal value
+
           getPropertyValues(
             repository,
             uri,
@@ -119,33 +121,34 @@ const GraphVis = observer(
                 nodeOptions: {
                   color: randomColor({ luminosity: "light" }),
                   shape: "ellipse",
+                  font: { size: 25 },
                 },
                 edgeOptions,
               })
             );
           });
         }
-        // Double clicking on an edge removes all edges that are not connected to its two nodes
+        // Double clicking on an edge filters down to all edges with the same title
         for (let edgeId of edges) {
           const edge = idToEdge[edgeId];
+          const newEdges = graph.edges.filter(
+            (e: Edge) => e.title === edge.title
+          );
           const newGraph = {
-            nodes: graph.nodes.filter(
-              ({ id }) => id === edge.from || id === edge.to
-            ),
-            edges: graph.edges.filter((e: Edge) => {
-              return (
-                [edge.from, edge.to].includes(e.from) &&
-                [edge.from, edge.to].includes(e.to)
-              );
-            }),
+            nodes: newEdges
+              .map((e: Edge) => [idToNode[e.from!], idToNode[e.to!]])
+              .flat(1),
+            edges: newEdges,
           };
           setGraph(newGraph);
         }
       },
       hold: function (event: any) {
-        var { nodes, edges } = event;
+        const { nodes, edges } = event;
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
+          if (!isURL(uri)) continue; // Skip if node contains a literal value
+
           getPropertyValues(repository, uri, PropertyType.ObjectProperty).then(
             (res: [URI, string][]) => {
               const newLinks: Triplet[] = res.map(([prop, value]) => [
