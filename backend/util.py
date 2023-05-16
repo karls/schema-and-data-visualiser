@@ -1,6 +1,7 @@
 import csv
 import json
 import io
+import shlex
 
 
 def csv_to_json(string):
@@ -40,7 +41,7 @@ def remove_brackets(text):
 
 def parse_ntriples_graph(result: str) -> [[str]]:
     triplets: [[str, str, str]] = list(map(
-        lambda line: list(map(remove_brackets, line.split(' '))),
+        lambda line: list(map(remove_brackets, shlex.split(line))),
         result.strip().split('.\n')))
 
     return triplets
