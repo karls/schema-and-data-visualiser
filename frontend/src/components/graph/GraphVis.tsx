@@ -26,7 +26,7 @@ const GraphVis = observer(
   ({ links, width, height, hierarchical, repository }: GraphVisProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
-    const [, setLoading] = useState<boolean>(true);
+    // const [, setLoading] = useState<boolean>(true);
 
     const [graph, setGraph] = useState<GraphData>({ nodes: [], edges: [] });
 
