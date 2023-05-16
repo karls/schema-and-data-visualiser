@@ -225,7 +225,7 @@ def outgoing_links():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
-        result = parse_csv_text(response.text, header=True)
+        result = parse_csv_text(response.text, skip_header=True)
         links = {}
         for [uri, count] in result:
             links[uri] = int(count)
@@ -243,7 +243,7 @@ def incoming_links():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
             )
-        result = parse_csv_text(response.text, header=True)
+        result = parse_csv_text(response.text, skip_header=True)
         links = {}
         for [uri, count] in result:
             links[uri] = int(count)
@@ -289,9 +289,4 @@ def property_values():
                 f'{GRAPHDB_API}/repositories/{repository}'
                 f'?query={parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
             )
-        result = parse_csv_text(response.text, header=True)
-        data = {}
-        for [prop, value] in result:
-            data[prop] = value
-
-        return jsonify(data)
+        return parse_csv_text(response.text, skip_header=True)
