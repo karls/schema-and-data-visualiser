@@ -1,10 +1,15 @@
 import { observer } from "mobx-react-lite";
-import { Triplet } from "../../types";
+import { RepositoryId, Triplet } from "../../types";
 import GraphVis from "../graph/GraphVis";
 import Fullscreen from "./Fullscreen";
 import { useStore } from "../../stores/store";
 
-const Graph = observer(({ results }: { results: Triplet[]}) => {
+type GraphProps = {
+  links: Triplet[];
+  repository: RepositoryId;
+};
+
+const Graph = observer(({ links, repository }: GraphProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
@@ -17,7 +22,12 @@ const Graph = observer(({ results }: { results: Triplet[]}) => {
   );
   return (
     <Fullscreen>
-      <GraphVis triplets={results} width={width} height={height} />
+      <GraphVis
+        links={links}
+        width={width}
+        height={height}
+        repository={repository}
+      />
     </Fullscreen>
   );
 });

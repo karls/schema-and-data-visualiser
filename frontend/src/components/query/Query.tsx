@@ -56,7 +56,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
             setResults(results);
             setGraphKey((key) => key + 1);
             repositoryStore.updateQueryHistory();
-            setLoading(false)
+            setLoading(false);
             setActiveTab("results");
           }}
           width={width}
@@ -88,7 +88,8 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       children: (
         <Graph
           key={graphKey}
-          results={results.data as Triplet[]}
+          links={results.data as Triplet[]}
+          repository={repositoryStore.currentRepository!}
         />
       ),
     },
