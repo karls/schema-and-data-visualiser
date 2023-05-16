@@ -12,6 +12,7 @@ import { useStore } from "../../stores/store";
 import "./network.css";
 import { getPropertyValues } from "../../api/dataset";
 import randomColor from "randomcolor";
+import getUuidByString from "uuid-by-string";
 
 type GraphVisProps = {
   links: Triplet[];
@@ -32,7 +33,7 @@ const GraphVis = observer(
     const edgeOptions = useMemo(() => {
       return {
         font: {
-          strokeWidth: 0,
+          strokeWidth: 1,
           size: 20,
           color: settings.darkMode ? "white" : "black",
         },
@@ -58,7 +59,14 @@ const GraphVis = observer(
       return dict;
     }, [graph]);
 
-    // -------------------------------------------------------
+    const idToEdge: { [key: string]: Edge } = useMemo(() => {
+      const dict: { [key: number]: Edge } = {};
+      for (let edge of graph.edges) {
+        dict[edge.id as number] = edge;
+      }
+
+      return dict;
+    }, [graph]);
 
     const graphOptions: Options = {
       layout: {
@@ -70,13 +78,6 @@ const GraphVis = observer(
       },
       width: `${width}px`,
       height: `${height}px`,
-      // physics: {
-      //   enabled: true,
-      //   barnesHut: {
-      //     // sprintConstant: 1,
-      //     avoidOverlap: 0.05,
-      //   },
-      // },
       physics: {
         forceAtlas2Based: {
           gravitationalConstant: -126,
@@ -125,7 +126,7 @@ const GraphVis = observer(
         }
       },
       hold: function (event: any) {
-        var { nodes } = event;
+        var { nodes, edges } = event;
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
           getPropertyValues(repository, uri, PropertyType.ObjectProperty).then(
@@ -139,7 +140,7 @@ const GraphVis = observer(
                 getNodesAndEdges({
                   links: newLinks,
                   nodeOptions: {
-                    shape: 'box',
+                    shape: "box",
                     color: randomColor({ luminosity: "light" }),
                     font: { size: 30 },
                   },
@@ -148,6 +149,17 @@ const GraphVis = observer(
               );
             }
           );
+        }
+
+        for (let edgeId of edges) {
+          const edge = idToEdge[edgeId];
+          const newGraph = {
+            nodes: graph.nodes.filter(
+              ({ id }) => id === edge.from || id === edge.to
+            ),
+            edges: [edge],
+          };
+          setGraph(newGraph);
         }
       },
     };
@@ -176,65 +188,73 @@ function getNodesAndEdges({
   nodeOptions?: any;
   edgeOptions?: any;
 }) {
-  const nodeToId: { [key: string]: Node } = {};
+  const valueToNode: { [key: string]: Node } = {};
   for (let node of initialGraph.nodes) {
-    nodeToId[node.title!] = node;
+    valueToNode[node.title!] = node;
   }
   // Ignore the id of the edges set by the graph as this causes issues for the new edges
-  const edges: Edge[] = initialGraph.edges.map(({ from, to, label, title }) => {
-    return { from, to, label, title };
-  });
+  const edgeIds: { [key: string]: Edge } = {}; 
+  for (let edge of initialGraph.edges) {
+    edgeIds[edge.id!] = edge;
+  }
   const edgeCounts: { [key: string]: number } = {};
 
-  let totalNodes: number = Object.keys(nodeToId).length;
+  let availableId: number =
+    Object.values(valueToNode).length === 0
+      ? 0
+      : Math.max(...Object.values(valueToNode).map(({ id }) => id as number)) +
+        1;
 
   for (let [sub, pred, obj] of links) {
     let nodeA: Node;
     let nodeB: Node;
-    if (nodeToId[sub]) {
-      nodeA = nodeToId[sub];
+    if (valueToNode[sub]) {
+      nodeA = valueToNode[sub];
     } else {
       nodeA = {
-        id: totalNodes++,
+        id: availableId++,
         label: removePrefix(sub),
         title: sub,
         ...nodeOptions,
       };
-      nodeToId[sub] = nodeA;
+      valueToNode[sub] = nodeA;
     }
 
-    if (nodeToId[obj]) {
-      nodeB = nodeToId[obj];
+    if (valueToNode[obj]) {
+      nodeB = valueToNode[obj];
     } else {
       nodeB = {
-        id: totalNodes++,
+        id: availableId++,
         label: removePrefix(obj),
         title: obj,
         ...nodeOptions,
       };
-      nodeToId[obj] = nodeB;
+      valueToNode[obj] = nodeB;
     }
-    
+
     const from = nodeA.id as number;
     const to = nodeB.id as number;
-    const edgeId = `${Math.min(from, to)}-${Math.max(from, to)}`;
+    const edgeId = getUuidByString(`${from}-${pred}-${to}`);
+    const pairId = `${Math.min(from, to)}-${Math.max(from, to)}`;
     const edge = {
+      id: getUuidByString(`${from}-${pred}-${to}`),
       from,
       to,
       label: removePrefix(pred),
       title: pred,
       ...edgeOptions,
       smooth: {
-        enabled: edgeCounts[edgeId] > 0,
-        type: 'diagonalCross',
-        roundness: 1,
-      }
+        enabled: edgeCounts[pairId] > 0,
+        type: "diagonalCross",
+        roundness: 0.75,
+      },
     };
-    edges.push(edge);
-    edgeCounts[edgeId] = edgeCounts[edgeId] ?? 0 + 1;
+    edgeIds[edgeId] = edge;
+    edgeCounts[pairId] = edgeCounts[pairId] ?? 0 + 1;
   }
+  const graph = { nodes: Object.values(valueToNode), edges: Object.values(edgeIds) };
 
-  return { nodes: Object.values(nodeToId), edges };
+  return graph;
 }
 
 export default GraphVis;
