@@ -134,7 +134,7 @@ export async function getPropertyValues(
   repository: RepositoryId,
   uri: URI,
   propType: PropertyType
-): Promise<{ [key: string]: string }> {
+): Promise<[URI, string][]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
@@ -144,7 +144,7 @@ export async function getPropertyValues(
     const data = response.data;
     return data;
   } catch (error) {}
-  return {};
+  return [];
 }
 
 export async function getInstances(
