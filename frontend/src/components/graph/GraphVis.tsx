@@ -25,7 +25,7 @@ const GraphVis = observer(
   ({ links, width, height, hierarchical, repository }: GraphVisProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
-    const [loading, setLoading] = useState<boolean>(true);
+    const [, setLoading] = useState<boolean>(true);
 
     const [graph, setGraph] = useState<GraphData>({ nodes: [], edges: [] });
 
@@ -33,6 +33,7 @@ const GraphVis = observer(
       return {
         font: {
           strokeWidth: 0,
+          size: 20,
           color: settings.darkMode ? "white" : "black",
         },
       };
@@ -42,7 +43,7 @@ const GraphVis = observer(
       setGraph(
         getNodesAndEdges({
           links,
-          nodeOptions: { shape: "circle" },
+          nodeOptions: { shape: "box", font: { size: 30 } },
           edgeOptions,
         })
       );
@@ -69,23 +70,34 @@ const GraphVis = observer(
       },
       width: `${width}px`,
       height: `${height}px`,
+      // physics: {
+      //   enabled: true,
+      //   barnesHut: {
+      //     // sprintConstant: 1,
+      //     avoidOverlap: 0.05,
+      //   },
+      // },
       physics: {
-        enabled: true,
-        barnesHut: {
-          // sprintConstant: 1,
-          avoidOverlap: 0.5,
+        forceAtlas2Based: {
+          gravitationalConstant: -126,
+          springLength: 200,
+          springConstant: 0.01,
         },
+        maxVelocity: 50,
+        solver: "forceAtlas2Based",
+        timestep: 0.35,
+        stabilization: true,
       },
     };
 
     const events = {
       select: function (event: any) {
-        var { nodes, edges } = event;
+        // var { nodes, edges } = event;
       },
       beforeDrawing: () => setLoading(true),
       afterDrawing: () => setLoading(false),
       doubleClick: function (event: any) {
-        var { nodes, edges } = event;
+        var { nodes } = event;
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
           getPropertyValues(
@@ -110,6 +122,32 @@ const GraphVis = observer(
               })
             );
           });
+        }
+      },
+      hold: function (event: any) {
+        var { nodes } = event;
+        for (let nodeId of nodes) {
+          const uri = idToNode[nodeId].title!;
+          getPropertyValues(repository, uri, PropertyType.ObjectProperty).then(
+            (res: [URI, string][]) => {
+              const newLinks: Triplet[] = res.map(([prop, value]) => [
+                uri,
+                prop,
+                value,
+              ]);
+              setGraph(
+                getNodesAndEdges({
+                  links: newLinks,
+                  nodeOptions: {
+                    shape: 'ellipse',
+                    color: randomColor({ luminosity: "light" }),
+                    font: { size: 30 },
+                  },
+                  edgeOptions,
+                })
+              );
+            }
+          );
         }
       },
     };
