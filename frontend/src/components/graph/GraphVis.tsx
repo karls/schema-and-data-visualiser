@@ -116,7 +116,7 @@ const GraphVis = observer(
                 initialGraph: graph,
                 nodeOptions: {
                   color: randomColor({ luminosity: "light" }),
-                  shape: "box",
+                  shape: "ellipse",
                 },
                 edgeOptions,
               })
@@ -139,7 +139,7 @@ const GraphVis = observer(
                 getNodesAndEdges({
                   links: newLinks,
                   nodeOptions: {
-                    shape: 'ellipse',
+                    shape: 'box',
                     color: randomColor({ luminosity: "light" }),
                     font: { size: 30 },
                   },
