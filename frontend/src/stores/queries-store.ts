@@ -49,7 +49,7 @@ class QueriesStore {
   get currentQueryId(): string {
     return this.state.currentQueryId;
   }
-  
+
   get currentQuery(): QueryInfo {
     return this.openQueries[this.currentQueryId];
   }
@@ -62,12 +62,16 @@ class QueriesStore {
     this.state.openQueries[id]!.sparql = sparql;
   }
 
+  setCurrentQuery(sparql: string) {
+    this.state.openQueries[this.currentQueryId]!.sparql = sparql;
+  }
+
   setQueryTitle(id: string, title: string) {
     this.state.openQueries[id]!.title = title;
   }
 
-  addQuery(sparql: string = '', title: string = ''): QueryId {
-    const qid = `${++this.state.totalQueries}`
+  addQuery(sparql: string = "", title: string = ""): QueryId {
+    const qid = `${++this.state.totalQueries}`;
     this.state.openQueries[qid] = {
       title: title || `Query ${qid}`,
       sparql,
@@ -77,10 +81,6 @@ class QueriesStore {
 
   removeQuery(qid: string) {
     delete this.state.openQueries[qid];
-  }
-
-  getTotalQueries(): number {
-    return this.state.totalQueries;
   }
 }
 
