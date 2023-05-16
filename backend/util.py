@@ -1,6 +1,7 @@
 import csv
 import json
 import io
+import shlex
 
 
 def csv_to_json(string):
@@ -8,13 +9,14 @@ def csv_to_json(string):
     return json.dumps(list(reader))
 
 
-def parse_csv_text(string: str, header=True) -> [[str]]:
+def parse_csv_text(string: str, skip_header=True) -> [[str]]:
     string = string.replace('\r', '')
     rows = csv.reader(string.splitlines())
-    if header:
-        next(rows)
+    header = next(rows)
+    if skip_header:
+        return list(rows)
 
-    return list(rows)
+    return {'header': header, 'data': list(rows)}
 
 
 def is_csv(string):
@@ -39,7 +41,7 @@ def remove_brackets(text):
 
 def parse_ntriples_graph(result: str) -> [[str]]:
     triplets: [[str, str, str]] = list(map(
-        lambda line: list(map(remove_brackets, line.split(' '))),
+        lambda line: list(map(remove_brackets, shlex.split(line))),
         result.strip().split('.\n')))
 
     return triplets

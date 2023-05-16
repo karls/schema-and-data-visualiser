@@ -15,7 +15,7 @@ export const PropertyValues = ({
   uri,
   propType,
 }: PropertyValuesProps) => {
-  const [data, setData] = useState<{ [key: string]: string }>({});
+  const [data, setData] = useState<[URI, string][]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -29,9 +29,9 @@ export const PropertyValues = ({
   return (
     <Skeleton loading={loading}>
       <Descriptions size="small" bordered>
-        {Object.keys(data).map((prop: string) => (
+        {data.map(([prop, value]) => (
           <Descriptions.Item key={prop} label={removePrefix(prop)}>
-            {removePrefix((data as any)[prop])}
+            {removePrefix(value)}
           </Descriptions.Item>
         ))}
       </Descriptions>
