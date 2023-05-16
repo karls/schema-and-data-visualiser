@@ -8,13 +8,14 @@ def csv_to_json(string):
     return json.dumps(list(reader))
 
 
-def parse_csv_text(string: str, header=True) -> [[str]]:
+def parse_csv_text(string: str, skip_header=True) -> [[str]]:
     string = string.replace('\r', '')
     rows = csv.reader(string.splitlines())
-    if header:
-        next(rows)
+    header = next(rows)
+    if skip_header:
+        return list(rows)
 
-    return list(rows)
+    return {'header': header, 'data': list(rows)}
 
 
 def is_csv(string):
