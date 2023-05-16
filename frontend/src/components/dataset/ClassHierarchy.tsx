@@ -20,9 +20,10 @@ const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
 
   return (
     <GraphVis
-      triplets={triplets}
+      links={triplets}
       width={width}
       height={height}
+      repository={repository}
     />
   );
 };
