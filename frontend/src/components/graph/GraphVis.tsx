@@ -184,6 +184,7 @@ function getNodesAndEdges({
   const edges: Edge[] = initialGraph.edges.map(({ from, to, label, title }) => {
     return { from, to, label, title };
   });
+  const edgeCounts: { [key: string]: number } = {};
 
   let totalNodes: number = Object.keys(nodeToId).length;
 
@@ -213,15 +214,24 @@ function getNodesAndEdges({
       };
       nodeToId[obj] = nodeB;
     }
-
+    
+    const from = nodeA.id as number;
+    const to = nodeB.id as number;
+    const edgeId = `${Math.min(from, to)}-${Math.max(from, to)}`;
     const edge = {
-      from: nodeA.id,
-      to: nodeB.id,
+      from,
+      to,
       label: removePrefix(pred),
       title: pred,
       ...edgeOptions,
+      smooth: {
+        enabled: edgeCounts[edgeId] > 0,
+        type: 'diagonalCross',
+        roundness: 1,
+      }
     };
     edges.push(edge);
+    edgeCounts[edgeId] = edgeCounts[edgeId] ?? 0 + 1;
   }
 
   return { nodes: Object.values(nodeToId), edges };
