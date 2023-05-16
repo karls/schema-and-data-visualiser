@@ -92,13 +92,14 @@ const GraphVis = observer(
     };
 
     const events = {
-      select: function (event: any) {
-        // var { nodes, edges } = event;
-      },
-      beforeDrawing: () => setLoading(true),
-      afterDrawing: () => setLoading(false),
+      // select: function (event: any) {
+      //   var { nodes, edges } = event;
+      // },
+      // beforeDrawing: () => setLoading(true),
+      // afterDrawing: () => setLoading(false),
       doubleClick: function (event: any) {
-        var { nodes } = event;
+        var { nodes, edges } = event;
+        // Double clicking on a node adds all its data properties
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
           getPropertyValues(
@@ -123,6 +124,22 @@ const GraphVis = observer(
               })
             );
           });
+        }
+        // Double clicking on an edge removes all edges that are not connected to its two nodes
+        for (let edgeId of edges) {
+          const edge = idToEdge[edgeId];
+          const newGraph = {
+            nodes: graph.nodes.filter(
+              ({ id }) => id === edge.from || id === edge.to
+            ),
+            edges: graph.edges.filter((e: Edge) => {
+              return (
+                [edge.from, edge.to].includes(e.from) &&
+                [edge.from, edge.to].includes(e.to)
+              );
+            }),
+          };
+          setGraph(newGraph);
         }
       },
       hold: function (event: any) {
@@ -193,7 +210,7 @@ function getNodesAndEdges({
     valueToNode[node.title!] = node;
   }
   // Ignore the id of the edges set by the graph as this causes issues for the new edges
-  const edgeIds: { [key: string]: Edge } = {}; 
+  const edgeIds: { [key: string]: Edge } = {};
   for (let edge of initialGraph.edges) {
     edgeIds[edge.id!] = edge;
   }
@@ -252,7 +269,10 @@ function getNodesAndEdges({
     edgeIds[edgeId] = edge;
     edgeCounts[pairId] = edgeCounts[pairId] ?? 0 + 1;
   }
-  const graph = { nodes: Object.values(valueToNode), edges: Object.values(edgeIds) };
+  const graph = {
+    nodes: Object.values(valueToNode),
+    edges: Object.values(edgeIds),
+  };
 
   return graph;
 }
