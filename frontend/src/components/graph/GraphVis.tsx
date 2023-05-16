@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Triplet } from "../../types";
+import { useEffect, useMemo, useState } from "react";
+import { PropertyType, RepositoryId, Triplet, URI } from "../../types";
 import NetworkGraph, {
   Edge,
   graphData as GraphData,
@@ -9,25 +9,28 @@ import NetworkGraph, {
 import { removePrefix } from "../../utils/queryResults";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
-import './network.css';
+import "./network.css";
+import { getPropertyValues } from "../../api/dataset";
 
 type GraphVisProps = {
-  triplets: Triplet[];
+  links: Triplet[];
   width: number;
   height: number;
   hierarchical?: boolean;
+  repository: RepositoryId;
 };
 
 const GraphVis = observer(
-  ({ triplets, width, height, hierarchical }: GraphVisProps) => {
+  ({ links, width, height, hierarchical, repository }: GraphVisProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
     const [loading, setLoading] = useState<boolean>(true);
 
-    const graph: GraphData = useMemo(
-      () => getNodesAndEdges(triplets),
-      [triplets]
-    );
+    const [graph, setGraph] = useState<GraphData>({ nodes: [], edges: [] });
+
+    useEffect(() => {
+      setGraph(getNodesAndEdges(links));
+    }, [links]);
 
     const idToNode: { [key: number]: Node } = useMemo(() => {
       const dict: { [key: number]: Node } = {};
@@ -50,19 +53,38 @@ const GraphVis = observer(
       height: `${height}px`,
       physics: {
         enabled: true,
+        barnesHut: {
+          sprintConstant: 0,
+          avoidOverlap: 0.1,
+        },
       },
     };
 
     const events = {
       select: function (event: any) {
         var { nodes, edges } = event;
-        console.log(nodes.map((id) => idToNode[id]));
+        // console.log(nodes.map((id) => idToNode[id]));
       },
       beforeDrawing: () => setLoading(true),
       afterDrawing: () => setLoading(false),
       doubleClick: function (event: any) {
         var { nodes, edges } = event;
-        console.log(nodes.map((id) => idToNode[id]));
+        // console.log(nodes.map((id) => idToNode[id]));
+        for (let nodeId of nodes) {
+          const uri = idToNode[nodeId].title!;
+          getPropertyValues(
+            repository,
+            uri,
+            PropertyType.DatatypeProperty
+          ).then((res: [URI, string][]) => {
+            const newLinks: Triplet[] = res.map(([prop, value]) => [
+              uri,
+              prop,
+              value,
+            ]);
+            setGraph(getNodesAndEdges(newLinks, graph));
+          });
+        }
       },
     };
 
@@ -79,35 +101,44 @@ const GraphVis = observer(
   }
 );
 
-function getNodesAndEdges(results: Triplet[], initialNodes?) {
-  const nodes: { [key: string]: Node } = initialNodes ?? {};
-  const edges: Edge[] = [];
+function getNodesAndEdges(
+  links: Triplet[],
+  initialGraph: GraphData = { nodes: [], edges: [] }
+) {
+  const nodeToId: { [key: string]: Node } = {};
+  for (let node of initialGraph.nodes) {
+    nodeToId[node.title!] = node;
+  }
+  // Ignore the id of the edges set by the graph as this causes issues for the new edges
+  const edges: Edge[] = initialGraph.edges.map(({ from, to, label, title }) => {
+    return { from, to, label, title };
+  });
 
-  let totalNodes: number = Object.keys(nodes).length;
+  let totalNodes: number = Object.keys(nodeToId).length;
 
-  for (let [sub, pred, obj] of results) {
+  for (let [sub, pred, obj] of links) {
     let nodeA: Node;
     let nodeB: Node;
-    if (nodes[sub]) {
-      nodeA = nodes[sub];
+    if (nodeToId[sub]) {
+      nodeA = nodeToId[sub];
     } else {
       nodeA = {
         id: totalNodes++,
         label: removePrefix(sub),
         title: sub,
       };
-      nodes[sub] = nodeA;
+      nodeToId[sub] = nodeA;
     }
 
-    if (nodes[obj]) {
-      nodeB = nodes[obj];
+    if (nodeToId[obj]) {
+      nodeB = nodeToId[obj];
     } else {
       nodeB = {
         id: totalNodes++,
         label: removePrefix(obj),
         title: obj,
       };
-      nodes[obj] = nodeB;
+      nodeToId[obj] = nodeB;
     }
 
     const edge = {
@@ -119,7 +150,7 @@ function getNodesAndEdges(results: Triplet[], initialNodes?) {
     edges.push(edge);
   }
 
-  return { nodes: Object.values(nodes), edges };
+  return { nodes: Object.values(nodeToId), edges };
 }
 
 export default GraphVis;
