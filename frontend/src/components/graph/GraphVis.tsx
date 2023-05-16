@@ -11,6 +11,7 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import "./network.css";
 import { getPropertyValues } from "../../api/dataset";
+import randomColor from "randomcolor";
 
 type GraphVisProps = {
   links: Triplet[];
@@ -28,9 +29,24 @@ const GraphVis = observer(
 
     const [graph, setGraph] = useState<GraphData>({ nodes: [], edges: [] });
 
+    const edgeOptions = useMemo(() => {
+      return {
+        font: {
+          strokeWidth: 0,
+          color: settings.darkMode ? "white" : "black",
+        },
+      };
+    }, [settings.darkMode]);
+
     useEffect(() => {
-      setGraph(getNodesAndEdges(links));
-    }, [links]);
+      setGraph(
+        getNodesAndEdges({
+          links,
+          nodeOptions: { shape: "circle" },
+          edgeOptions,
+        })
+      );
+    }, [links, edgeOptions]);
 
     const idToNode: { [key: number]: Node } = useMemo(() => {
       const dict: { [key: number]: Node } = {};
@@ -41,7 +57,9 @@ const GraphVis = observer(
       return dict;
     }, [graph]);
 
-    const options: Options = {
+    // -------------------------------------------------------
+
+    const graphOptions: Options = {
       layout: {
         hierarchical: hierarchical ?? false,
       },
@@ -54,8 +72,8 @@ const GraphVis = observer(
       physics: {
         enabled: true,
         barnesHut: {
-          sprintConstant: 0,
-          avoidOverlap: 0.1,
+          // sprintConstant: 1,
+          avoidOverlap: 0.5,
         },
       },
     };
@@ -63,13 +81,11 @@ const GraphVis = observer(
     const events = {
       select: function (event: any) {
         var { nodes, edges } = event;
-        // console.log(nodes.map((id) => idToNode[id]));
       },
       beforeDrawing: () => setLoading(true),
       afterDrawing: () => setLoading(false),
       doubleClick: function (event: any) {
         var { nodes, edges } = event;
-        // console.log(nodes.map((id) => idToNode[id]));
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
           getPropertyValues(
@@ -82,7 +98,17 @@ const GraphVis = observer(
               prop,
               value,
             ]);
-            setGraph(getNodesAndEdges(newLinks, graph));
+            setGraph(
+              getNodesAndEdges({
+                links: newLinks,
+                initialGraph: graph,
+                nodeOptions: {
+                  color: randomColor({ luminosity: "light" }),
+                  shape: "box",
+                },
+                edgeOptions,
+              })
+            );
           });
         }
       },
@@ -91,7 +117,7 @@ const GraphVis = observer(
     return (
       <NetworkGraph
         graph={graph}
-        options={options}
+        options={graphOptions}
         events={events}
         getNetwork={(network: any) => {
           //  if you want access to vis.js network api you can set the state in a parent component using this property
@@ -101,10 +127,17 @@ const GraphVis = observer(
   }
 );
 
-function getNodesAndEdges(
-  links: Triplet[],
-  initialGraph: GraphData = { nodes: [], edges: [] }
-) {
+function getNodesAndEdges({
+  links,
+  initialGraph = { nodes: [], edges: [] },
+  nodeOptions = {},
+  edgeOptions = {},
+}: {
+  links: Triplet[];
+  initialGraph?: GraphData;
+  nodeOptions?: any;
+  edgeOptions?: any;
+}) {
   const nodeToId: { [key: string]: Node } = {};
   for (let node of initialGraph.nodes) {
     nodeToId[node.title!] = node;
@@ -126,6 +159,7 @@ function getNodesAndEdges(
         id: totalNodes++,
         label: removePrefix(sub),
         title: sub,
+        ...nodeOptions,
       };
       nodeToId[sub] = nodeA;
     }
@@ -137,6 +171,7 @@ function getNodesAndEdges(
         id: totalNodes++,
         label: removePrefix(obj),
         title: obj,
+        ...nodeOptions,
       };
       nodeToId[obj] = nodeB;
     }
@@ -146,6 +181,7 @@ function getNodesAndEdges(
       to: nodeB.id,
       label: removePrefix(pred),
       title: pred,
+      ...edgeOptions,
     };
     edges.push(edge);
   }
