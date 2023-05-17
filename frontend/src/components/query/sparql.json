@@ -9,6 +9,8 @@
     "HAVING",
     "PREFIX",
     "IN",
-    "UNION"
+    "UNION",
+    "CONSTRUCT",
+    "ASK"
   ]
 }
