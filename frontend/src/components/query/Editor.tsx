@@ -11,6 +11,8 @@ import { BiCopy } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import sparql from './sparql.json';
+import { sparql_templates } from './sparql_templates';
+import Templates from "./Templates";
 
 type QueryEditorProps = {
   getQueryText: () => string;
@@ -93,6 +95,7 @@ const Editor = ({
           </Space>
         </Button>
         <CopyToClipboard text={getQueryText()} />
+        <Templates templates={sparql_templates} />
       </Space>
       <CodeEditor
         code={getQueryText()}
