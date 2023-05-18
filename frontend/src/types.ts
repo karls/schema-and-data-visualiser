@@ -49,3 +49,19 @@ export enum PropertyType {
   TransitiveProperty,
   SymmetricProperty,
 }
+
+export type Visualisation = {
+  name: 'bar' | 'scatter' | 'word clouds' | 'calendar' | 'bubble' | 'choropleth map';
+  maxInstances?: number;
+  maxClasses?: number;
+}
+
+export type QueryAnalysis = {
+  valid: boolean;
+  keyVar?: string;
+  scalarVars: string[];
+  temporalVars: string[];
+  geographicalVars: string[];
+  lexicalVars: string[];
+  visualisations: Visualisation[]
+}
