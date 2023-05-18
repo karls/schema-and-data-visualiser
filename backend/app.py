@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify, flash
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
-from urllib import parse
+import urllib
 from db import add_query, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
     is_ntriples_format, remove_blank_nodes, is_blank_node
@@ -76,7 +76,7 @@ def run_query():
 
         response = requests.get(
             f'{GRAPHDB_API}/repositories/{repository}'
-            f'?query={parse.quote(query["sparql"], safe="")}')
+            f'?query={urllib.parse.quote(query["sparql"], safe="")}')
 
         results = response.text
         if is_ntriples_format(results):
@@ -116,7 +116,7 @@ def classes():
         with open('queries/all_classes.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         return remove_blank_nodes(
             response.text.replace('\r', '').splitlines()[1:])
@@ -129,7 +129,7 @@ def class_hierarchy():
         with open('./queries/class_hierarchy.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         result = response.text
 
@@ -148,7 +148,7 @@ def triplets():
         with open('./queries/count_triplets.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         result = response.text
 
@@ -162,7 +162,7 @@ def all_types():
         with open('queries/all_types.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         types = response.text.replace('\r', '').splitlines()[1:]
         return remove_blank_nodes(types)
@@ -176,7 +176,7 @@ def get_type():
         with open('queries/get_type.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}')
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
 
         return response.text.replace('\r', '').splitlines()[1:]
 
@@ -189,7 +189,7 @@ def type_properties():
         with open('queries/type_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")}'
+                f'?query={urllib.parse.quote(query.read().format(type=rdf_type), safe="")}'
             )
 
         return response.text.replace('\r', '').splitlines()[1:]
@@ -205,7 +205,7 @@ def meta_information():
             # query.seek(0)
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         info = response.text
 
@@ -223,7 +223,7 @@ def outgoing_links():
         with open('queries/outgoing_links.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, skip_header=True)
         links = {}
@@ -241,7 +241,7 @@ def incoming_links():
         with open('queries/incoming_links.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, skip_header=True)
         links = {}
@@ -258,7 +258,7 @@ def all_properties():
         with open('queries/all_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
@@ -272,7 +272,7 @@ def type_instances():
         with open('queries/type_instances.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=type_), safe="")}'
+                f'?query={urllib.parse.quote(query.read().format(type=type_), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
@@ -287,6 +287,6 @@ def property_values():
         with open('queries/property_values.sparql', 'r') as query:
             response = requests.get(
                 f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
+                f'?query={urllib.parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
             )
         return parse_csv_text(response.text, skip_header=True)
