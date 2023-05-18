@@ -58,6 +58,7 @@ export type Visualisation = {
 
 export type QueryAnalysis = {
   valid: boolean;
+  pattern: string;
   keyVar?: string;
   scalarVars: string[];
   temporalVars: string[];
