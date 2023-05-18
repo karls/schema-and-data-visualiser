@@ -4,18 +4,19 @@ import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
 import { allRepositories, runSparqlQuery } from "../../api/sparql";
 import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
-import { Button, Dropdown, Space, App as AntdApp } from "antd";
+import { Button, Dropdown, Space, App as AntdApp, Row, Col } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import { BiCopy } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
-import sparql from './sparql.json';
-import { sparql_templates } from './sparql_templates';
+import sparql from "./sparql.json";
+import { sparql_templates } from "./sparql_templates";
 import Templates from "./Templates";
+import Analysis from "./Analysis";
 
 type QueryEditorProps = {
-  getQueryText: () => string;
+  query: string;
   onChange: React.Dispatch<React.SetStateAction<string>>;
   width: number;
   height: number;
@@ -25,7 +26,7 @@ type QueryEditorProps = {
 };
 
 const Editor = ({
-  getQueryText,
+  query,
   onChange,
   width,
   height,
@@ -67,7 +68,9 @@ const Editor = ({
   };
 
   return (
-    <Space direction="vertical">
+    <Row gutter={10}>
+    <Col span={12}>
+    {/* <Space direction="vertical" style={{ width: "100%" }}> */}
       <Space>
         <Space style={{ margin: 5 }}>
           <SelectRepository
@@ -94,26 +97,30 @@ const Editor = ({
             <FiPlay size={20} /> Run
           </Space>
         </Button>
-        <CopyToClipboard text={getQueryText()} />
+        <CopyToClipboard text={query} />
         <Templates templates={sparql_templates} />
       </Space>
-      <CodeEditor
-        code={getQueryText()}
-        setCode={onChange}
-        language="sparql"
-        completions={{
-          keywords: sparql.keywords,
-          properties: properties.map((prop) => removePrefix(prop)),
-          types: types.map((t) => removePrefix(t)),
-          variables: getTokens(getQueryText()).filter((token) =>
-            isVariable(token)
-          ),
-        }}
-        darkTheme={settings.darkMode}
-        width={width}
-        height={height}
-      />
-    </Space>
+
+          <CodeEditor
+            code={query}
+            setCode={onChange}
+            language="sparql"
+            completions={{
+              keywords: sparql.keywords,
+              properties: properties.map((prop) => removePrefix(prop)),
+              types: types.map((t) => removePrefix(t)),
+              variables: getTokens(query).filter((token) => isVariable(token)),
+            }}
+            darkTheme={settings.darkMode}
+            width={Math.floor(width / 2)}
+            height={height}
+          />
+        </Col>
+        <Col span={12}>
+          {repository && <Analysis query={query} repository={repository} />}
+        </Col>
+      </Row>
+    // </Space>
   );
 };
 
