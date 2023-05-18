@@ -179,7 +179,7 @@ def class_with_data_properties(*, query, api: str, repository: str) \
         visualisations.append({'name': 'Word Cloud'})
 
     return {'valid': True,
-            'name': 'Class with data properties',
+            'pattern': 'Class with data properties',
             'keyVar': key_var,
             'scalarVars': varLists['scalar'],
             'temporalVars': varLists['temporal'],
