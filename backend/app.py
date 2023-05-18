@@ -77,7 +77,7 @@ def run_query():
 
         response = requests.get(
             f'{API_URL}/repositories/{repository}'
-            f'?query={urllib.parse.quote(query["sparql"], safe="")}')
+            f'?query={urllib.parse.quote(query, safe="")}')
 
         results = response.text
         if is_ntriples_format(results):
