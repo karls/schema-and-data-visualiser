@@ -19,15 +19,16 @@ export async function allRepositories(): Promise<RepositoryInfo[]> {
 
 export async function runSparqlQuery(
   repository: RepositoryId,
-  query: QueryInfo
+  queryInfo: QueryInfo
 ): Promise<QueryResults> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/sparql`;
-    const response = await axios.post(endpoint, {
-      repository,
-      query,
-    });
+    const response = await axios.get(
+      `${endpoint}?repository=${repository}&title=${encodeURIComponent(
+        queryInfo.title
+      )}&query=${encodeURIComponent(queryInfo.sparql)}`
+    );
     const results = response.data;
     return results;
   } catch (error) {
