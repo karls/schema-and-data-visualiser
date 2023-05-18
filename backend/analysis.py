@@ -99,9 +99,6 @@ def is_key(*, prop_uri: str, api: str, repository: str):
 
 
 def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
-    prop_types = list(map(remove_prefix,
-                          get_types(uri=prop_uri, api=api,
-                                    repository=repository)))
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
@@ -139,7 +136,6 @@ def class_with_data_properties(*, query, api: str, repository: str) \
     }
 
     for cls in all_classes:
-        class_used = False
         for prop in all_classes[cls]:
             var = all_classes[cls][prop]
             if var in select_variables:
@@ -188,7 +184,7 @@ def class_with_data_properties(*, query, api: str, repository: str) \
             'temporalVars': varLists['temporal'],
             'geographicalVars': varLists['geographical'],
             'lexicalVars': varLists['lexical'],
-            'visualisation': visualisations}
+            'visualisations': visualisations}
 
 
 def query_analysis(query: str, api: str, repository):
@@ -197,6 +193,8 @@ def query_analysis(query: str, api: str, repository):
                                      repository=repository)
     if res['valid']:
         return res
+
+    return {'valid': False}
 
 
 if __name__ == '__main__':
