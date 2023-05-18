@@ -104,7 +104,8 @@ def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
 
     types = {
         'scalar':
-            ['int', 'integer', 'decimal', 'negativeInt', 'nonNegativeInt'],
+            ['int', 'integer', 'decimal', 'negativeInteger',
+             'nonNegativeInteger'],
         'temporal':
             ['date', 'dateTime', 'gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
              'gYearMonth'],
@@ -160,22 +161,22 @@ def class_with_data_properties(*, query, api: str, repository: str) \
     visualisations = []
 
     if key_var and len(varLists['scalar']) >= 1:
-        visualisations.append({'name': 'bar', 'maxInstances': 100})
+        visualisations.append({'name': 'Bar', 'maxInstances': 100})
 
     if len(varLists['scalar']) >= 2:
-        visualisations.append({'name': 'scatter'})
+        visualisations.append({'name': 'Scatter'})
 
     if len(varLists['scalar']) >= 3:
-        visualisations.append({'name': 'bubble'})
+        visualisations.append({'name': 'Bubble'})
 
     if len(varLists['temporal']) >= 1:
-        visualisations.append({'name': 'calendar'})
+        visualisations.append({'name': 'Calendar'})
 
     if len(varLists['geographical']) == 1 and len(varLists['scalar']) >= 1:
-        visualisations.append({'name': 'choropleth map'})
+        visualisations.append({'name': 'Choropleth Map'})
 
     if key_var and len(varLists['scalar']) >= 1:
-        visualisations.append({'name': 'word clouds'})
+        visualisations.append({'name': 'Word Cloud'})
 
     return {'valid': True,
             'name': 'Class with data properties',
