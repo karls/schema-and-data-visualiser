@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
-import { allRepositories, runSparqlQuery } from "../../api/graphdb";
+import { allRepositories, runSparqlQuery } from "../../api/sparql";
 import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
 import { Button, Dropdown, Space, App as AntdApp } from "antd";
 import { FiPlay } from "react-icons/fi";

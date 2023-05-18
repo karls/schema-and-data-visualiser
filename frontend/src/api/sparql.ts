@@ -36,20 +36,20 @@ export async function runSparqlQuery(
   return { header: [], data: [] };
 }
 
-export async function updateGraphdbURL(graphdbURL: string) {
+export async function updateApiUrl(graphdbURL: string) {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/graphdb/url?graphdbURL=${graphdbURL}`;
+    const endpoint = `${BACKEND_API}/api-url?url=${graphdbURL}`;
     await axios.post(endpoint);
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function getGraphdbURL(): Promise<string> {
+export async function getApiUrl(): Promise<string> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/graphdb/url`;
+    const endpoint = `${BACKEND_API}/api-url`;
     const response = await axios.get(endpoint);
     const url = response.data;
     return url;

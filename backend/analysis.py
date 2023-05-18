@@ -200,7 +200,7 @@ def query_analysis(query: str, api: str, repository):
 
 
 if __name__ == '__main__':
-    from app import GRAPHDB_API
+    from app import API_URL
 
     example_query = '''
 PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -223,5 +223,5 @@ WHERE {
     # print(get_class_variables(example_query))
     # print(get_class_properties(example_query))
     print(class_with_data_properties(query=example_query,
-                                     api=GRAPHDB_API,
+                                     api=API_URL,
                                      repository='mondial'))
