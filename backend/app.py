@@ -64,7 +64,7 @@ def upload_file():
             return {}
 
 
-@app.route('/query', methods=['POST'])
+@app.route('/sparql', methods=['POST'])
 def run_query():
     if request.method == 'POST':
         repository = request.json['repository']

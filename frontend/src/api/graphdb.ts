@@ -23,7 +23,7 @@ export async function runSparqlQuery(
 ): Promise<QueryResults> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/query`;
+    const endpoint = `${BACKEND_API}/sparql`;
     const response = await axios.post(endpoint, {
       repository,
       query,
