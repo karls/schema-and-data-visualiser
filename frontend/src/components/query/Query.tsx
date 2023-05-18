@@ -13,11 +13,11 @@ import Charts from "./Charts";
 import { MdOutlineEditNote } from "react-icons/md";
 
 type QueryProps = {
-  getQueryText: () => string;
+  query: string;
   setQueryText: any;
 };
 
-const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
+const Query = observer(({ query, setQueryText }: QueryProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
@@ -50,7 +50,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
       ),
       children: (
         <Editor
-          getQueryText={getQueryText}
+          query={query}
           onChange={setQueryText}
           onRun={(results) => {
             setResults(results);
@@ -84,7 +84,7 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
           Graph
         </Space.Compact>
       ),
-      disabled: results.data.length === 0 || !isGraph(results),
+      disabled: isEmpty(results) || !isGraph(results),
       children: (
         <Graph
           key={graphKey}
@@ -101,19 +101,17 @@ const Query = observer(({ getQueryText, setQueryText }: QueryProps) => {
           Charts
         </Space.Compact>
       ),
-      disabled: isEmpty(results),
+      disabled: isEmpty(results) || isGraph(results),
       children: <Charts results={results} />,
     },
   ];
 
   return (
-    <>
-      <Tabs
-        activeKey={activeTab}
-        items={items}
-        onChange={(activeKey) => setActiveTab(activeKey)}
-      />
-    </>
+    <Tabs
+      activeKey={activeTab}
+      items={items}
+      onChange={(activeKey) => setActiveTab(activeKey)}
+    />
   );
 });
 

@@ -72,7 +72,7 @@ const QueryBrowser = observer(() => {
           ),
           children: (
             <Query
-              getQueryText={() => queriesStore.openQueries[qid].sparql}
+              query={queriesStore.openQueries[qid].sparql}
               setQueryText={(text: string) =>
                 queriesStore.setQueryText(qid, text)
               }
