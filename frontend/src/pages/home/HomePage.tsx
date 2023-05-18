@@ -3,10 +3,11 @@ import { Layout, theme } from "antd";
 import QueryBrowser from "./QueryBrowser";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { useStore } from "../../stores/store";
+import { observer } from "mobx-react-lite";
 
 const { Content, Sider } = Layout;
 
-const HomePage = () => {
+const HomePage = observer(() => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
@@ -17,6 +18,9 @@ const HomePage = () => {
   return (
     <Layout>
       <Sider
+        collapsible
+        collapsed={settings.sidebarCollapsed}
+        onCollapse={(value: boolean) => settings.setSidebarCollapsed(value)}
         width={settings.sidebarWidth}
         style={{ background: colorBgContainer }}
       >
@@ -35,6 +39,6 @@ const HomePage = () => {
       </Layout>
     </Layout>
   );
-};
+});
 
 export default HomePage;

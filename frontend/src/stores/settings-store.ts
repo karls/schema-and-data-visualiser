@@ -6,6 +6,7 @@ type SettingsState = {
   darkMode: boolean;
   sidebarWidth: number;
   fullScreen: boolean;
+  sidebarCollapsed: boolean;
 };
 
 class SettingsStore {
@@ -14,6 +15,7 @@ class SettingsStore {
     darkMode: false,
     sidebarWidth: 200,
     fullScreen: false,
+    sidebarCollapsed: false,
   };
 
   constructor(rootStore: RootStore) {
@@ -48,12 +50,20 @@ class SettingsStore {
     return this.state.fullScreen;
   }
 
+  get sidebarCollapsed(): boolean {
+    return this.state.sidebarCollapsed;
+  }
+
   setDarkMode(value: boolean) {
     this.setState({ ...this.state, darkMode: value });
   }
 
   setFullScreen(value: boolean) {
     this.state.fullScreen = value;
+  }
+
+  setSidebarCollapsed(value: boolean) {
+    this.state.sidebarCollapsed = value;
   }
 }
 

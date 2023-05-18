@@ -9,7 +9,6 @@ import {
   removePrefix,
 } from "../../utils/queryResults";
 import { Select, Space, Switch } from "antd";
-import Fullscreen from "../query/Fullscreen";
 
 type ChordDiagProps = {
   results: QueryResults;
@@ -17,7 +16,7 @@ type ChordDiagProps = {
   height: number;
 };
 
-const ChordDiagram = ({ results, width, height }) => {
+const ChordDiagram = ({ results, width, height }: ChordDiagProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
