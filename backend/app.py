@@ -5,6 +5,8 @@ from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 import urllib
+
+from analysis import query_analysis
 from db import add_to_history, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
     is_ntriples_format, remove_blank_nodes, is_blank_node
@@ -293,8 +295,10 @@ def property_values():
         return parse_csv_text(response.text, skip_header=True)
 
 
-@app.route('/analysis', methods=['POST'])
-def run_query():
-    if request.method == 'POST':
-        query = request.json['query']
-        repository = request.json['repository']
+@app.route('/analysis', methods=['GET'])
+def analysis():
+    if request.method == 'GET':
+        query = request.args['query']
+        repository = request.args['repository']
+        return jsonify(
+            query_analysis(query=query, repository=repository, api=API_URL))
