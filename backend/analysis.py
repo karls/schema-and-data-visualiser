@@ -14,6 +14,11 @@ def get_prefixes(query: str):
 
 
 def get_select_variables(query: str):
+    """
+    List of variables used in the SELECT statement of the query
+    :param query:
+    :return:
+    """
     select_statement = parse.search('select {line}\n', query)
     if not select_statement:
         return []
@@ -24,6 +29,11 @@ def get_select_variables(query: str):
 
 
 def get_class_variables(query) -> Dict[str, str]:
+    """
+    Get the class of the variables
+    :param query:
+    :return:
+    """
     where_clause = \
         parse.search('where {{\n{conditions}\n}}', query)
     if not where_clause:
@@ -39,6 +49,11 @@ def get_class_variables(query) -> Dict[str, str]:
 
 
 def get_class_properties(query):
+    """
+    Get the properties and their variables for each class
+    :param query:
+    :return:
+    """
     classes = {}
     for result in parse.findall('rdf:type {class} ;\n{properties} .', query):
         cls = result['class']
@@ -52,6 +67,12 @@ def get_class_properties(query):
 
 
 def remove_prefix(uri: str, prefix=None) -> str:
+    """
+    Remove the prefix of a URI
+    :param uri:
+    :param prefix:
+    :return:
+    """
     if not uri:
         return ''
     if prefix:
@@ -61,6 +82,12 @@ def remove_prefix(uri: str, prefix=None) -> str:
 
 
 def get_full_uri(s: str, prefixes) -> str:
+    """
+    Substitute the prefix back to get the original URI
+    :param s:
+    :param prefixes:
+    :return:
+    """
     for prefix in prefixes:
         s = s.replace(prefix, prefixes[prefix])
 
@@ -77,6 +104,13 @@ def get_types(*, uri: str, api: str, repository: str):
 
 
 def get_metadata(*, uri: str, api: str, repository: str):
+    """
+    Returns metadata of a property
+    :param uri:
+    :param api:
+    :param repository:
+    :return:
+    """
     with open('queries/meta_information.sparql', 'r') as query:
         response = requests.get(
             f'{api}/repositories/{repository}'
@@ -97,17 +131,31 @@ def is_data_property(*, prop_uri: str, api: str, repository: str):
 
 
 def is_key(*, prop_uri: str, api: str, repository: str):
+    """
+    Check if property is a key of its class
+    :param prop_uri:
+    :param api:
+    :param repository:
+    :return:
+    """
     types = list(map(remove_prefix,
                      get_types(uri=prop_uri, api=api, repository=repository)))
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
     return 'InverseFunctionalProperty' in types or \
-        prop_range == 'string' and 'FunctionalProperty' in types
+           prop_range == 'string' and 'FunctionalProperty' in types
 
 
-def property_range_categories(*, prop_uri: str, api: str, repository: str)\
-    -> [str]:
+def property_range_categories(*, prop_uri: str, api: str, repository: str) \
+        -> [str]:
+    """
+    Returns the category of the range of a property
+    :param prop_uri:
+    :param api:
+    :param repository:
+    :return:
+    """
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
@@ -131,15 +179,18 @@ def property_range_categories(*, prop_uri: str, api: str, repository: str)\
     return prop_categories
 
 
-def variable_categories(*, query, api: str, repository: str) -> Dict:
-    # Prefixes defined in query
-    prefixes = get_prefixes(query)
-    # Variables that will be returned
-    select_variables = get_select_variables(query)
-    # All classes used in the WHERE clause
-    all_classes = get_class_properties(query)
-    # Checks if a variable from a class has already been used
-
+def variable_categories(*, query, api: str, repository: str, select_variables,
+                        all_classes, prefixes) -> Dict:
+    """
+    Returns the variables of different categories
+    :param query:
+    :param api:
+    :param repository:
+    :param select_variables:
+    :param all_classes:
+    :param prefixes:
+    :return:
+    """
     var_categories = {
         'key': [],
         'scalar': [],
@@ -172,10 +223,28 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
     return var_categories
 
 
+def get_classes_used(select_variables, all_classes) -> [str]:
+    """
+    Returns the number of classes that the select variables belong to
+    :param select_variables:
+    :param all_classes:
+    :return:
+    """
+    used = set()
+    for cls in all_classes:
+        prop_vars = all_classes[cls]
+        for prop in all_classes[cls]:
+            if prop_vars[prop] in select_variables:
+                used.add(cls)
+
+    return used
+
+
 def class_with_data_properties(*, query, api: str, repository: str,
+                               select_variables, all_classes,
                                var_categories: Dict) -> Dict:
     class_var = get_class_variables(query)
-    if len(class_var) == 0:
+    if len(get_classes_used(select_variables, all_classes)) != 1:
         return {'valid': False, 'variables': var_categories}
 
     visualisations = []
@@ -206,13 +275,26 @@ def class_with_data_properties(*, query, api: str, repository: str,
 
 
 def query_analysis(query: str, api: str, repository):
+    # Prefixes defined in query
+    prefixes = get_prefixes(query)
+    # Variables that will be returned
+    select_variables = get_select_variables(query)
+    # All classes used in the WHERE clause
+    all_classes = get_class_properties(query)
+    # Checks if a variable from a class has already been used
+
     var_categories = variable_categories(query=query,
                                          api=api,
-                                         repository=repository)
-    res = class_with_data_properties(query=query, 
-                                     api=api, 
+                                         repository=repository,
+                                         select_variables=select_variables,
+                                         prefixes=prefixes,
+                                         all_classes=all_classes)
+    res = class_with_data_properties(query=query,
+                                     api=api,
                                      repository=repository,
-                                     var_categories=var_categories)
+                                     var_categories=var_categories,
+                                     select_variables=select_variables,
+                                     all_classes=all_classes)
     if res['valid']:
         return res
 
@@ -242,6 +324,6 @@ WHERE {
     # print(get_select_variables(example_query))
     # print(get_class_variables(example_query))
     # print(get_class_properties(example_query))
-    print(class_with_data_properties(query=example_query,
-                                     api=API_URL,
-                                     repository='mondial'))
+    print(query_analysis(query=example_query,
+                         api=API_URL,
+                         repository='mondial'))
