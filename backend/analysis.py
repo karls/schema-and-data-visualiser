@@ -118,7 +118,7 @@ def property_range_categories(*, prop_uri: str, api: str, repository: str)\
         'temporal':
             ['date', 'dateTime', 'gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
              'gYearMonth'],
-        'date': ['date'  'dateTime'],
+        'date': ['date'  'dateTime', 'time'],
         'lexical': ['string'],
         'geographical': []
     }
@@ -126,8 +126,9 @@ def property_range_categories(*, prop_uri: str, api: str, repository: str)\
     for c in categories:
         if prop_range in categories[c]:
             prop_categories.append(c)
-
-    return ['object']
+    if not prop_categories:
+        prop_categories.append('other')
+    return prop_categories
 
 
 def variable_categories(*, query, api: str, repository: str) -> Dict:
@@ -145,7 +146,8 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
         'temporal': [],
         'geographical': [],
         'lexical': [],
-        'date': []
+        'date': [],
+        'object': []
     }
 
     for cls in all_classes:
@@ -173,8 +175,8 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
 def class_with_data_properties(*, query, api: str, repository: str,
                                var_categories: Dict) -> Dict:
     class_var = get_class_variables(query)
-    if len(class_var) != 1:
-        return {'valid': False}
+    if len(class_var) == 0:
+        return {'valid': False, 'variables': var_categories}
 
     visualisations = []
 
@@ -209,7 +211,8 @@ def query_analysis(query: str, api: str, repository):
                                          repository=repository)
     res = class_with_data_properties(query=query, 
                                      api=api, 
-                                     repository=repository)
+                                     repository=repository,
+                                     var_categories=var_categories)
     if res['valid']:
         return res
 
