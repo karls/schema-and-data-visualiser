@@ -27,13 +27,14 @@ const BarChart = ({ results, width, height, variables }: BarChartProps) => {
       items={variables.scalar.map((column, id) => {
         const keyIndex = results.header.indexOf(variables.key[0]);
         const columnIndex = results.header.indexOf(column);
+
         const data = results.data.map((row) => {
           const bar: any = { name: removePrefix(row[keyIndex]) };
-          console.log(column, results.header);
+
           bar[column] = parseFloat(row[columnIndex]);
           return bar;
         });
-        console.log(column, data);
+
         return {
           key: `column-${id}`,
           label: column,
