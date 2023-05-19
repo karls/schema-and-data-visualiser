@@ -68,7 +68,7 @@ type QueryTemplateProps = {
 const QueryTemplate = ({ query, onApply }: QueryTemplateProps) => {
   return (
     <Space direction="vertical">
-      <Typography.Text style={{ whiteSpace: "pre-wrap" }}>
+      <Typography.Text style={{ whiteSpace: "pre-wrap", fontFamily: 'consolas' }}>
         {query}
       </Typography.Text>
       <Space>
