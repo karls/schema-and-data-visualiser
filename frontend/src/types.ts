@@ -77,6 +77,7 @@ export type VariableCategories = {
   temporal: string[];
   geographical: string[];
   lexical: string[];
+  date: string[];
 }
 
 export type QueryAnalysis = {
