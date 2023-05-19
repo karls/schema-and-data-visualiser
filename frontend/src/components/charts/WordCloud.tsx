@@ -1,5 +1,5 @@
 import ReactWordcloud from "react-wordcloud";
-import { QueryResults, Row } from "../../types";
+import { QueryResults, Row, VariableCategories } from "../../types";
 import { useMemo } from "react";
 import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
@@ -12,26 +12,34 @@ type WordCloudProps = {
   results: QueryResults;
   width: number;
   height: number;
-  keyColumn: string;
-  scalarColumn: string;
+  variables: VariableCategories;
 };
 
 export const WordCloud = observer(
-  ({ results, width, height, keyColumn, scalarColumn }: WordCloudProps) => {
+  ({ results, width, height, variables }: WordCloudProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
 
     const data: any = useMemo(() => {
-      const keyIndex = results.header.indexOf(keyColumn);
-      const scalarIndex = results.header.indexOf(scalarColumn);
+      const textIndex = results.header.indexOf(variables.key[0]);
+      const valueIndex = results.header.indexOf(variables.scalar[0]);
+      const colourIndex = results.header.indexOf(
+        variables.scalar[1] || variables.lexical[0]
+      );
 
       return results.data.map((row: Row) => {
         return {
-          text: row[keyIndex] as string,
-          value: parseFloat(row[scalarIndex]),
+          text: row[textIndex] as string,
+          value: parseFloat(row[valueIndex]),
         };
       });
-    }, [keyColumn, results.data, results.header, scalarColumn]);
+    }, [
+      results.data,
+      results.header,
+      variables.key,
+      variables.lexical,
+      variables.scalar,
+    ]);
 
     const options: any = useMemo(() => {
       return {
@@ -59,7 +67,7 @@ export const WordCloud = observer(
     }, [settings.darkMode]);
 
     return (
-      <div style={{ display: 'flex', float: "left" }}>
+      <div style={{ display: "flex", float: "left" }}>
         <ReactWordcloud
           words={data}
           callbacks={callbacks}

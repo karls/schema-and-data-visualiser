@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsProps } from "antd";
 import { ChartType, QueryAnalysis, QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
@@ -50,157 +50,171 @@ const Charts = ({ query, results }: ChartsProps) => {
     });
   }, [query, repositoryStore.currentRepository]);
 
-  const items: TabsProps["items"] = [
-    {
-      key: ChartType.Bar,
-      label: (
-        <>
-          <AiOutlineBarChart size={20} /> Bar
-        </>
-      ),
-      children: (
-        <Tabs
-          defaultActiveKey="1"
-          items={numericColumns(results).map((index) => {
-            return {
-              key: `${index}`,
-              label: results.header[index],
-              children: (
-                <BarChart
-                  results={results}
-                  width={chartWidth}
-                  height={chartHeight}
-                  columnIndex={index}
-                />
-              ),
-            };
-          })}
-        />
-      ),
-    },
-    {
-      key: ChartType.Pie,
-      label: (
-        <>
-          <BsPieChart size={18} /> Pie
-        </>
-      ),
-      children: (
-        <Tabs
-          defaultActiveKey="1"
-          items={numericColumns(results).map((index) => {
-            return {
-              key: `${index}`,
-              label: results.header[index],
-              children: (
-                <PieChart
-                  results={results}
-                  width={chartWidth}
-                  height={chartHeight}
-                  columnIndex={index}
-                />
-              ),
-            };
-          })}
-        />
-      ),
-    },
-    {
-      key: ChartType.Line,
-      label: (
-        <>
-          <BiLineChart size={18} /> Line
-        </>
-      ),
-      children: (
-        <LineChart results={results} width={chartWidth} height={chartHeight} />
-      ),
-    },
-    {
-      key: ChartType.Treemap,
-      label: (
-        <>
-          <HiRectangleGroup size={18} /> Treemap
-        </>
-      ),
-      children: (
-        <TreeMap results={results} width={chartWidth} height={chartHeight} />
-      ),
-    },
-    {
-      key: ChartType.Radar,
-      label: (
-        <>
-          <AiOutlineRadarChart size={18} /> Radar
-        </>
-      ),
-      children: (
-        <RadarChart results={results} width={chartWidth} height={chartHeight} />
-      ),
-    },
-    {
-      key: ChartType.Sankey,
-      label: (
-        <>
-          <TbChartSankey size={18} /> Sankey
-        </>
-      ),
-      children: (
-        <SankeyChart
-          results={results}
-          width={chartWidth}
-          height={chartHeight}
-        />
-      ),
-    },
-    {
-      key: ChartType.Scatter,
-      label: (
-        <>
-          <VscGraphScatter size={18} /> Scatter
-        </>
-      ),
-      children: (
-        <ScatterChart
-          results={results}
-          width={chartWidth}
-          height={chartHeight}
-        />
-      ),
-    },
-    {
-      key: ChartType.ChordDiagram,
-      label: (
-        <>
-          <ImSphere size={18} /> Chord
-        </>
-      ),
-      children: (
-        <ChordDiagram
-          results={results}
-          width={chartWidth}
-          height={chartHeight}
-        />
-      ),
-    },
-    {
-      key: ChartType.WordCloud,
-      label: (
-        <>
-          <BsBodyText size={18} /> Word Cloud
-        </>
-      ),
-      children: (
-        <WordCloud
-          results={results}
-          width={chartWidth}
-          height={chartHeight}
-          keyColumn={queryAnalysis?.variables.key[0]!}
-          scalarColumn={queryAnalysis?.variables.scalar[0]!}
-        />
-      ),
-    },
-  ];
+  const items: TabsProps["items"] = useMemo(
+    () => [
+      {
+        key: ChartType.Bar,
+        label: (
+          <>
+            <AiOutlineBarChart size={20} /> Bar
+          </>
+        ),
+        children: (
+          <Tabs
+            defaultActiveKey="1"
+            items={numericColumns(results).map((index) => {
+              return {
+                key: `${index}`,
+                label: results.header[index],
+                children: (
+                  <BarChart
+                    results={results}
+                    width={chartWidth}
+                    height={chartHeight}
+                    columnIndex={index}
+                  />
+                ),
+              };
+            })}
+          />
+        ),
+      },
+      {
+        key: ChartType.Pie,
+        label: (
+          <>
+            <BsPieChart size={18} /> Pie
+          </>
+        ),
+        children: (
+          <Tabs
+            defaultActiveKey="1"
+            items={numericColumns(results).map((index) => {
+              return {
+                key: `${index}`,
+                label: results.header[index],
+                children: (
+                  <PieChart
+                    results={results}
+                    width={chartWidth}
+                    height={chartHeight}
+                    columnIndex={index}
+                  />
+                ),
+              };
+            })}
+          />
+        ),
+      },
+      {
+        key: ChartType.Line,
+        label: (
+          <>
+            <BiLineChart size={18} /> Line
+          </>
+        ),
+        children: (
+          <LineChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.Treemap,
+        label: (
+          <>
+            <HiRectangleGroup size={18} /> Treemap
+          </>
+        ),
+        children: (
+          <TreeMap results={results} width={chartWidth} height={chartHeight} />
+        ),
+      },
+      {
+        key: ChartType.Radar,
+        label: (
+          <>
+            <AiOutlineRadarChart size={18} /> Radar
+          </>
+        ),
+        children: (
+          <RadarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.Sankey,
+        label: (
+          <>
+            <TbChartSankey size={18} /> Sankey
+          </>
+        ),
+        children: (
+          <SankeyChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.Scatter,
+        label: (
+          <>
+            <VscGraphScatter size={18} /> Scatter
+          </>
+        ),
+        children: (
+          <ScatterChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.ChordDiagram,
+        label: (
+          <>
+            <ImSphere size={18} /> Chord
+          </>
+        ),
+        children: (
+          <ChordDiagram
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.WordCloud,
+        label: (
+          <>
+            <BsBodyText size={18} /> Word Cloud
+          </>
+        ),
+        children: (
+          <>
+            {queryAnalysis && (
+              <WordCloud
+                results={results}
+                width={chartWidth}
+                height={chartHeight}
+                variables={queryAnalysis.variables}
+              />
+            )}
+          </>
+        ),
+      },
+    ],
+    [chartHeight, chartWidth, queryAnalysis, results]
+  );
 
   return (
     <Fullscreen>
