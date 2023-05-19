@@ -1,6 +1,6 @@
 import ReactWordcloud from "react-wordcloud";
 import { QueryResults, Row, VariableCategories } from "../../types";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
@@ -19,13 +19,10 @@ export const WordCloud = observer(
   ({ results, width, height, variables }: WordCloudProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
-
+    
     const data: any = useMemo(() => {
       const textIndex = results.header.indexOf(variables.key[0]);
       const valueIndex = results.header.indexOf(variables.scalar[0]);
-      const colourIndex = results.header.indexOf(
-        variables.scalar[1] || variables.lexical[0]
-      );
 
       return results.data.map((row: Row) => {
         return {
@@ -33,13 +30,7 @@ export const WordCloud = observer(
           value: parseFloat(row[valueIndex]),
         };
       });
-    }, [
-      results.data,
-      results.header,
-      variables.key,
-      variables.lexical,
-      variables.scalar,
-    ]);
+    }, [results.data, results.header, variables.key, variables.scalar]);
 
     const options: any = useMemo(() => {
       return {
@@ -48,13 +39,13 @@ export const WordCloud = observer(
         fontFamily: "impact",
         fontStyle: "normal",
         fontWeight: "normal",
-        fontSize: [60, 60],
+        fontSize: [20, 30],
         padding: 0,
         margin: 0,
         rotationAngles: [0, 0],
         rotations: 1,
-        spiral: "rectangular",
-        transitionDuration: 1000,
+        spiral: "archimedean",
+        transitionDuration: 100,
         seed: 0,
       };
     }, []);
@@ -67,7 +58,7 @@ export const WordCloud = observer(
     }, [settings.darkMode]);
 
     return (
-      <div style={{ display: "flex", float: "left" }}>
+      <div style={{ width, height }}>
         <ReactWordcloud
           words={data}
           callbacks={callbacks}
