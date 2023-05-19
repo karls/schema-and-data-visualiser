@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Alert, Card, Descriptions, List, Space, Tag } from "antd";
 import {
+  ChartType,
   QueryAnalysis,
   RepositoryId,
   VariableCategories,
@@ -56,11 +57,11 @@ type RecommendedProps = {
 
 const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
   const chartIcons = {
-    Bar: <AiOutlineBarChart size={35} />,
-    Scatter: <VscGraphScatter size={30} />,
-    Bubble: <BiScatterChart size={35} />,
-    "Word Cloud": <BsBodyText size={30} />,
-    Calendar: <BsCalendar3 size={30} />,
+    [ChartType.Bar]: <AiOutlineBarChart size={35} />,
+    [ChartType.Scatter]: <VscGraphScatter size={30} />,
+    [ChartType.Bubble]: <BiScatterChart size={35} />,
+    [ChartType.WordCloud]: <BsBodyText size={30} />,
+    [ChartType.Calendar]: <BsCalendar3 size={30} />,
   };
   return (
     <Card
