@@ -71,13 +71,17 @@ export type Visualisation = {
   maxClasses?: number;
 };
 
+export type VariableCategories = {
+  key: string[];
+  scalar: string[];
+  temporal: string[];
+  geographical: string[];
+  lexical: string[];
+}
+
 export type QueryAnalysis = {
   valid: boolean;
   pattern: string;
-  keyVar?: string;
-  scalarVars: string[];
-  temporalVars: string[];
-  geographicalVars: string[];
-  lexicalVars: string[];
+  variables: VariableCategories;
   visualisations: Visualisation[];
 };

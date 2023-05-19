@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Alert, Card, Descriptions, List, Space, Tag } from "antd";
-import { QueryAnalysis, RepositoryId, Visualisation } from "../../types";
+import {
+  ChartType,
+  QueryAnalysis,
+  RepositoryId,
+  VariableCategories,
+  Visualisation,
+} from "../../types";
 import { getQueryAnalysis } from "../../api/queries";
 import { AiOutlineBarChart } from "react-icons/ai";
 import { BiScatterChart } from "react-icons/bi";
@@ -19,6 +25,7 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
   useEffect(() => {
     setLoading(true);
     getQueryAnalysis(query, repository).then((res) => {
+      console.log(res);
       setQueryAnalysis(res);
       setLoading(false);
     });
@@ -26,16 +33,18 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
 
   return (
     <Card title="Analysis" style={{ width: "100%" }} loading={loading}>
-      {queryAnalysis ? (
+      {queryAnalysis && (
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Variables queryAnalysis={queryAnalysis} />
-          <RecommendedCharts
-            query={query}
-            visualisations={queryAnalysis.visualisations}
-          />
+          <Variables variableCategories={queryAnalysis.variables} />
+          {queryAnalysis.valid ? (
+            <RecommendedCharts
+              query={query}
+              visualisations={queryAnalysis.visualisations}
+            />
+          ) : (
+            <Alert message="Could not match any query pattern." banner />
+          )}
         </Space>
-      ) : (
-        <Alert message="Could not match any query pattern." banner />
       )}
     </Card>
   );
@@ -48,11 +57,11 @@ type RecommendedProps = {
 
 const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
   const chartIcons = {
-    Bar: <AiOutlineBarChart size={35} />,
-    Scatter: <VscGraphScatter size={30} />,
-    Bubble: <BiScatterChart size={35} />,
-    "Word Cloud": <BsBodyText size={30} />,
-    Calendar: <BsCalendar3 size={30} />,
+    [ChartType.Bar]: <AiOutlineBarChart size={35} />,
+    [ChartType.Scatter]: <VscGraphScatter size={30} />,
+    [ChartType.Bubble]: <BiScatterChart size={35} />,
+    [ChartType.WordCloud]: <BsBodyText size={30} />,
+    [ChartType.Calendar]: <BsCalendar3 size={30} />,
   };
   return (
     <Card
@@ -92,53 +101,21 @@ const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
 };
 
 type VariablesProps = {
-  queryAnalysis: QueryAnalysis;
+  variableCategories: VariableCategories;
 };
 
-const Variables = ({
-  queryAnalysis: {
-    pattern,
-    keyVar,
-    scalarVars,
-    temporalVars,
-    geographicalVars,
-    lexicalVars,
-  },
-}: VariablesProps) => {
+const Variables = ({ variableCategories }: VariablesProps) => {
   return (
     <Descriptions title="Variables">
-      {keyVar && (
-        <Descriptions.Item label="Key">
-          <Tag>{keyVar}</Tag>
-        </Descriptions.Item>
-      )}
-      {scalarVars.length > 0 && (
-        <Descriptions.Item label="Scalar">
-          {scalarVars.map((v, index) => (
-            <Tag key={index}>{v}</Tag>
-          ))}
-        </Descriptions.Item>
-      )}
-      {temporalVars.length > 0 && (
-        <Descriptions.Item label="Temporal">
-          {temporalVars.map((v, index) => (
-            <Tag key={index}>{v}</Tag>
-          ))}
-        </Descriptions.Item>
-      )}
-      {geographicalVars.length > 0 && (
-        <Descriptions.Item label="Geographical">
-          {geographicalVars.map((v, index) => (
-            <Tag key={index}>{v}</Tag>
-          ))}
-        </Descriptions.Item>
-      )}
-      {lexicalVars.length > 0 && (
-        <Descriptions.Item label="Lexical">
-          {lexicalVars.map((v, index) => (
-            <Tag key={index}>{v}</Tag>
-          ))}
-        </Descriptions.Item>
+      {Object.keys(variableCategories).map(
+        (category, index) =>
+          variableCategories[category].length > 0 && (
+            <Descriptions.Item key={`catg-${index}`} label={category}>
+              {variableCategories[category].map((v, index) => (
+                <Tag key={index}>{v}</Tag>
+              ))}
+            </Descriptions.Item>
+          )
       )}
     </Descriptions>
   );
