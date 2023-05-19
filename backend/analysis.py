@@ -102,7 +102,8 @@ def is_key(*, prop_uri: str, api: str, repository: str):
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
-    return prop_range == 'string' and 'FunctionalProperty' in types
+    return 'InverseFunctionalProperty' in types or \
+        prop_range == 'string' and 'FunctionalProperty' in types
 
 
 def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
