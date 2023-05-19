@@ -1,4 +1,4 @@
-import { QueryResults } from "../../types";
+import { QueryResults, VariableCategories } from "../../types";
 import { numericColumns, removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
 import { useStore } from "../../stores/store";
@@ -19,78 +19,41 @@ type ScatterChartProps = {
   results: QueryResults;
   width?: number;
   height: number;
+  variables: VariableCategories;
 };
 
 const ScatterChart = observer(
-  ({ results, width, height }: ScatterChartProps) => {
+  ({ results, width, height, variables }: ScatterChartProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
-    const numIdxs = numericColumns(results);
-    const [col1, setCol1] = useState(numIdxs[0]);
-    const [col2, setCol2] = useState(numIdxs[1]);
-    const [col3, setCol3] = useState(numIdxs[2]);
-
+    const [col1, col2] = variables.scalar.map((column) =>
+      results.header.indexOf(column)
+    );
+    // ${col3 ? `${results.header[col2]}: ${row[col2]}` : ""}
     const data = useMemo(
       () =>
         results.data.map((row) => {
           const label = `${removePrefix(row[0])}
 
       ${results.header[col1]}: ${row[col1]}
-      ${results.header[col2]}: ${row[col2]}
-      ${col3 ? `${results.header[col2]}: ${row[col2]}` : ""}`;
+      ${results.header[col2]}: ${row[col2]}`;
 
           return {
             label,
             x: parseFloat(row[col1]),
             y: parseFloat(row[col2]),
-            z: parseFloat(row[col3] ?? 1),
+            // z: parseFloat(row[col3] ?? 1),
             fill: randomColor({
               luminosity: settings.darkMode ? "light" : "dark",
             }),
             amount: 2,
           };
         }),
-      [col1, col2, col3, results.data, results.header, settings.darkMode]
+      [col1, col2, results.data, results.header, settings.darkMode]
     );
 
     return (
       <>
-        <Space>
-          <Select
-            value={col1}
-            style={{ width: 120 }}
-            onChange={setCol1}
-            options={numIdxs.map((i) => {
-              return {
-                label: results.header[i],
-                value: i,
-              };
-            })}
-          />
-          <Select
-            value={col2}
-            style={{ width: 120 }}
-            onChange={setCol2}
-            options={numIdxs.map((i) => {
-              return {
-                label: results.header[i],
-                value: i,
-              };
-            })}
-          />
-          <Select
-            placeholder={'Bubble property'}
-            value={col3}
-            style={{ width: 120 }}
-            onChange={setCol3}
-            options={numIdxs.map((i) => {
-              return {
-                label: results.header[i],
-                value: i,
-              };
-            })}
-          />
-        </Space>
         <VictoryChart
           width={width}
           height={height}

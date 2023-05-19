@@ -163,11 +163,16 @@ const Charts = ({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <ScatterChart
-            results={results}
-            width={chartWidth}
-            height={chartHeight}
-          />
+          <>
+            {queryAnalysis && (
+              <ScatterChart
+                results={results}
+                width={chartWidth}
+                height={chartHeight}
+                variables={queryAnalysis.variables}
+              />
+            )}
+          </>
         ),
       },
       {
