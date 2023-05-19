@@ -60,23 +60,16 @@ const Charts = ({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <Tabs
-            defaultActiveKey="1"
-            items={numericColumns(results).map((index) => {
-              return {
-                key: `${index}`,
-                label: results.header[index],
-                children: (
-                  <BarChart
-                    results={results}
-                    width={chartWidth}
-                    height={chartHeight}
-                    columnIndex={index}
-                  />
-                ),
-              };
-            })}
-          />
+          <>
+            {queryAnalysis && (
+              <BarChart
+                results={results}
+                width={chartWidth}
+                height={chartHeight}
+                variables={queryAnalysis?.variables}
+              />
+            )}
+          </>
         ),
       },
       {
