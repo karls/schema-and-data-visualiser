@@ -81,7 +81,7 @@ def run_query():
             f'{API_URL}/repositories/{repository}'
             f'?query={urllib.parse.quote(query, safe="")}')
 
-        results = response.text
+        results = response.text.replace('\r', '')
         if is_ntriples_format(results):
             header = ['Subject', 'Predicate', 'Object']
             data = parse_ntriples_graph(results)
