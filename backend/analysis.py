@@ -14,14 +14,21 @@ def get_prefixes(query: str):
 
 
 def get_select_variables(query: str):
-    variables = parse.search('select {variables}\n', query)['variables']
-    return [parse.parse('?{varname}', var)['varname']
-            for var in variables.split(' ')]
+    select_statement = parse.search('select {line}\n', query)
+    if not select_statement:
+        return []
+    line = select_statement['line']
+    variables = [token.replace('?', '')
+                 for token in line.split() if token.startswith('?')]
+    return variables
 
 
 def get_class_variables(query) -> Dict[str, str]:
     where_clause = \
-        parse.search('where {{\n{conditions}\n}}', query)['conditions']
+        parse.search('where {{\n{conditions}\n}}', query)
+    if not where_clause:
+        return {}
+
     classes = {}
     for res in parse.findall('?{var} rdf:type {class} ;', where_clause):
         if res is not None:
@@ -118,8 +125,7 @@ def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
     return 'object'
 
 
-def class_with_data_properties(*, query, api: str, repository: str) \
-        -> Dict:
+def variable_categories(*, query, api: str, repository: str) -> Dict:
     # Prefixes defined in query
     prefixes = get_prefixes(query)
     # Variables that will be returned
@@ -129,7 +135,7 @@ def class_with_data_properties(*, query, api: str, repository: str) \
     # Checks if a variable from a class has already been used
     key_var = None
 
-    varLists = {
+    var_categories = {
         'scalar': [],
         'temporal': [],
         'geographical': [],
@@ -145,7 +151,9 @@ def class_with_data_properties(*, query, api: str, repository: str) \
                 if not is_data_property(prop_uri=get_full_uri(prop, prefixes),
                                         api=api, repository=repository):
                     return {'valid': False}
+
                 prop_uri = get_full_uri(prop, prefixes)
+
                 if is_key(prop_uri=get_full_uri(prop, prefixes),
                           api=api, repository=repository):
                     if key_var:
@@ -156,35 +164,45 @@ def class_with_data_properties(*, query, api: str, repository: str) \
                 prop_range_t = property_range_type(prop_uri=prop_uri,
                                                    api=api,
                                                    repository=repository)
-                varLists[prop_range_t].append(var)
+                var_categories[prop_range_t].append(var)
+
+    var_categories['keyVar'] = key_var
+
+    return var_categories
+
+
+def class_with_data_properties(*, query, api: str, repository: str) \
+        -> Dict:
+    var_categories = variable_categories(query=query, api=api, repository=repository)
 
     visualisations = []
 
-    if key_var and len(varLists['scalar']) >= 1:
+    if var_categories['keyVar'] and len(var_categories['scalar']) >= 1:
         visualisations.append({'name': 'Bar', 'maxInstances': 100})
 
-    if len(varLists['scalar']) >= 2:
+    if len(var_categories['scalar']) >= 2:
         visualisations.append({'name': 'Scatter'})
 
-    if len(varLists['scalar']) >= 3:
+    if len(var_categories['scalar']) >= 3:
         visualisations.append({'name': 'Bubble'})
 
-    if len(varLists['temporal']) >= 1:
+    if len(var_categories['temporal']) >= 1:
         visualisations.append({'name': 'Calendar'})
 
-    if len(varLists['geographical']) == 1 and len(varLists['scalar']) >= 1:
+    if len(var_categories['geographical']) == 1 \
+            and len(var_categories['scalar']) >= 1:
         visualisations.append({'name': 'Choropleth Map'})
 
-    if key_var and len(varLists['scalar']) >= 1:
+    if var_categories['keyVar'] and len(var_categories['scalar']) >= 1:
         visualisations.append({'name': 'Word Cloud'})
 
     return {'valid': True,
             'pattern': 'Class with data properties',
-            'keyVar': key_var,
-            'scalarVars': varLists['scalar'],
-            'temporalVars': varLists['temporal'],
-            'geographicalVars': varLists['geographical'],
-            'lexicalVars': varLists['lexical'],
+            'keyVar': var_categories['keyVar'],
+            'scalarVars': var_categories['scalar'],
+            'temporalVars': var_categories['temporal'],
+            'geographicalVars': var_categories['geographical'],
+            'lexicalVars': var_categories['lexical'],
             'visualisations': visualisations}
 
 
