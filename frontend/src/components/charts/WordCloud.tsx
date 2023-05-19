@@ -1,6 +1,6 @@
 import ReactWordcloud from "react-wordcloud";
 import { QueryResults, Row, VariableCategories } from "../../types";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
