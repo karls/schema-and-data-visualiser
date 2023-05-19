@@ -106,24 +106,28 @@ def is_key(*, prop_uri: str, api: str, repository: str):
         prop_range == 'string' and 'FunctionalProperty' in types
 
 
-def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
+def property_range_categories(*, prop_uri: str, api: str, repository: str)\
+    -> [str]:
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
-    types = {
+    categories = {
         'scalar':
             ['int', 'integer', 'decimal', 'negativeInteger',
              'nonNegativeInteger'],
         'temporal':
             ['date', 'dateTime', 'gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
              'gYearMonth'],
+        'date': ['date'  'dateTime'],
         'lexical': ['string'],
         'geographical': []
     }
-    for t in types:
-        if prop_range in types[t]:
-            return t
-    return 'object'
+    prop_categories = []
+    for c in categories:
+        if prop_range in categories[c]:
+            prop_categories.append(c)
+
+    return ['object']
 
 
 def variable_categories(*, query, api: str, repository: str) -> Dict:
@@ -140,7 +144,8 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
         'scalar': [],
         'temporal': [],
         'geographical': [],
-        'lexical': []
+        'lexical': [],
+        'date': []
     }
 
     for cls in all_classes:
@@ -154,10 +159,13 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
                     var_categories['key'].append(var)
                     continue
 
-                prop_range_t = property_range_type(prop_uri=prop_uri,
-                                                   api=api,
-                                                   repository=repository)
-                var_categories[prop_range_t].append(var)
+                prop_categories = property_range_categories(
+                    prop_uri=prop_uri,
+                    api=api,
+                    repository=repository)
+
+                for c in prop_categories:
+                    var_categories[c].append(var)
 
     return var_categories
 
@@ -179,7 +187,7 @@ def class_with_data_properties(*, query, api: str, repository: str,
     if len(var_categories['scalar']) >= 3:
         visualisations.append({'name': 'Bubble'})
 
-    if len(var_categories['temporal']) >= 1:
+    if len(var_categories['date']) >= 1 and var_categories['scalar'] >= 1:
         visualisations.append({'name': 'Calendar'})
 
     if len(var_categories['geographical']) == 1 \
