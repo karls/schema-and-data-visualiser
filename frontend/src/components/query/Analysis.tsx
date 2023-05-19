@@ -75,11 +75,11 @@ const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
                 description={
                   <>
                     {maxInstances && (
-                        <Alert
-                          banner
-                          message={`Add LIMIT ${maxInstances} in query for readability`}
-                        />
-                      )}
+                      <Alert
+                        banner
+                        message={`Add LIMIT ${maxInstances} in query for readability`}
+                      />
+                    )}
                   </>
                 }
               />
@@ -106,17 +106,19 @@ const Variables = ({
   },
 }: VariablesProps) => {
   return (
-    <Descriptions title={pattern} layout="vertical" bordered>
+    <Descriptions title="Variables">
       {keyVar && (
         <Descriptions.Item label="Key">
           <Tag>{keyVar}</Tag>
         </Descriptions.Item>
       )}
-      <Descriptions.Item label="Scalar">
-        {scalarVars.map((v, index) => (
-          <Tag key={index}>{v}</Tag>
-        ))}
-      </Descriptions.Item>
+      {scalarVars.length > 0 && (
+        <Descriptions.Item label="Scalar">
+          {scalarVars.map((v, index) => (
+            <Tag key={index}>{v}</Tag>
+          ))}
+        </Descriptions.Item>
+      )}
       {temporalVars.length > 0 && (
         <Descriptions.Item label="Temporal">
           {temporalVars.map((v, index) => (
