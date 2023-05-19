@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Tabs, TabsProps } from "antd";
-import { ChartType, QueryResults } from "../../types";
+import { ChartType, QueryAnalysis, QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
-import { BsPieChart } from "react-icons/bs";
+import { BsBodyText, BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey } from "react-icons/tb";
@@ -22,6 +22,7 @@ import Fullscreen from "./Fullscreen";
 import { numericColumns } from "../../utils/queryResults";
 import ChordDiagram from "../charts/ChordDiagram";
 import { getQueryAnalysis } from "../../api/queries";
+import WordCloud from "../charts/WordCloud";
 
 type ChartsProps = {
   query: string;
@@ -41,11 +42,11 @@ const Charts = ({ query, results }: ChartsProps) => {
     window.screen.height * (settings.fullScreen ? 0.8 : 0.45)
   );
 
-  const [visualisations, setVisualisations] = useState<string[]>([]);
+  const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>();
 
   useEffect(() => {
     getQueryAnalysis(query, repositoryStore.currentRepository!).then((res) => {
-      setVisualisations(res!.visualisations.map((v) => v.name));
+      setQueryAnalysis(res!);
     });
   }, [query, repositoryStore.currentRepository]);
 
@@ -182,13 +183,36 @@ const Charts = ({ query, results }: ChartsProps) => {
         />
       ),
     },
+    {
+      key: ChartType.WordCloud,
+      label: (
+        <>
+          <BsBodyText size={18} /> Word Cloud
+        </>
+      ),
+      children: (
+        <WordCloud
+          results={results}
+          width={chartWidth}
+          height={chartHeight}
+          keyColumn={queryAnalysis?.variables.key[0]!}
+          scalarColumn={queryAnalysis?.variables.scalar[0]!}
+        />
+      ),
+    },
   ];
 
   return (
     <Fullscreen>
       <Tabs
         defaultActiveKey="1"
-        items={items.filter(({ key }) => visualisations.includes(key))}
+        items={items.filter(
+          ({ key }) =>
+            queryAnalysis &&
+            queryAnalysis.visualisations
+              .map(({ name }) => name)
+              .includes(key as ChartType)
+        )}
         style={{ padding: 10 }}
       />
     </Fullscreen>
