@@ -1,5 +1,6 @@
+import { useEffect, useState } from "react";
 import { Tabs, TabsProps } from "antd";
-import { QueryResults } from "../../types";
+import { ChartType, QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
@@ -20,13 +21,18 @@ import "./Charts.css";
 import Fullscreen from "./Fullscreen";
 import { numericColumns } from "../../utils/queryResults";
 import ChordDiagram from "../charts/ChordDiagram";
+import { getQueryAnalysis } from "../../api/queries";
 
 type ChartsProps = {
+  query: string;
   results: QueryResults;
 };
 
-const Charts = ({ results }: ChartsProps) => {
-  const settings = useStore().settingsStore;
+const Charts = ({ query, results }: ChartsProps) => {
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+  const repositoryStore = rootStore.repositoryStore;
+
   const chartWidth = Math.floor(
     (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
       (settings.fullScreen ? 0.95 : 0.88)
@@ -34,14 +40,18 @@ const Charts = ({ results }: ChartsProps) => {
   const chartHeight = Math.floor(
     window.screen.height * (settings.fullScreen ? 0.8 : 0.45)
   );
+
+  const [visualisations, setVisualisations] = useState<string[]>([]);
+
+  useEffect(() => {
+    getQueryAnalysis(query, repositoryStore.currentRepository!).then((res) => {
+      setVisualisations(res!.visualisations.map((v) => v.name));
+    });
+  }, [query, repositoryStore.currentRepository]);
+
   const items: TabsProps["items"] = [
     {
-      key: "recommended",
-      label: `Recommended`,
-      children: <></>,
-    },
-    {
-      key: "bar chart",
+      key: ChartType.Bar,
       label: (
         <>
           <AiOutlineBarChart size={20} /> Bar
@@ -68,7 +78,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "pie chart",
+      key: ChartType.Pie,
       label: (
         <>
           <BsPieChart size={18} /> Pie
@@ -95,7 +105,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "line chart",
+      key: ChartType.Line,
       label: (
         <>
           <BiLineChart size={18} /> Line
@@ -106,7 +116,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "treemap",
+      key: ChartType.Treemap,
       label: (
         <>
           <HiRectangleGroup size={18} /> Treemap
@@ -117,7 +127,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "radar chart",
+      key: ChartType.Radar,
       label: (
         <>
           <AiOutlineRadarChart size={18} /> Radar
@@ -128,7 +138,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "sankey",
+      key: ChartType.Sankey,
       label: (
         <>
           <TbChartSankey size={18} /> Sankey
@@ -143,7 +153,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "scatter",
+      key: ChartType.Scatter,
       label: (
         <>
           <VscGraphScatter size={18} /> Scatter
@@ -158,7 +168,7 @@ const Charts = ({ results }: ChartsProps) => {
       ),
     },
     {
-      key: "chord diagram",
+      key: ChartType.ChordDiagram,
       label: (
         <>
           <ImSphere size={18} /> Chord
@@ -176,7 +186,11 @@ const Charts = ({ results }: ChartsProps) => {
 
   return (
     <Fullscreen>
-      <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />
+      <Tabs
+        defaultActiveKey="1"
+        items={items.filter(({ key }) => visualisations.includes(key))}
+        style={{ padding: 10 }}
+      />
     </Fullscreen>
   );
 };
