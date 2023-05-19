@@ -70,7 +70,15 @@ const GraphVis = observer(
 
     const graphOptions: Options = {
       layout: {
-        hierarchical: hierarchical ?? false,
+        ...(hierarchical
+          ? {
+              hierarchical: {
+                enabled: hierarchical,
+                sortMethod: "directed",
+                direction: "DU",
+              },
+            }
+          : {}),
       },
       edges: {
         color: settings.darkMode ? "white" : "black",
@@ -85,9 +93,13 @@ const GraphVis = observer(
           springConstant: 0.01,
         },
         maxVelocity: 50,
-        solver: "forceAtlas2Based",
+        solver: hierarchical ? 'hierarchicalRepulsion' : "forceAtlas2Based",
         timestep: 0.35,
         stabilization: true,
+        hierarchicalRepulsion: {
+          avoidOverlap: 1,
+          nodeDistance: 180,
+        }
       },
     };
 
