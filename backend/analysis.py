@@ -162,15 +162,12 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
     return var_categories
 
 
-def class_with_data_properties(*, query, api: str, repository: str) \
-        -> Dict:
+def class_with_data_properties(*, query, api: str, repository: str,
+                               var_categories: Dict) -> Dict:
     class_var = get_class_variables(query)
     if len(class_var) != 1:
         return {'valid': False}
 
-    var_categories = variable_categories(query=query,
-                                         api=api,
-                                         repository=repository)
     visualisations = []
 
     if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
@@ -199,13 +196,16 @@ def class_with_data_properties(*, query, api: str, repository: str) \
 
 
 def query_analysis(query: str, api: str, repository):
+    var_categories = variable_categories(query=query,
+                                         api=api,
+                                         repository=repository)
     res = class_with_data_properties(query=query, 
                                      api=api, 
                                      repository=repository)
     if res['valid']:
         return res
 
-    return {'valid': False}
+    return {'valid': False, 'variables': var_categories}
 
 
 if __name__ == '__main__':
