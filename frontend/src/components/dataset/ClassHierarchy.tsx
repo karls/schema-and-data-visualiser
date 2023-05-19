@@ -24,6 +24,7 @@ const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
       width={width}
       height={height}
       repository={repository}
+      hierarchical={true}
     />
   );
 };

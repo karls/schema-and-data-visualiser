@@ -1,5 +1,5 @@
 import { QueryResults, VariableCategories } from "../../types";
-import { numericColumns, removePrefix } from "../../utils/queryResults";
+import { removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
@@ -12,8 +12,7 @@ import {
   VictoryTooltip,
   VictoryZoomContainer,
 } from "victory";
-import { useMemo, useState } from "react";
-import { Select, Space } from "antd";
+import { useMemo } from "react";
 
 type ScatterChartProps = {
   results: QueryResults;

@@ -106,24 +106,29 @@ def is_key(*, prop_uri: str, api: str, repository: str):
         prop_range == 'string' and 'FunctionalProperty' in types
 
 
-def property_range_type(*, prop_uri: str, api: str, repository: str) -> str:
+def property_range_categories(*, prop_uri: str, api: str, repository: str)\
+    -> [str]:
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
     prop_range = remove_prefix(metadata['range'])
 
-    types = {
+    categories = {
         'scalar':
             ['int', 'integer', 'decimal', 'negativeInteger',
              'nonNegativeInteger'],
         'temporal':
             ['date', 'dateTime', 'gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
              'gYearMonth'],
+        'date': ['date'  'dateTime', 'time'],
         'lexical': ['string'],
         'geographical': []
     }
-    for t in types:
-        if prop_range in types[t]:
-            return t
-    return 'object'
+    prop_categories = []
+    for c in categories:
+        if prop_range in categories[c]:
+            prop_categories.append(c)
+    if not prop_categories:
+        prop_categories.append('other')
+    return prop_categories
 
 
 def variable_categories(*, query, api: str, repository: str) -> Dict:
@@ -140,7 +145,9 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
         'scalar': [],
         'temporal': [],
         'geographical': [],
-        'lexical': []
+        'lexical': [],
+        'date': [],
+        'object': []
     }
 
     for cls in all_classes:
@@ -154,23 +161,23 @@ def variable_categories(*, query, api: str, repository: str) -> Dict:
                     var_categories['key'].append(var)
                     continue
 
-                prop_range_t = property_range_type(prop_uri=prop_uri,
-                                                   api=api,
-                                                   repository=repository)
-                var_categories[prop_range_t].append(var)
+                prop_categories = property_range_categories(
+                    prop_uri=prop_uri,
+                    api=api,
+                    repository=repository)
+
+                for c in prop_categories:
+                    var_categories[c].append(var)
 
     return var_categories
 
 
-def class_with_data_properties(*, query, api: str, repository: str) \
-        -> Dict:
+def class_with_data_properties(*, query, api: str, repository: str,
+                               var_categories: Dict) -> Dict:
     class_var = get_class_variables(query)
-    if len(class_var) != 1:
-        return {'valid': False}
+    if len(class_var) == 0:
+        return {'valid': False, 'variables': var_categories}
 
-    var_categories = variable_categories(query=query,
-                                         api=api,
-                                         repository=repository)
     visualisations = []
 
     if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
@@ -182,7 +189,7 @@ def class_with_data_properties(*, query, api: str, repository: str) \
     if len(var_categories['scalar']) >= 3:
         visualisations.append({'name': 'Bubble'})
 
-    if len(var_categories['temporal']) >= 1:
+    if len(var_categories['date']) >= 1 and var_categories['scalar'] >= 1:
         visualisations.append({'name': 'Calendar'})
 
     if len(var_categories['geographical']) == 1 \
@@ -199,13 +206,17 @@ def class_with_data_properties(*, query, api: str, repository: str) \
 
 
 def query_analysis(query: str, api: str, repository):
+    var_categories = variable_categories(query=query,
+                                         api=api,
+                                         repository=repository)
     res = class_with_data_properties(query=query, 
                                      api=api, 
-                                     repository=repository)
+                                     repository=repository,
+                                     var_categories=var_categories)
     if res['valid']:
         return res
 
-    return {'valid': False}
+    return {'valid': False, 'variables': var_categories}
 
 
 if __name__ == '__main__':
