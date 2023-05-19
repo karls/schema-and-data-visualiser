@@ -5,7 +5,7 @@ import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
-import { BsBodyText, BsPieChart } from "react-icons/bs";
+import { BsBodyText, BsCalendar3, BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey } from "react-icons/tb";
@@ -22,6 +22,7 @@ import Fullscreen from "./Fullscreen";
 import { numericColumns } from "../../utils/queryResults";
 import ChordDiagram from "../charts/ChordDiagram";
 import { getQueryAnalysis } from "../../api/queries";
+import CalendarChart from "../charts/CalendarChart";
 import WordCloud from "../charts/WordCloud";
 
 type ChartsProps = {
@@ -201,6 +202,26 @@ const Charts = ({ query, results }: ChartsProps) => {
           <>
             {queryAnalysis && (
               <WordCloud
+                results={results}
+                width={chartWidth}
+                height={chartHeight}
+                variables={queryAnalysis.variables}
+              />
+            )}
+          </>
+        ),
+      },
+      {
+        key: ChartType.Calendar,
+        label: (
+          <>
+            <BsCalendar3 size={20} /> Calendar
+          </>
+        ),
+        children: (
+          <>
+            {queryAnalysis && (
+              <CalendarChart
                 results={results}
                 width={chartWidth}
                 height={chartHeight}
