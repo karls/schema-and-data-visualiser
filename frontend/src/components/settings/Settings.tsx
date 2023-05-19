@@ -16,7 +16,7 @@ import { useStore } from "../../stores/store";
 import { Typography } from "antd";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 import { isURL } from "../../utils/queryResults";
-import { getGraphdbURL, updateGraphdbURL } from "../../api/graphdb";
+import { getApiUrl, updateApiUrl } from "../../api/sparql";
 
 const { Text } = Typography;
 
@@ -69,7 +69,7 @@ const GraphDBLink = observer(() => {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    getGraphdbURL().then((url) => {
+    getApiUrl().then((url) => {
       setInitialUrl(url);
       setUrl(url);
     });
@@ -92,7 +92,7 @@ const GraphDBLink = observer(() => {
           disabled={!isURL(url) || url === initialUrl}
           title={!isURL(url) ? "URL is not valid" : ""}
           onClick={() => {
-            updateGraphdbURL(url).then(() => {
+            updateApiUrl(url).then(() => {
               setInitialUrl(url);
               setVisible(true);
               setTimeout(() => setVisible(false), 1000);

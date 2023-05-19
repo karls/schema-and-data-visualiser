@@ -11,7 +11,7 @@ def get_queries(repository_id: str):
     return [dict(row) for row in cur.fetchall()]
 
 
-def add_query(*, title: str, sparql: str, repository_id: str) -> None:
+def add_to_history(*, title: str, sparql: str, repository_id: str) -> None:
     conn = sqlite3.connect('./database.db')
     conn.execute('INSERT INTO query (title, sparql, repositoryId, date)'
                  'VALUES (?, ?, ?, ?)',

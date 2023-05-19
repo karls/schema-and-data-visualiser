@@ -6,17 +6,20 @@ export type SPARQLTemplate = {
 
 export const sparql_templates: SPARQLTemplate[] = [
   {
-    title: "Get properties",
+    title: "Class with data properties",
     query: `\
-PREFIX uriRoot: <http://example.com/rootOfUris#>	
-# select the variables that are populated in the WHERE clause
-SELECT ?var1 ?var2
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX : <{uri}>
+
+SELECT ?{var1} ?{var2}
 WHERE {
-    ?instanceOfClass a uriRoot:ClassName ;
-        uriRoot:varName1 ?var1 ;
-    # use a prefix to abbreviate a property URI as shown above
-    # or use the full URI as shown below			
-    <http://example.com/rootOfUris#varName2> ?var2 .
-}`,
+  ?c rdf:type :{Class} ;
+     :{prop1} ?{var1} ;
+     :{prop2} ?{var1} .
+}
+ORDER BY (?)
+LIMIT ?
+`	
   },
 ];

@@ -20,9 +20,9 @@ export type QueryResults = {
 };
 
 export type RDFGraph = {
-  header: ['Subject', 'Predicate', 'Object'],
-  data: Triplet[],
-}
+  header: ["Subject", "Predicate", "Object"];
+  data: Triplet[];
+};
 
 export type QueryRecord = {
   id: number;
@@ -40,12 +40,44 @@ export type Metadata = {
   comment: string;
   domain: string;
   range: string;
-}
+};
 
 export enum PropertyType {
   DatatypeProperty,
-  ObjectProperty, 
+  ObjectProperty,
   FunctionalProperty,
   TransitiveProperty,
   SymmetricProperty,
 }
+
+export enum ChartType {
+  Bar = "Bar",
+  Scatter = "Scatter",
+  WordCloud = "Word Cloud",
+  Calendar = "Calendar",
+  Bubble = "Bubble",
+  ChoroplethMap = "Choropleth Map",
+  Pie = "Pie",
+  Line = "Line",
+  Treemap = "Treemap",
+  Radar = "Radar",
+  Sankey = "Sankey",
+  ChordDiagram = "Chord Diagram",
+}
+
+export type Visualisation = {
+  name: ChartType;
+  maxInstances?: number;
+  maxClasses?: number;
+};
+
+export type QueryAnalysis = {
+  valid: boolean;
+  pattern: string;
+  keyVar?: string;
+  scalarVars: string[];
+  temporalVars: string[];
+  geographicalVars: string[];
+  lexicalVars: string[];
+  visualisations: Visualisation[];
+};

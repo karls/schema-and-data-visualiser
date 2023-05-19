@@ -19,15 +19,16 @@ export async function allRepositories(): Promise<RepositoryInfo[]> {
 
 export async function runSparqlQuery(
   repository: RepositoryId,
-  query: QueryInfo
+  queryInfo: QueryInfo
 ): Promise<QueryResults> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/query`;
-    const response = await axios.post(endpoint, {
-      repository,
-      query,
-    });
+    const endpoint = `${BACKEND_API}/sparql`;
+    const response = await axios.get(
+      `${endpoint}?repository=${repository}&title=${encodeURIComponent(
+        queryInfo.title
+      )}&query=${encodeURIComponent(queryInfo.sparql)}`
+    );
     const results = response.data;
     return results;
   } catch (error) {
@@ -36,20 +37,20 @@ export async function runSparqlQuery(
   return { header: [], data: [] };
 }
 
-export async function updateGraphdbURL(graphdbURL: string) {
+export async function updateApiUrl(graphdbURL: string) {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/graphdb/url?graphdbURL=${graphdbURL}`;
+    const endpoint = `${BACKEND_API}/api-url?url=${graphdbURL}`;
     await axios.post(endpoint);
   } catch (error) {
     console.log(error);
   }
 }
 
-export async function getGraphdbURL(): Promise<string> {
+export async function getApiUrl(): Promise<string> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/graphdb/url`;
+    const endpoint = `${BACKEND_API}/api-url`;
     const response = await axios.get(endpoint);
     const url = response.data;
     return url;

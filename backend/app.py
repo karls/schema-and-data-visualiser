@@ -4,8 +4,10 @@ from flask import Flask, request, jsonify, flash
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
-from urllib import parse
-from db import add_query, get_queries, delete_all_queries
+import urllib
+
+from analysis import query_analysis
+from db import add_to_history, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
     is_ntriples_format, remove_blank_nodes, is_blank_node
 
@@ -13,7 +15,7 @@ app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
 
-GRAPHDB_API = 'http://localhost:7200'
+API_URL = 'http://localhost:7200'
 CORS(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
@@ -38,7 +40,7 @@ def allowed_file(filename):
 
 @app.route('/repositories', methods=['GET'])
 def get_repositories():
-    response = requests.get(f'{GRAPHDB_API}/repositories')
+    response = requests.get(f'{API_URL}/repositories')
     return csv_to_json(response.text)
 
 
@@ -64,19 +66,20 @@ def upload_file():
             return {}
 
 
-@app.route('/query', methods=['POST'])
+@app.route('/sparql', methods=['GET'])
 def run_query():
-    if request.method == 'POST':
-        repository = request.json['repository']
-        query = request.json['query']
+    if request.method == 'GET':
+        repository = request.args['repository']
+        query = request.args['query']
+        title = request.args['title']
 
-        add_query(repository_id=repository,
-                  sparql=query['sparql'],
-                  title=query['title'])
+        add_to_history(repository_id=repository,
+                       sparql=query,
+                       title=title)
 
         response = requests.get(
-            f'{GRAPHDB_API}/repositories/{repository}'
-            f'?query={parse.quote(query["sparql"], safe="")}')
+            f'{API_URL}/repositories/{repository}'
+            f'?query={urllib.parse.quote(query, safe="")}')
 
         results = response.text
         if is_ntriples_format(results):
@@ -99,14 +102,14 @@ def history():
         return delete_all_queries(repository_id)
 
 
-@app.route('/graphdb/url', methods=['GET', 'POST'])
+@app.route('/api-url', methods=['GET', 'POST'])
 def graphdb_url():
-    global GRAPHDB_API
+    global API_URL
     if request.method == 'GET':
-        return GRAPHDB_API
+        return API_URL
     elif request.method == 'POST':
-        GRAPHDB_API = request.args['graphdbURL']
-        return GRAPHDB_API
+        API_URL = request.args['url']
+        return API_URL
 
 
 @app.route('/dataset/classes', methods=['GET'])
@@ -115,8 +118,8 @@ def classes():
         repository = request.args['repository']
         with open('queries/all_classes.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         return remove_blank_nodes(
             response.text.replace('\r', '').splitlines()[1:])
@@ -128,8 +131,8 @@ def class_hierarchy():
         repository = request.args['repository']
         with open('./queries/class_hierarchy.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         result = response.text
 
@@ -147,8 +150,8 @@ def triplets():
         repository = request.args['repository']
         with open('./queries/count_triplets.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         result = response.text
 
@@ -161,8 +164,8 @@ def all_types():
         repository = request.args['repository']
         with open('queries/all_types.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}')
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}')
 
         types = response.text.replace('\r', '').splitlines()[1:]
         return remove_blank_nodes(types)
@@ -175,8 +178,8 @@ def get_type():
         uri = request.args['uri']
         with open('queries/get_type.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}')
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
 
         return response.text.replace('\r', '').splitlines()[1:]
 
@@ -188,8 +191,8 @@ def type_properties():
         rdf_type = request.args['type']
         with open('queries/type_properties.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=rdf_type), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(type=rdf_type), safe="")}'
             )
 
         return response.text.replace('\r', '').splitlines()[1:]
@@ -204,8 +207,8 @@ def meta_information():
             # print(query.read().format(uri=uri))
             # query.seek(0)
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         info = response.text
 
@@ -222,8 +225,8 @@ def outgoing_links():
         uri = request.args['uri']
         with open('queries/outgoing_links.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, skip_header=True)
         links = {}
@@ -240,8 +243,8 @@ def incoming_links():
         uri = request.args['uri']
         with open('queries/incoming_links.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
             )
         result = parse_csv_text(response.text, skip_header=True)
         links = {}
@@ -257,8 +260,8 @@ def all_properties():
         repository = request.args['repository']
         with open('queries/all_properties.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read(), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read(), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
@@ -271,8 +274,8 @@ def type_instances():
         type_ = request.args['type']
         with open('queries/type_instances.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(type=type_), safe="")}'
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(type=type_), safe="")}'
             )
         # Remove carriage return character and skip header on first line
         return response.text.replace('\r', '').splitlines()[1:]
@@ -286,7 +289,16 @@ def property_values():
         prop_type = request.args['propType']
         with open('queries/property_values.sparql', 'r') as query:
             response = requests.get(
-                f'{GRAPHDB_API}/repositories/{repository}'
-                f'?query={parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
+                f'{API_URL}/repositories/{repository}'
+                f'?query={urllib.parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
             )
         return parse_csv_text(response.text, skip_header=True)
+
+
+@app.route('/analysis', methods=['GET'])
+def analysis():
+    if request.method == 'GET':
+        query = request.args['query']
+        repository = request.args['repository']
+        return jsonify(
+            query_analysis(query=query, repository=repository, api=API_URL))
