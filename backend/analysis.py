@@ -1,3 +1,5 @@
+import json
+
 import parse
 from typing import Dict
 import requests
@@ -8,7 +10,7 @@ def get_prefixes(query: str):
     prefixes = {}
     for res in parse.findall('PREFIX {prefix} <{uri}>\n', query):
         fields = res.named
-        prefixes[fields['prefix']] = fields['uri']
+        prefixes[fields['prefix'].strip()] = fields['uri'].strip()
 
     return prefixes
 
@@ -19,7 +21,10 @@ def get_select_variables(query: str):
     :param query:
     :return:
     """
-    select_statement = parse.search('select {line}\n', query)
+    select_statement = parse.search('select {line}\n', query) or \
+        parse.search('select {line} from', query) or \
+        parse.search('select {line} where', query)
+
     if not select_statement:
         return []
     line = select_statement['line']
@@ -38,12 +43,16 @@ def get_class_variables(query) -> Dict[str, str]:
         parse.search('where {{\n{conditions}\n}}', query)
     if not where_clause:
         return {}
+
     conditions = where_clause['conditions']
     class_var = {}
-    for res in parse.findall('?{var} rdf:type {class} ;', conditions):
-        if res is not None:
-            fields = res.named
-            class_var[fields['var']] = fields['class']
+
+    results = list(parse.findall('?{var} rdf:type {class};', conditions)) + \
+        list(parse.findall('?{var} rdf:type {class}.', conditions))
+
+    for res in results:
+        fields = res.named
+        class_var[fields['var'].strip()] = fields['class'].strip()
 
     return class_var
 
@@ -55,12 +64,12 @@ def get_class_properties(query):
     :return:
     """
     classes = {}
-    for result in parse.findall('rdf:type {class} ;\n{properties} .', query):
-        cls = result['class']
+    for result in parse.findall('rdf:type {class};{properties}.', query):
+        cls = result['class'].strip()
         classes[cls] = {}
         properties = result['properties']
         for pairs in properties.split(';'):
-            [prop, var] = pairs.strip().split()
+            [prop, var] = [token for token in pairs.strip().split() if token]
             classes[cls][prop] = var.replace('?', '')
 
     return classes
@@ -96,9 +105,10 @@ def get_full_uri(s: str, prefixes) -> str:
 
 def get_types(*, uri: str, api: str, repository: str):
     with open('queries/get_type.sparql', 'r') as query:
+        encoded = urllib.parse.quote(query.read().format(uri=uri), safe="")
         response = requests.get(
             f'{api}/repositories/{repository}'
-            f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
+            f'?query={encoded}')
 
     return response.text.replace('\r', '').splitlines()[1:]
 
@@ -112,9 +122,11 @@ def get_metadata(*, uri: str, api: str, repository: str):
     :return:
     """
     with open('queries/meta_information.sparql', 'r') as query:
+        encoded_query = urllib.parse.quote(
+            query.read().format(uri=uri), safe="")
         response = requests.get(
             f'{api}/repositories/{repository}'
-            f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
+            f'?query={encoded_query}')
 
     info = response.text
 
@@ -179,11 +191,10 @@ def property_range_categories(*, prop_uri: str, api: str, repository: str) \
     return prop_categories
 
 
-def variable_categories(*, query, api: str, repository: str, select_variables,
+def variable_categories(*, api: str, repository: str, select_variables,
                         all_classes, prefixes) -> Dict:
     """
     Returns the variables of different categories
-    :param query:
     :param api:
     :param repository:
     :param select_variables:
@@ -240,6 +251,21 @@ def get_classes_used(select_variables, all_classes) -> [str]:
     return used
 
 
+def property_links_classes(prop_uri: str, class_a, class_b, api, repository) \
+        -> bool:
+    with open('queries/get_type.sparql', 'r') as query:
+        encoded_query = urllib.parse.quote(
+            query.read().format(property=prop_uri, classA=class_a,
+                                classB=class_b), safe="")
+        response = requests.get(
+            f'{api}/repositories/{repository}'
+            f'?query={encoded_query}')
+
+        result = json.loads(response.text)
+
+    return result['boolean']
+
+
 def class_with_data_properties(*, query, api: str, repository: str,
                                select_variables, all_classes,
                                var_categories: Dict) -> Dict:
@@ -283,8 +309,7 @@ def query_analysis(query: str, api: str, repository):
     all_classes = get_class_properties(query)
     # Checks if a variable from a class has already been used
 
-    var_categories = variable_categories(query=query,
-                                         api=api,
+    var_categories = variable_categories(api=api,
                                          repository=repository,
                                          select_variables=select_variables,
                                          prefixes=prefixes,
