@@ -53,3 +53,11 @@ def is_blank_node(uri: str):
 
 def remove_blank_nodes(uris: [str]):
     return list(filter(lambda uri: not is_blank_node(uri), uris))
+
+
+def is_json(myjson):
+    try:
+        json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
