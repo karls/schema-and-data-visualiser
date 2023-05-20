@@ -2,7 +2,7 @@ import csv
 import json
 import io
 import shlex
-
+import re
 
 def csv_to_json(string):
     reader = csv.DictReader(io.StringIO(string))
@@ -61,3 +61,8 @@ def is_json(myjson):
     except ValueError as e:
         return False
     return True
+
+
+def remove_comments(code):
+    code = str(code)
+    return re.sub(r'(?m)^ *#.*\n?', '', code)
