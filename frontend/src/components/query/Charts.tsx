@@ -30,7 +30,7 @@ type ChartsProps = {
   results: QueryResults;
 };
 
-const Charts = ({ query, results }: ChartsProps) => {
+const Charts = observer(({ query, results }: ChartsProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
@@ -239,17 +239,21 @@ const Charts = ({ query, results }: ChartsProps) => {
     <Fullscreen>
       <Tabs
         defaultActiveKey="1"
-        items={items.filter(
-          ({ key }) =>
-            queryAnalysis &&
-            queryAnalysis.visualisations
-              .map(({ name }) => name)
-              .includes(key as ChartType)
-        )}
+        items={
+          settings.showAllCharts
+            ? items
+            : items.filter(
+                ({ key }) =>
+                  queryAnalysis &&
+                  queryAnalysis.visualisations
+                    .map(({ name }) => name)
+                    .includes(key as ChartType)
+              )
+        }
         style={{ padding: 10 }}
       />
     </Fullscreen>
   );
-};
+});
 
-export default observer(Charts);
+export default Charts;

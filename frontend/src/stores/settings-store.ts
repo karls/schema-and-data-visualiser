@@ -7,6 +7,7 @@ type SettingsState = {
   sidebarWidth: number;
   fullScreen: boolean;
   sidebarCollapsed: boolean;
+  showAllCharts: boolean;
 };
 
 class SettingsStore {
@@ -16,6 +17,7 @@ class SettingsStore {
     sidebarWidth: 200,
     fullScreen: false,
     sidebarCollapsed: false,
+    showAllCharts: false,
   };
 
   constructor(rootStore: RootStore) {
@@ -54,6 +56,10 @@ class SettingsStore {
     return this.state.sidebarCollapsed;
   }
 
+  get showAllCharts(): boolean {
+    return this.state.showAllCharts;
+  }
+
   setDarkMode(value: boolean) {
     this.setState({ ...this.state, darkMode: value });
   }
@@ -64,6 +70,10 @@ class SettingsStore {
 
   setSidebarCollapsed(value: boolean) {
     this.state.sidebarCollapsed = value;
+  }
+
+  setShowAllCharts(value: boolean) {
+    this.state.showAllCharts = value;
   }
 }
 
