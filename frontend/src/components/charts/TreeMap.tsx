@@ -6,6 +6,7 @@ import { useStore } from "../../stores/store";
 import randomColor from "randomcolor";
 import { Space, Statistic } from "antd";
 import { observer } from "mobx-react-lite";
+import { shadeColor } from "../../utils/queryResults";
 
 type ModeOption = "squarify" | "circlePack";
 
@@ -75,12 +76,16 @@ function getHierarchicalData(
     const titleIndex = results.header.indexOf(column);
     const title = row[titleIndex];
     const size = parseFloat(row[sizeIndex]);
+    const color = randomColor({ luminosity: "light" });
     // Leaf node contains title and size but no children
     dataFromTitle[row[titleIndex]] = {
       title,
       size,
-      color: randomColor(),
+      color,
       value: size,
+      style: {
+        border: "thin solid black",
+      },
     };
     titleSizes[title] = size;
   }
@@ -105,42 +110,47 @@ function getHierarchicalData(
       newDataFromTitle[parentValue] = newDataFromTitle[parentValue] ?? {
         title: parentValue,
         children: [],
-        color: randomColor({ luminosity: colourMode }),
-        size: 0,
         value: 0,
+        style: {
+          border: "thin solid black",
+        },
       };
       const parentData = newDataFromTitle[parentValue];
-
+      let groupColour = "";
       for (let childValue of parentChildren[parentValue]) {
         const childData = dataFromTitle[childValue];
 
         if (parentData.children.length > 0) {
-          childData.color = parentData.children[0].color;
+          groupColour = parentData.children[0].color;
+          childData.color = groupColour;
         }
 
         parentData.children.push(childData);
         parentData.value += childData.value; // Increment parent's size using child for circle packing
       }
       titleSizes[parentValue] = parentData.value;
-      // parentData.size = 0;
+      parentData.color = shadeColor(
+        groupColour ? groupColour : randomColor({ luminosity: "light" }),
+        -20
+      );
     }
 
     dataFromTitle = newDataFromTitle;
   }
-  const children = Object.values(dataFromTitle);
+  const children: any[] = Object.values(dataFromTitle);
   const label = keyColumns.join(" <- ") + " <- " + sizeColumn;
   const totalSize = children
     .map((child: any) => child.value)
     .reduce((a, b) => a + b, 0);
-    
+
   titleSizes[label] = totalSize;
 
   const data = {
     title: label, // Text to show hierarchy of columns
     children,
-    color: randomColor(),
+    color: shadeColor(children[0].color, -30),
   };
-  // console.log(data);
+
   return { data, titleSizes };
 }
 
