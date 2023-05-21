@@ -273,9 +273,10 @@ def variable_categories(*, var_type, variables, var_class) -> Dict:
             var_categories['object'].append(var)
             continue
         # print(var_class, var_type)
-        type_name = var_type[var]
-        catg = type_category(type_uri=type_name)
-        var_categories[catg].append(var)
+        if var in var_type:
+            type_name = var_type[var]
+            catg = type_category(type_uri=type_name)
+            var_categories[catg].append(var)
 
     return var_categories
 
@@ -363,6 +364,10 @@ def query_analysis(query: str, api: str, repository):
     var_categories = variable_categories(var_type=var_type,
                                          variables=select_variables,
                                          var_class=var_class)
+    for c in var_categories:
+        var_categories[c] = sorted(var_categories[c],
+                                   key=lambda var: select_variables.index(var))
+
     res = class_with_data_properties(select_variables=select_variables,
                                      class_properties=class_properties,
                                      var_categories=var_categories)
