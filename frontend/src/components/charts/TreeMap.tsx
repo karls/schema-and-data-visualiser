@@ -23,21 +23,21 @@ export const TreeMap = observer(
     const settings = rootStore.settingsStore;
     const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
-    const data = useMemo(() => {
-      return getData(
+    const { data, titleSizes } = useMemo(() => {
+      return getHierarchicalData(
         results,
         variables.key,
         variables.scalar[0],
         settings.darkMode ? "light" : "dark",
-        mode === "circlePack"
+        true
       );
-    }, [mode, results, settings.darkMode, variables.key, variables.scalar]);
+    }, [results, settings.darkMode, variables.key, variables.scalar]);
 
     return (
       <Space direction="vertical">
         <Statistic
           title={hoveredNode ? hoveredNode.data.title : "Title"}
-          value={hoveredNode ? hoveredNode.data.size : "Size"}
+          value={hoveredNode ? titleSizes[hoveredNode.data.title] : "Size"}
         />
 
         <Treemap
@@ -59,70 +59,89 @@ export const TreeMap = observer(
   }
 );
 
-function getData(
+function getHierarchicalData(
   results: QueryResults,
-  titleColumns: string[],
+  keyColumns: string[],
   sizeColumn: string,
   colourMode: "light" | "dark",
   addSize: boolean
 ): any {
   const sizeIndex = results.header.indexOf(sizeColumn);
-
+  const titleSizes = {};
   let dataFromTitle: any = {};
+
   for (let row of results.data) {
-    const title = titleColumns.at(-1)!;
-    const titleIndex = results.header.indexOf(title);
+    const column = keyColumns.at(-1)!;
+    const titleIndex = results.header.indexOf(column);
+    const title = row[titleIndex];
+    const size = parseFloat(row[sizeIndex]);
     // Leaf node contains title and size but no children
     dataFromTitle[row[titleIndex]] = {
-      title: row[titleIndex],
-      size: parseFloat(row[sizeIndex]),
+      title,
+      size,
       color: randomColor(),
+      value: size,
     };
+    titleSizes[title] = size;
   }
-  for (let i = titleColumns.length - 1; i > 0; i--) {
-    const parentTitle = titleColumns[i - 1];
+
+  for (let i = keyColumns.length - 1; i > 0; i--) {
+    const parentTitle = keyColumns[i - 1];
     const parentTitleIndex = results.header.indexOf(parentTitle);
 
-    const childTitle = titleColumns[i];
+    const childTitle = keyColumns[i];
     const childTitleIndex = results.header.indexOf(childTitle);
 
     const newDataFromTitle = {}; // Data with previous column as key
-
+    const parentChildren = {};
     for (let row of results.data) {
       const parentValue = row[parentTitleIndex];
       const childValue = row[childTitleIndex];
+      parentChildren[parentValue] = parentChildren[parentValue] ?? new Set();
+      parentChildren[parentValue].add(childValue);
+    }
 
-      newDataFromTitle[parentValue] = newDataFromTitle[parentValue] || {
+    for (let parentValue of Object.keys(parentChildren)) {
+      newDataFromTitle[parentValue] = newDataFromTitle[parentValue] ?? {
         title: parentValue,
         children: [],
         color: randomColor({ luminosity: colourMode }),
         size: 0,
+        value: 0,
       };
-
       const parentData = newDataFromTitle[parentValue];
-      const childData = dataFromTitle[childValue];
 
-      if (parentData.children.length > 0) {
-        childData.color = parentData.children[0].color;
-      }
+      for (let childValue of parentChildren[parentValue]) {
+        const childData = dataFromTitle[childValue];
 
-      parentData.children.push(childData);
-      if (addSize) {
-        parentData.size += childData.size; // Increment parent's size using child for circle packing
+        if (parentData.children.length > 0) {
+          childData.color = parentData.children[0].color;
+        }
+
+        parentData.children.push(childData);
+        parentData.value += childData.value; // Increment parent's size using child for circle packing
       }
+      titleSizes[parentValue] = parentData.value;
+      // parentData.size = 0;
     }
 
     dataFromTitle = newDataFromTitle;
   }
   const children = Object.values(dataFromTitle);
+  const label = keyColumns.join(" <- ") + " <- " + sizeColumn;
+  const totalSize = children
+    .map((child: any) => child.value)
+    .reduce((a, b) => a + b, 0);
+    
+  titleSizes[label] = totalSize;
+
   const data = {
-    title: titleColumns.join(" <- ") + " <- " + sizeColumn, // Text to show hierarchy of columns
+    title: label, // Text to show hierarchy of columns
     children,
     color: randomColor(),
-    size: children.map((child: any) => child.size).reduce((a, b) => a + b, 0),
   };
-
-  return data;
+  // console.log(data);
+  return { data, titleSizes };
 }
 
 export default TreeMap;
