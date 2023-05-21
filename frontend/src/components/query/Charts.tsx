@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsProps } from "antd";
-import { ChartType, QueryAnalysis, QueryResults } from "../../types";
+import {
+  ChartType,
+  QueryAnalysis,
+  QueryResults,
+  Visualisation,
+} from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
@@ -8,7 +13,7 @@ import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
 import { BsBodyText, BsCalendar3, BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
-import { TbChartSankey } from "react-icons/tb";
+import { TbChartSankey, TbCirclesFilled } from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
 import { ImSphere } from "react-icons/im";
 import PieChart from "../charts/PieChart";
@@ -24,6 +29,7 @@ import ChordDiagram from "../charts/ChordDiagram";
 import { getQueryAnalysis } from "../../api/queries";
 import CalendarChart from "../charts/CalendarChart";
 import WordCloud from "../charts/WordCloud";
+import { CirclePacking } from "../charts/CirclePacking";
 
 type ChartsProps = {
   query: string;
@@ -44,15 +50,24 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   );
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>();
-
+  const [possibleVis, setPossibleVis] = useState<Visualisation[]>([]);
   useEffect(() => {
     getQueryAnalysis(query, repositoryStore.currentRepository!).then((res) => {
       setQueryAnalysis(res!);
+      setPossibleVis(res!.visualisations);
     });
   }, [query, repositoryStore.currentRepository]);
 
-  const items: TabsProps["items"] = useMemo(
-    () => [
+  const items: TabsProps["items"] = useMemo(() => {
+    if (!queryAnalysis) {
+      return [];
+    }
+    return [
+      {
+        key: "Help",
+        label: <>Help</>,
+        children: <></>,
+      },
       {
         key: ChartType.Bar,
         label: (
@@ -61,16 +76,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <>
-            {queryAnalysis && (
-              <BarChart
-                results={results}
-                width={chartWidth}
-                height={chartHeight}
-                variables={queryAnalysis?.variables}
-              />
-            )}
-          </>
+          <BarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
         ),
       },
       {
@@ -123,7 +134,28 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <TreeMap results={results} width={chartWidth} height={chartHeight} />
+          <TreeMap
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.CirclePacking,
+        label: (
+          <>
+            <TbCirclesFilled size={18} /> Circle Packing
+          </>
+        ),
+        children: (
+          <CirclePacking
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
         ),
       },
       {
@@ -164,16 +196,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <>
-            {queryAnalysis && (
-              <ScatterChart
-                results={results}
-                width={chartWidth}
-                height={chartHeight}
-                variables={queryAnalysis.variables}
-              />
-            )}
-          </>
+          <ScatterChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
         ),
       },
       {
@@ -219,21 +247,16 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           </>
         ),
         children: (
-          <>
-            {queryAnalysis && (
-              <CalendarChart
-                results={results}
-                width={chartWidth}
-                height={chartHeight}
-                variables={queryAnalysis.variables}
-              />
-            )}
-          </>
+          <CalendarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
         ),
       },
-    ],
-    [chartHeight, chartWidth, queryAnalysis, results]
-  );
+    ];
+  }, [chartHeight, chartWidth, queryAnalysis, results]);
 
   return (
     <Fullscreen>
@@ -244,10 +267,8 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ? items
             : items.filter(
                 ({ key }) =>
-                  queryAnalysis &&
-                  queryAnalysis.visualisations
-                    .map(({ name }) => name)
-                    .includes(key as ChartType)
+                  key === "Help" ||
+                  possibleVis.map(({ name }) => name).includes(key as ChartType)
               )
         }
         style={{ padding: 10 }}
