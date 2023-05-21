@@ -44,20 +44,33 @@ const Settings = () => {
         />
       </Tooltip>
       <Drawer title="Settings" placement="right" onClose={onClose} open={open}>
-        <Switch
-          checked={settings.darkMode}
-          onChange={(checked: boolean) => settings.setDarkMode(checked)}
-          checkedChildren={<MdDarkMode style={{ marginBottom: 2 }} />}
-          unCheckedChildren={<MdLightMode style={{ marginBottom: 2 }} />}
-        />{" "}
-        <Text>Dark Mode</Text>
-        <Divider />
-        <GraphDBLink />
-        <Divider />
-        <Alert
-          message="The backend currently supports the N-Triples syntax."
-          banner
-        />
+        <Space direction="vertical">
+          <Space>
+            <Switch
+              checked={settings.darkMode}
+              onChange={(checked: boolean) => settings.setDarkMode(checked)}
+              checkedChildren={<MdDarkMode style={{ marginBottom: 2 }} />}
+              unCheckedChildren={<MdLightMode style={{ marginBottom: 2 }} />}
+            />
+            <Text>Dark Mode</Text>
+          </Space>
+          <Divider />
+          <GraphDBLink />
+          <Divider />
+          <Space>
+            <Switch
+              checked={settings.showAllCharts}
+              onChange={(checked: boolean) =>
+                settings.setShowAllCharts(checked)
+              }
+            />
+            <Text>Show all charts</Text>
+          </Space>
+          <Alert
+            message="The tool currently supports the N-Triples syntax."
+            banner
+          />
+        </Space>
       </Drawer>
     </>
   );

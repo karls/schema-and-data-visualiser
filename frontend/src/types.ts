@@ -59,10 +59,11 @@ export enum ChartType {
   ChoroplethMap = "Choropleth Map",
   Pie = "Pie",
   Line = "Line",
-  Treemap = "Treemap",
+  TreeMap = "Tree Map",
   Radar = "Radar",
   Sankey = "Sankey",
   ChordDiagram = "Chord Diagram",
+  CirclePacking = "Circle Packing",
 }
 
 export type Visualisation = {
@@ -78,7 +79,7 @@ export type VariableCategories = {
   geographical: string[];
   lexical: string[];
   date: string[];
-}
+};
 
 export type QueryAnalysis = {
   valid: boolean;

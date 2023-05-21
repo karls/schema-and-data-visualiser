@@ -2,6 +2,20 @@ import csv
 import json
 import io
 import shlex
+import re
+
+
+def is_url(text):
+    regex = re.compile(
+        r'^(?:http|ftp)s?://'  # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|['
+        r'A-Z0-9-]{2,}\.?)|'  # domain... 
+        r'localhost|'  # localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
+        r'(?::\d+)?'  # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+
+    return re.match(regex, text)
 
 
 def csv_to_json(string):
@@ -53,3 +67,16 @@ def is_blank_node(uri: str):
 
 def remove_blank_nodes(uris: [str]):
     return list(filter(lambda uri: not is_blank_node(uri), uris))
+
+
+def is_json(myjson):
+    try:
+        json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
+
+
+def remove_comments(code):
+    code = str(code)
+    return re.sub(r'(?m)^ *#.*\n?', '', code)

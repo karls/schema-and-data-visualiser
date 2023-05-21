@@ -9,7 +9,7 @@ import urllib
 from analysis import query_analysis
 from db import add_to_history, get_queries, delete_all_queries
 from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
-    is_ntriples_format, remove_blank_nodes, is_blank_node
+    is_ntriples_format, remove_blank_nodes, is_blank_node, is_json
 
 app = Flask(__name__)
 app.secret_key = 'imperial-college-london'
@@ -72,20 +72,33 @@ def run_query():
         repository = request.args['repository']
         query = request.args['query']
         title = request.args['title']
-
-        add_to_history(repository_id=repository,
-                       sparql=query,
-                       title=title)
+        if title:
+            add_to_history(repository_id=repository,
+                           sparql=query,
+                           title=title)
 
         response = requests.get(
             f'{API_URL}/repositories/{repository}'
             f'?query={urllib.parse.quote(query, safe="")}')
 
         results = response.text.replace('\r', '')
-        if is_ntriples_format(results):
+        header = []
+        data = []
+        if 'error' in results.lower():
+            header = ['ERROR']
+            data = [[results]]
+
+        elif is_json(results):  # For ASK queries
+            obj = json.loads(results)
+            if 'boolean' in obj:
+                header = ['boolean']
+                data = [[str(obj['boolean']).lower()]]
+
+        elif is_ntriples_format(results):  # For CONSTRUCT queries
             header = ['Subject', 'Predicate', 'Object']
             data = parse_ntriples_graph(results)
-        else:
+
+        else:  # For SELECT queries
             header = results.split('\n')[0].split(',')
             data = parse_csv_text(results)
 
