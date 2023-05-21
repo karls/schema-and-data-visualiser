@@ -127,7 +127,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Treemap,
+        key: ChartType.TreeMap,
         label: (
           <>
             <HiRectangleGroup size={18} /> Treemap

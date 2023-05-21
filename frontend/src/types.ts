@@ -59,7 +59,7 @@ export enum ChartType {
   ChoroplethMap = "Choropleth Map",
   Pie = "Pie",
   Line = "Line",
-  Treemap = "Treemap",
+  TreeMap = "Tree Map",
   Radar = "Radar",
   Sankey = "Sankey",
   ChordDiagram = "Chord Diagram",
