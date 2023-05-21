@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, Descriptions, List, Space, Tag } from "antd";
+import { Alert, Card, Descriptions, List, Space, Tag, Typography } from "antd";
 import {
   ChartType,
   QueryAnalysis,
@@ -106,18 +106,23 @@ type VariablesProps = {
 
 const Variables = ({ variableCategories }: VariablesProps) => {
   return (
-    <Descriptions title="Variables">
-      {Object.keys(variableCategories).map(
-        (category, index) =>
-          variableCategories[category].length > 0 && (
-            <Descriptions.Item key={`catg-${index}`} label={category}>
-              {variableCategories[category].map((v, index) => (
-                <Tag key={index}>{v}</Tag>
-              ))}
-            </Descriptions.Item>
-          )
-      )}
-    </Descriptions>
+    <Card title="Variables">
+      <Space direction="vertical">
+        {Object.keys(variableCategories).map(
+          (category, index) =>
+            variableCategories[category].length > 0 && (
+              <Space key={`categ-${index}`}>
+                <Typography.Text>{category}</Typography.Text>:
+                <>
+                  {variableCategories[category].map((v, index) => (
+                    <Tag key={index}>{v}</Tag>
+                  ))}
+                </>
+              </Space>
+            )
+        )}
+      </Space>
+    </Card>
   );
 };
 
