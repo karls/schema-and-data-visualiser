@@ -63,6 +63,7 @@ export enum ChartType {
   Radar = "Radar",
   Sankey = "Sankey",
   ChordDiagram = "Chord Diagram",
+  CirclePacking = "Circle Packing",
 }
 
 export type Visualisation = {
@@ -78,7 +79,7 @@ export type VariableCategories = {
   geographical: string[];
   lexical: string[];
   date: string[];
-}
+};
 
 export type QueryAnalysis = {
   valid: boolean;
