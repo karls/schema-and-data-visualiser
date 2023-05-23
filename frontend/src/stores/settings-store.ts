@@ -60,6 +60,20 @@ class SettingsStore {
     return this.state.showAllCharts;
   }
 
+  get screenWidth(): number {
+    return Math.max(
+      document.documentElement.clientWidth || Number.MAX_SAFE_INTEGER,
+      window.innerWidth || Number.MAX_SAFE_INTEGER
+    );
+  }
+
+  get screenHeight(): number {
+    return Math.min(
+      document.documentElement.clientHeight ?? Number.MAX_SAFE_INTEGER,
+      window.innerHeight ?? Number.MAX_SAFE_INTEGER
+    );
+  }
+
   setDarkMode(value: boolean) {
     this.setState({ ...this.state, darkMode: value });
   }
