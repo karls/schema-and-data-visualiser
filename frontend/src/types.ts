@@ -65,6 +65,7 @@ export enum ChartType {
   ChordDiagram = "Chord Diagram",
   CirclePacking = "Circle Packing",
   HierarchyTree = "Hierarchy Tree",
+  Sunburst = "Sunburst",
 }
 
 export type Visualisation = {
