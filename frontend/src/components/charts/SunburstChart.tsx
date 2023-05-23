@@ -1,9 +1,6 @@
 import React from "react";
-import { observer } from "mobx-react-lite";
-// import Sunburst from "react-d3-zoomable-sunburst";
 import { LabelSeries, Sunburst } from "react-vis";
 import { QueryResults, VariableCategories } from "../../types";
-import { useMemo, useState } from "react";
 import randomColor from "randomcolor";
 import { shadeColor } from "../../utils/queryResults";
 
@@ -17,7 +14,7 @@ type SunburstProps = {
 // export const SunburstChart = observer(
 //   ({ results, width, height, variables }: SunburstProps) => {
 const LABEL_STYLE = {
-  fontSize: "8px",
+  fontSize: "15px",
   textAnchor: "middle",
 };
 
@@ -230,7 +227,7 @@ export function getHierarchicalData(
   const data = {
     name: label, // Text to show hierarchy of columns
     children,
-    // size: totalSize,
+    size: totalSize,
     // color: shadeColor(children[0].color, -30),
   };
 
