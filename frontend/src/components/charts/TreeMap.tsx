@@ -54,10 +54,11 @@ export const TreeMap = observer(
   }
 );
 
-function getHierarchicalData(
+export function getHierarchicalData(
   results: QueryResults,
   keyColumns: string[],
-  sizeColumn: string
+  sizeColumn: string,
+  idField: "name" | "title" = "title"
 ): any {
   const sizeIndex = results.header.indexOf(sizeColumn);
   const titleSizes = {};
@@ -71,7 +72,7 @@ function getHierarchicalData(
     const color = randomColor({ luminosity: "light" });
     // Leaf node contains title and size but no children
     dataFromTitle[row[titleIndex]] = {
-      title,
+      [idField]: title,
       size,
       color,
       value: size,
@@ -100,7 +101,7 @@ function getHierarchicalData(
 
     for (let parentValue of Object.keys(parentChildren)) {
       newDataFromTitle[parentValue] = newDataFromTitle[parentValue] ?? {
-        title: parentValue,
+        [idField]: parentValue,
         children: [],
         value: 0,
         style: {

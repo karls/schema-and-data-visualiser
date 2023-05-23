@@ -34,7 +34,7 @@ const HierarchyTree = ({
   );
 };
 
-function getHierarchicalData(
+export function getHierarchicalData(
   results: QueryResults,
   keyColumns: string[],
   scalarColumns: string[]
@@ -86,7 +86,7 @@ function getHierarchicalData(
         style: {
           border: "thin solid black",
         },
-        _collapsed: false,
+        size: 0,
       };
       const parentData = newDataFromTitle[parentValue];
       let groupColour = "";
@@ -99,7 +99,7 @@ function getHierarchicalData(
         }
 
         parentData.children.push(childData);
-        parentData.value += childData.value; // Increment parent's size using child for circle packing
+        parentData.size += childData.size; // Increment parent's size using child for circle packing
       }
       parentData.color = shadeColor(
         groupColour ? groupColour : randomColor({ luminosity: "light" }),
@@ -111,14 +111,17 @@ function getHierarchicalData(
   }
   const children: any[] = Object.values(dataFromTitle);
   const label = keyColumns[0];
+  const totalSize = children
+    .map((child: any) => child.value)
+    .reduce((a, b) => a + b, 0);
 
   const data = {
     name: label, // Text to show hierarchy of columns
     children,
     color: shadeColor(children[0].color, -30),
-    _collapsed: false,
+    size: totalSize,
   };
-  console.log(data);
+
   return data;
 }
 
