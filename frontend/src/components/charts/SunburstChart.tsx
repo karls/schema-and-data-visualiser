@@ -154,8 +154,8 @@ class SunburstChart extends React.Component<SunburstProps, any> {
                 x: 0,
                 y: 0,
                 label: finalValue
-                  ? `${finalValue}: ${titleSizes[finalValue]}`
-                  : "Hover over cell for info",
+                  ? `${finalValue}: ${titleSizes[finalValue].toLocaleString()}`
+                  : "Hover over cell for details",
                 style: LABEL_STYLE,
               },
             ]}
