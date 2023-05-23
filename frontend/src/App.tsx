@@ -23,7 +23,12 @@ const App = () => {
       }}
     >
       <AntdApp>
-        <Layout style={{ height: "100vh" }}>
+        <Layout
+          style={{
+            minHeight: "100vh",
+            backgroundColor: settings.darkMode ? "black" : "white",
+          }}
+        >
           <Header className="header">
             <Navbar />
           </Header>

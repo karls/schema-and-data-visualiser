@@ -15,7 +15,7 @@ import { BiLineChart } from "react-icons/bi";
 import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey, TbCirclesFilled } from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
-import { ImSphere } from "react-icons/im";
+import { ImSphere, ImTree } from "react-icons/im";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
@@ -30,6 +30,7 @@ import { getQueryAnalysis } from "../../api/queries";
 import CalendarChart from "../charts/CalendarChart";
 import WordCloud from "../charts/WordCloud";
 import { CirclePacking } from "../charts/CirclePacking";
+import HierarchyTree from "../charts/HierarchyTree";
 
 type ChartsProps = {
   query: string;
@@ -45,9 +46,10 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
       (settings.fullScreen ? 0.95 : 0.88)
   );
-  const chartHeight = Math.floor(
-    window.screen.height * (settings.fullScreen ? 0.8 : 0.45)
-  );
+
+  const chartHeight = settings.fullScreen
+    ? window.screen.height - 50
+    : settings.screenHeight - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>();
   const [possibleVis, setPossibleVis] = useState<Visualisation[]>([]);
@@ -64,8 +66,8 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     }
     return [
       {
-        key: "Help",
-        label: <>Help</>,
+        key: "Guide",
+        label: <>Guide</>,
         children: <></>,
       },
       {
@@ -255,6 +257,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           />
         ),
       },
+      {
+        key: ChartType.HierarchyTree,
+        label: (
+          <>
+            <ImTree size={20} /> Hierarchy Tree
+          </>
+        ),
+        children: (
+          <HierarchyTree
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
     ];
   }, [chartHeight, chartWidth, queryAnalysis, results]);
 
@@ -267,7 +285,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ? items
             : items.filter(
                 ({ key }) =>
-                  key === "Help" ||
+                  key === "Guide" ||
                   possibleVis.map(({ name }) => name).includes(key as ChartType)
               )
         }

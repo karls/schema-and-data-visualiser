@@ -1,85 +1,66 @@
-import { useMemo, useState } from "react";
-import { Treemap, TreemapPoint } from "react-vis";
-import "react-vis/dist/style.css";
+import { useMemo } from "react";
+import Tree from "react-d3-tree";
 import { QueryResults, VariableCategories } from "../../types";
-// import { useStore } from "../../stores/store";
 import randomColor from "randomcolor";
-import { Space, Statistic } from "antd";
-import { observer } from "mobx-react-lite";
 import { shadeColor } from "../../utils/queryResults";
+import "./HierarchyTree.css";
 
-type ModeOption = "squarify" | "circlePack";
-
-type TreeMapProps = {
+type HierarchyTreeProps = {
   results: QueryResults;
+  variables: VariableCategories;
   width: number;
   height: number;
-  mode?: ModeOption;
-  variables: VariableCategories;
 };
 
-export const TreeMap = observer(
-  ({ results, width, height, mode = "squarify", variables }: TreeMapProps) => {
-    // const rootStore = useStore();
-    // const settings = rootStore.settingsStore;
-    const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
+const HierarchyTree = ({
+  results,
+  width,
+  height,
+  variables,
+}: HierarchyTreeProps) => {
+  const data = useMemo(() => {
+    return getHierarchicalData(results, variables.key, variables.scalar);
+  }, [results, variables.key, variables.scalar]);
 
-    const { data, titleSizes } = useMemo(() => {
-      return getHierarchicalData(results, variables.key, variables.scalar[0]);
-    }, [results, variables.key, variables.scalar]);
-
-    return (
-      <Space direction="vertical">
-        <Statistic
-          title={hoveredNode ? hoveredNode.data.title : "Title"}
-          value={hoveredNode ? titleSizes[hoveredNode.data.title] : "Size"}
-        />
-
-        <Treemap
-          data={data}
-          animation={{
-            damping: 9,
-            stiffness: 300,
-          }}
-          onLeafMouseOver={(x) => setHoveredNode(x)}
-          onLeafMouseOut={() => setHoveredNode(null)}
-          width={width}
-          height={height - 75}
-          mode={mode}
-          colorType="literal"
-          getLabel={(x) => x.title}
-        />
-      </Space>
-    );
-  }
-);
+  return (
+    <div style={{ width, height }}>
+      <Tree
+        data={data}
+        orientation="horizontal"
+        collapsible={true}
+        shouldCollapseNeighborNodes={true}
+      />
+    </div>
+  );
+};
 
 function getHierarchicalData(
   results: QueryResults,
   keyColumns: string[],
-  sizeColumn: string
+  scalarColumns: string[]
 ): any {
-  const sizeIndex = results.header.indexOf(sizeColumn);
-  const titleSizes = {};
   let dataFromTitle: any = {};
 
   for (let row of results.data) {
     const column = keyColumns.at(-1)!;
-    const titleIndex = results.header.indexOf(column);
-    const title = row[titleIndex];
-    const size = parseFloat(row[sizeIndex]);
+    const nameIndex = results.header.indexOf(column);
+    const name = row[nameIndex];
     const color = randomColor({ luminosity: "light" });
     // Leaf node contains title and size but no children
-    dataFromTitle[row[titleIndex]] = {
-      title,
-      size,
+    dataFromTitle[row[nameIndex]] = {
+      name,
       color,
-      value: size,
+      attributes: scalarColumns.reduce((ac, column) => {
+        const columnIndex = results.header.indexOf(column);
+        return {
+          ...ac,
+          [column]: row[columnIndex],
+        };
+      }, {}),
       style: {
         border: "thin solid black",
       },
     };
-    titleSizes[title] = size;
   }
 
   for (let i = keyColumns.length - 1; i > 0; i--) {
@@ -100,12 +81,12 @@ function getHierarchicalData(
 
     for (let parentValue of Object.keys(parentChildren)) {
       newDataFromTitle[parentValue] = newDataFromTitle[parentValue] ?? {
-        title: parentValue,
+        name: parentValue,
         children: [],
-        value: 0,
         style: {
           border: "thin solid black",
         },
+        _collapsed: false,
       };
       const parentData = newDataFromTitle[parentValue];
       let groupColour = "";
@@ -120,7 +101,6 @@ function getHierarchicalData(
         parentData.children.push(childData);
         parentData.value += childData.value; // Increment parent's size using child for circle packing
       }
-      titleSizes[parentValue] = parentData.value;
       parentData.color = shadeColor(
         groupColour ? groupColour : randomColor({ luminosity: "light" }),
         -20
@@ -130,20 +110,16 @@ function getHierarchicalData(
     dataFromTitle = newDataFromTitle;
   }
   const children: any[] = Object.values(dataFromTitle);
-  const label = keyColumns.join(" <- ") + " <- " + sizeColumn;
-  const totalSize = children
-    .map((child: any) => child.value)
-    .reduce((a, b) => a + b, 0);
-
-  titleSizes[label] = totalSize;
+  const label = keyColumns[0];
 
   const data = {
-    title: label, // Text to show hierarchy of columns
+    name: label, // Text to show hierarchy of columns
     children,
     color: shadeColor(children[0].color, -30),
+    _collapsed: false,
   };
-
-  return { data, titleSizes };
+  console.log(data);
+  return data;
 }
 
-export default TreeMap;
+export default HierarchyTree;

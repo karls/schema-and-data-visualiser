@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, Descriptions, List, Space, Tag, Typography } from "antd";
+import { Alert, Card, List, Space, Tag, Typography } from "antd";
 import {
   ChartType,
   QueryAnalysis,

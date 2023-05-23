@@ -20,7 +20,7 @@ type BarChartProps = {
 };
 
 const BarChart = ({ results, width, height, variables }: BarChartProps) => {
-  console.log(variables);
+  const tabHeight = 60;
   return (
     <Tabs
       defaultActiveKey="1"
@@ -39,7 +39,7 @@ const BarChart = ({ results, width, height, variables }: BarChartProps) => {
           key: `column-${id}`,
           label: column,
           children: (
-            <ResponsiveContainer width="100%" height={height}>
+            <ResponsiveContainer width="100%" height={height - tabHeight}>
               <BarRechart data={data}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
