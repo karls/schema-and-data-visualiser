@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Treemap, TreemapPoint } from "react-vis";
 import "react-vis/dist/style.css";
 import { QueryResults, VariableCategories } from "../../types";
-import { useStore } from "../../stores/store";
+// import { useStore } from "../../stores/store";
 import randomColor from "randomcolor";
 import { Space, Statistic } from "antd";
 import { observer } from "mobx-react-lite";
@@ -20,19 +20,13 @@ type TreeMapProps = {
 
 export const TreeMap = observer(
   ({ results, width, height, mode = "squarify", variables }: TreeMapProps) => {
-    const rootStore = useStore();
-    const settings = rootStore.settingsStore;
+    // const rootStore = useStore();
+    // const settings = rootStore.settingsStore;
     const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
     const { data, titleSizes } = useMemo(() => {
-      return getHierarchicalData(
-        results,
-        variables.key,
-        variables.scalar[0],
-        settings.darkMode ? "light" : "dark",
-        true
-      );
-    }, [results, settings.darkMode, variables.key, variables.scalar]);
+      return getHierarchicalData(results, variables.key, variables.scalar[0]);
+    }, [results, variables.key, variables.scalar]);
 
     return (
       <Space direction="vertical">
@@ -50,7 +44,7 @@ export const TreeMap = observer(
           onLeafMouseOver={(x) => setHoveredNode(x)}
           onLeafMouseOut={() => setHoveredNode(null)}
           width={width}
-          height={height}
+          height={height - 75}
           mode={mode}
           colorType="literal"
           getLabel={(x) => x.title}
@@ -63,9 +57,7 @@ export const TreeMap = observer(
 function getHierarchicalData(
   results: QueryResults,
   keyColumns: string[],
-  sizeColumn: string,
-  colourMode: "light" | "dark",
-  addSize: boolean
+  sizeColumn: string
 ): any {
   const sizeIndex = results.header.indexOf(sizeColumn);
   const titleSizes = {};
