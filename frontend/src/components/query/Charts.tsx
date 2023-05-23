@@ -16,6 +16,7 @@ import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey, TbCirclesFilled } from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
 import { ImSphere, ImTree } from "react-icons/im";
+import { TiChartPieOutline } from 'react-icons/ti';
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
@@ -31,6 +32,7 @@ import CalendarChart from "../charts/CalendarChart";
 import WordCloud from "../charts/WordCloud";
 import { CirclePacking } from "../charts/CirclePacking";
 import HierarchyTree from "../charts/HierarchyTree";
+import SunburstChart from "../charts/SunburstChart";
 
 type ChartsProps = {
   query: string;
@@ -153,6 +155,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <CirclePacking
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.Sunburst,
+        label: (
+          <>
+            <TiChartPieOutline size={20} /> Sunburst
+          </>
+        ),
+        children: (
+          <SunburstChart
             results={results}
             width={chartWidth}
             height={chartHeight}
