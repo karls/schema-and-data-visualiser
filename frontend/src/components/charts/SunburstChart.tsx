@@ -3,6 +3,7 @@ import { LabelSeries, Sunburst } from "react-vis";
 import { QueryResults, VariableCategories } from "../../types";
 import randomColor from "randomcolor";
 import { shadeColor } from "../../utils/queryResults";
+import { Alert, Breadcrumb, Divider, Space, Typography } from "antd";
 
 type SunburstProps = {
   results: QueryResults;
@@ -60,15 +61,16 @@ function updateData(data, keyPath) {
 
 class SunburstChart extends React.Component<SunburstProps, any> {
   state: any = {
-    pathValue: false,
+    path: null,
     decoratedData: {},
     data: {},
-    finalValue: "",
+    finalValue: false,
     clicked: false,
+    titleSizes: {},
   };
 
   componentDidMount(): void {
-    const data = updateData(
+    const { data, titleSizes } = updateData(
       getHierarchicalData(
         this.props.results,
         this.props.variables.key,
@@ -77,23 +79,33 @@ class SunburstChart extends React.Component<SunburstProps, any> {
       false
     );
     this.setState({
-      pathValue: false,
+      path: null,
       decoratedData: data,
       data,
-      finalValue: this.props.results.header[0],
       clicked: false,
+      titleSizes,
     });
   }
 
   render() {
-    const { clicked, data, finalValue, pathValue } = this.state;
+    const { clicked, data, finalValue, path, titleSizes } = this.state;
     return (
       <div className="basic-sunburst-example-wrapper">
         <div>
-          {/* {clicked ? "click to unlock selection" : "click to lock selection"} */}
-          <div className="basic-sunburst-example-path-name">
-            {pathValue ? pathValue : "Hover to view path"}
-          </div>
+          <Space>
+            <Alert type="info" message="Click to lock/unlock selection" />
+            <Divider type="vertical" />
+
+            {path && (
+              <Breadcrumb
+                style={{ fontSize: 20 }}
+                separator=">"
+                items={path.map((title: string) => {
+                  return { title };
+                })}
+              />
+            )}
+          </Space>
         </div>
         <Sunburst
           animation
@@ -110,7 +122,7 @@ class SunburstChart extends React.Component<SunburstProps, any> {
             }, {});
             this.setState({
               finalValue: path[path.length - 1],
-              pathValue: path.join(" > "),
+              path: path.slice(1),
               data: updateData(this.state.decoratedData, pathAsMap),
             });
           }}
@@ -118,7 +130,7 @@ class SunburstChart extends React.Component<SunburstProps, any> {
             clicked
               ? () => {}
               : this.setState({
-                  pathValue: false,
+                  path: null,
                   finalValue: false,
                   data: updateData(this.state.decoratedData, false),
                 })
@@ -133,15 +145,22 @@ class SunburstChart extends React.Component<SunburstProps, any> {
           getSize={(d) => d.value}
           getColor={(d) => d.hex}
           data={data}
-          height={this.props.height}
+          height={this.props.height - 75}
           width={this.props.width}
         >
-          {finalValue && (
-            <LabelSeries
-              data={[{ x: 0, y: 0, label: finalValue, style: LABEL_STYLE }]}
-              style={{ fontSize: 20 }}
-            />
-          )}
+          <LabelSeries
+            data={[
+              {
+                x: 0,
+                y: 0,
+                label: finalValue
+                  ? `${finalValue}: ${titleSizes[finalValue]}`
+                  : "Hover over cell for info",
+                style: LABEL_STYLE,
+              },
+            ]}
+            style={{ fontSize: 20 }}
+          />
         </Sunburst>
       </div>
     );
@@ -152,6 +171,7 @@ export function getHierarchicalData(
   keyColumns: string[],
   sizeColumn: string
 ): any {
+  const titleSizes = {};
   const sizeIndex = results.header.indexOf(sizeColumn);
   let dataFromTitle: any = {};
 
@@ -170,6 +190,7 @@ export function getHierarchicalData(
         border: "thin solid black",
       },
     };
+    titleSizes[title] = value;
   }
 
   for (let i = keyColumns.length - 1; i > 0; i--) {
@@ -192,11 +213,11 @@ export function getHierarchicalData(
       newDataFromTitle[parentValue] = newDataFromTitle[parentValue] ?? {
         name: parentValue,
         children: [],
-        // size: 0,
         style: {
           border: "thin solid black",
         },
       };
+      titleSizes[parentValue] = 0;
       const parentData = newDataFromTitle[parentValue];
       let groupColour = "";
       for (let childValue of parentChildren[parentValue]) {
@@ -208,7 +229,7 @@ export function getHierarchicalData(
         }
 
         parentData.children.push(childData);
-        // parentData.size += childData.size; // Increment parent's size using child for circle packing
+        titleSizes[parentValue] += childData.value; // Increment parent's size using child for circle packing
       }
       parentData.hex = shadeColor(
         groupColour ? groupColour : randomColor({ luminosity: "light" }),
@@ -220,18 +241,19 @@ export function getHierarchicalData(
   }
   const children: any[] = Object.values(dataFromTitle);
   const label = keyColumns[0];
-  const totalSize = children
-    .map((child: any) => child.size)
+  const totalValue = children
+    .map((child: any) => child.value)
     .reduce((a, b) => a + b, 0);
+
+  titleSizes[label] = totalValue;
 
   const data = {
     name: label, // Text to show hierarchy of columns
     children,
-    size: totalSize,
     // color: shadeColor(children[0].color, -30),
   };
 
-  return data;
+  return { data, titleSizes };
 }
 
 export default SunburstChart;
