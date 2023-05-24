@@ -7,13 +7,14 @@ import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
 import { Button, Dropdown, Space, App as AntdApp, Row, Col } from "antd";
 import { FiPlay } from "react-icons/fi";
 import { RiGitRepositoryLine } from "react-icons/ri";
-import { BiCopy } from "react-icons/bi";
+import { BiCopy, BiSave } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import sparql from "./sparql.json";
 import { sparql_templates } from "./sparql_templates";
 import Templates from "./Templates";
 import Analysis from "./Analysis";
+import { addQueryToHistory } from "../../api/queries";
 
 type QueryEditorProps = {
   query: string;
@@ -23,6 +24,7 @@ type QueryEditorProps = {
   onRun: (results: QueryResults) => void;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  queryTitle: string;
 };
 
 const Editor = ({
@@ -33,6 +35,7 @@ const Editor = ({
   onRun,
   loading,
   setLoading,
+  queryTitle,
 }: QueryEditorProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
@@ -69,57 +72,58 @@ const Editor = ({
 
   return (
     <Row gutter={10}>
-    <Col span={12}>
-    {/* <Space direction="vertical" style={{ width: "100%" }}> */}
-      <Space>
-        <Space style={{ margin: 5 }}>
-          <SelectRepository
-            repository={repository}
-            setRepository={setRepository}
-          />
-        </Space>
-        <Button
-          loading={loading}
-          onClick={() => {
-            setLoading(true);
-            const start = new Date().getTime();
-            runSparqlQuery(repository!, queriesStore.currentQuery).then(
-              (results) => {
+      <Col span={12}>
+        {/* <Space direction="vertical" style={{ width: "100%" }}> */}
+        <Space>
+          <Space style={{ margin: 5 }}>
+            <SelectRepository
+              repository={repository}
+              setRepository={setRepository}
+            />
+          </Space>
+          <Button
+            icon={<FiPlay size={20} />}
+            loading={loading}
+            onClick={() => {
+              setLoading(true);
+              const start = new Date().getTime();
+              runSparqlQuery(
+                repository!,
+                queriesStore.currentQuery.sparql
+              ).then((results) => {
                 showNotification(new Date().getTime() - start);
                 onRun(results);
-              }
-            );
-          }}
-          disabled={repository === null}
-          style={{ alignItems: "center" }}
-        >
-          <Space>
-            <FiPlay size={20} /> Run
-          </Space>
-        </Button>
-        <CopyToClipboard text={query} />
-        <Templates templates={sparql_templates} />
-      </Space>
-
-          <CodeEditor
-            code={query}
-            setCode={onChange}
-            language="sparql"
-            completions={{
-              keywords: sparql.keywords,
-              properties: properties.map((prop) => removePrefix(prop)),
-              types: types.map((t) => removePrefix(t)),
-              variables: getTokens(query).filter((token) => isVariable(token)),
+              });
             }}
-            darkTheme={settings.darkMode}
-            width={Math.floor(width / 2)}
-            height={height}
-          />
-        </Col>
-        <Col span={12}>
-          {repository && <Analysis query={query} repository={repository} />}
-        </Col>
-      </Row>
+            disabled={repository === null}
+            style={{ alignItems: "center" }}
+          >
+            Run
+          </Button>
+          <CopyToClipboard text={query} />
+          <SaveQuery repository={repository} query={query} title={queryTitle} />
+          <Templates templates={sparql_templates} />
+        </Space>
+
+        <CodeEditor
+          code={query}
+          setCode={onChange}
+          language="sparql"
+          completions={{
+            keywords: sparql.keywords,
+            properties: properties.map((prop) => removePrefix(prop)),
+            types: types.map((t) => removePrefix(t)),
+            variables: getTokens(query).filter((token) => isVariable(token)),
+          }}
+          darkTheme={settings.darkMode}
+          width={Math.floor(width / 2)}
+          height={height}
+        />
+      </Col>
+      <Col span={12}>
+        {repository && <Analysis query={query} repository={repository} />}
+      </Col>
+    </Row>
     // </Space>
   );
 };
@@ -177,13 +181,40 @@ const SelectRepository = ({
 
 const CopyToClipboard = ({ text }: { text: string }) => {
   return (
-    <Button onClick={() => navigator.clipboard.writeText(text)}>
-      <Space>
-        <BiCopy />
-        Copy
-      </Space>
+    <Button
+      icon={<BiCopy />}
+      onClick={() => navigator.clipboard.writeText(text)}
+    >
+      Copy
     </Button>
   );
 };
 
+const SaveQuery = observer(
+  ({
+    title,
+    query,
+    repository,
+  }: {
+    title: string;
+    query: string;
+    repository: RepositoryId | null;
+  }) => {
+    const rootStore = useStore();
+    const repositoryStore = rootStore.repositoryStore;
+    return (
+      <Button
+        icon={<BiSave size={20} />}
+        disabled={repository === null}
+        onClick={() => {
+          addQueryToHistory(repository!, query, title).then(() => {
+            repositoryStore.updateQueryHistory();
+          });
+        }}
+      >
+        Save
+      </Button>
+    );
+  }
+);
 export default observer(Editor);

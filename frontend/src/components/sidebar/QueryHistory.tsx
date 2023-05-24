@@ -34,7 +34,7 @@ const QueryHistory = observer(() => {
       )}
       {repositoryStore.getCurrentRepository() &&
         repositoryStore.getQueryHistory().length === 0 && (
-          <Text style={{ width: '95%', padding: 5 }}>
+          <Text style={{ width: "95%", padding: 5 }}>
             There are no queries for this repository
           </Text>
         )}
@@ -56,7 +56,12 @@ const QueryHistory = observer(() => {
               content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
               trigger="hover"
             >
-              <Button title="Click to open tab" onClick={() => queriesStore.addQuery(sparql, title) }>{date}</Button>
+              <Button
+                title="Click to open tab"
+                onClick={() => queriesStore.addQuery(sparql, title)}
+              >
+                {date}
+              </Button>
             </Popover>
           ))}
       </Space>
@@ -78,10 +83,11 @@ const DeleteHistory = observer(() => {
       onConfirm={() => repositoryStore.clearQueryHistory()}
       style={{ justifyContent: "center" }}
       placement="top"
+      disabled={repositoryStore.queryHistory.length === 0}
     >
       <Button
         danger
-        style={{ margin: 5, width: '95%' }}
+        style={{ margin: 5, width: "95%" }}
         disabled={repositoryStore.queryHistory.length === 0}
         title="Clear history"
       >

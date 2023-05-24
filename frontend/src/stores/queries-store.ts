@@ -62,8 +62,22 @@ class QueriesStore {
     this.state.openQueries[id]!.sparql = sparql;
   }
 
+  getCurrentQuery(id: string) {
+    if (!Object.keys(this.state.openQueries).includes(id)) {
+      return "";
+    }
+    return this.state.openQueries[this.currentQueryId]!;
+  }
+
   setCurrentQuery(sparql: string) {
     this.state.openQueries[this.currentQueryId]!.sparql = sparql;
+  }
+
+  getQueryTitle(id: string) {
+    if (!Object.keys(this.state.openQueries).includes(id)) {
+      return "";
+    }
+    return this.state.openQueries[id]!.title;
   }
 
   setQueryTitle(id: string, title: string) {

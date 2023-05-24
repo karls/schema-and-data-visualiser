@@ -16,6 +16,24 @@ export async function getQueryHistory(
   return [];
 }
 
+export async function addQueryToHistory(
+  repositoryId: string,
+  query: string,
+  title: string
+) {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/history?repository=${repositoryId}&title=${encodeURIComponent(
+      title
+    )}&query=${encodeURIComponent(query)}`;
+    const response = await axios.post(endpoint);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+  return '';
+}
+
 export async function clearQueryHistory(repositoryId: string) {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
@@ -28,10 +46,15 @@ export async function clearQueryHistory(repositoryId: string) {
   return [];
 }
 
-export async function getQueryAnalysis(query: string, repositoryId: string): Promise<QueryAnalysis|null> {
+export async function getQueryAnalysis(
+  query: string,
+  repositoryId: string
+): Promise<QueryAnalysis | null> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/analysis?repository=${repositoryId}&query=${encodeURIComponent(query)}`;
+    const endpoint = `${BACKEND_API}/analysis?repository=${repositoryId}&query=${encodeURIComponent(
+      query
+    )}`;
     const response = await axios.get(endpoint);
     return response.data;
   } catch (error) {

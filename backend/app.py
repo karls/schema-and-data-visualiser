@@ -71,11 +71,6 @@ def run_query():
     if request.method == 'GET':
         repository = request.args['repository']
         query = request.args['query']
-        title = request.args['title']
-        if title:
-            add_to_history(repository_id=repository,
-                           sparql=query,
-                           title=title)
 
         response = requests.get(
             f'{API_URL}/repositories/{repository}'
@@ -105,11 +100,20 @@ def run_query():
         return jsonify({'header': header, 'data': data})
 
 
-@app.route('/history', methods=['GET', 'DELETE'])
+@app.route('/history', methods=['GET', 'POST', 'DELETE'])
 def history():
     if request.method == 'GET':
         repository_id = request.args['repository']
         return jsonify(get_queries(repository_id))
+    elif request.method == 'POST':
+        repository = request.args['repository']
+        query = request.args['query']
+        title = request.args['title']
+        if title:
+            add_to_history(repository_id=repository,
+                           sparql=query,
+                           title=title)
+        return query
     elif request.method == 'DELETE':
         repository_id = request.args['repository']
         return delete_all_queries(repository_id)
