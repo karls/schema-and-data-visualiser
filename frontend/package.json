@@ -12,15 +12,6 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "@types/body-parser": "^1.19.2",
-    "@types/codemirror": "^5.60.7",
-    "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.11",
-    "@types/randomcolor": "^0.5.7",
-    "@types/react": "^18.2.6",
-    "@types/react-dom": "^18.0.10",
-    "@types/react-vis": "^1.11.11",
-    "@types/vis": "^4.21.24",
     "@uiw/codemirror-theme-duotone": "^4.19.9",
     "@uiw/react-codemirror": "^4.19.9",
     "antd": "^5.1.7",
@@ -39,6 +30,7 @@
     "react-full-screen": "^1.1.1",
     "react-google-charts": "^4.0.0",
     "react-graph-vis": "^1.0.7",
+    "react-grid-heatmap": "^1.2.0",
     "react-helmet": "^6.1.0",
     "react-icons": "^4.7.1",
     "react-router-dom": "^6.8.0",
@@ -76,6 +68,15 @@
     ]
   },
   "devDependencies": {
-    "@types/react-helmet": "^6.1.6"
+    "@types/body-parser": "^1.19.2",
+    "@types/codemirror": "^5.60.7",
+    "@types/jest": "^29.5.1",
+    "@types/node": "^20.2.3",
+    "@types/randomcolor": "^0.5.7",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "@types/react-helmet": "^6.1.6",
+    "@types/react-vis": "^1.11.11",
+    "@types/vis": "^4.21.24"
   }
 }

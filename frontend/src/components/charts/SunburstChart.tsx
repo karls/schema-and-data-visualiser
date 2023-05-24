@@ -3,7 +3,7 @@ import { LabelSeries, Sunburst } from "react-vis";
 import { QueryResults, VariableCategories } from "../../types";
 import randomColor from "randomcolor";
 import { shadeColor } from "../../utils/queryResults";
-import { Alert, Breadcrumb, Divider, Space, Typography } from "antd";
+import { Alert, Breadcrumb, Divider, Space } from "antd";
 
 type SunburstProps = {
   results: QueryResults;
