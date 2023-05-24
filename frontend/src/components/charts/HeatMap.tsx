@@ -3,7 +3,6 @@ import { HeatMapGrid } from "react-grid-heatmap";
 import { QueryResults, VariableCategories } from "../../types";
 import { useMemo } from "react";
 import { useStore } from "../../stores/store";
-import randomColor from "randomcolor";
 
 type HeatMapProps = {
   results: QueryResults;
