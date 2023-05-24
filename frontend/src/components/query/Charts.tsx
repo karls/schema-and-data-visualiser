@@ -16,7 +16,7 @@ import { HiRectangleGroup } from "react-icons/hi2";
 import { TbChartSankey, TbCirclesFilled } from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
 import { ImSphere, ImTree } from "react-icons/im";
-import { TiChartPieOutline } from 'react-icons/ti';
+import { TiChartPieOutline } from "react-icons/ti";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
@@ -33,6 +33,7 @@ import WordCloud from "../charts/WordCloud";
 import { CirclePacking } from "../charts/CirclePacking";
 import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
+import HeatMap from "../charts/HeatMap";
 
 type ChartsProps = {
   query: string;
@@ -50,7 +51,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   );
 
   const chartHeight = settings.fullScreen
-    ? window.screen.height - 50
+    ? settings.screenHeight
     : settings.screenHeight - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>();
@@ -236,6 +237,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+          />
+        ),
+      },
+      {
+        key: ChartType.HeatMap,
+        label: (
+          <>
+            <ImSphere size={18} /> Heat Map
+          </>
+        ),
+        children: (
+          <HeatMap
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis.variables}
           />
         ),
       },
