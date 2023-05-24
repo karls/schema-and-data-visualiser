@@ -8882,6 +8882,11 @@ react-graph-vis@^1.0.7:
     vis-data "^7.1.2"
     vis-network "^9.0.0"
 
+react-grid-heatmap@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-grid-heatmap/-/react-grid-heatmap-1.2.0.tgz#4c35adb63d457bef1b97d771f2cc811eb5df3171"
+  integrity sha512-Nfg4um4Cyk7nDNrypP/cey5QhZWzRRDZqjVy0eoVbtyB72ijWBZrNkwM1qZKd/inidefMZEFMMgjGdUjLwZdkA==
+
 react-helmet@^6.1.0:
   version "6.1.0"
   resolved "https://registry.yarnpkg.com/react-helmet/-/react-helmet-6.1.0.tgz#a750d5165cb13cf213e44747502652e794468726"
