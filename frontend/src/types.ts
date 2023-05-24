@@ -66,6 +66,7 @@ export enum ChartType {
   CirclePacking = "Circle Packing",
   HierarchyTree = "Hierarchy Tree",
   Sunburst = "Sunburst",
+  HeatMap = "Heat Map",
 }
 
 export type Visualisation = {
