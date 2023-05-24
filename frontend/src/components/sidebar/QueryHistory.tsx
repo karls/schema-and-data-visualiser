@@ -44,6 +44,7 @@ const QueryHistory = observer(() => {
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
+          width: "100%",
         }}
       >
         {repositoryStore
@@ -52,15 +53,20 @@ const QueryHistory = observer(() => {
             <Popover
               key={`query-${id}`}
               placement="right"
-              title={title}
-              content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
+              title={`${title} (${date})`}
+              content={<div style={{ whiteSpace: "pre-wrap", fontFamily: 'consolas' }}>{sparql}</div>}
               trigger="hover"
+              style={{ width: "100%" }}
             >
               <Button
                 title="Click to open tab"
-                onClick={() => queriesStore.addQuery(sparql, title)}
+                onClick={() => {
+                  const qid = queriesStore.addQuery(sparql, title);
+                  queriesStore.setCurrentQueryId(qid);
+                }}
+                style={{ width: "95%", margin: "auto" }}
               >
-                {date}
+                {title}
               </Button>
             </Popover>
           ))}
