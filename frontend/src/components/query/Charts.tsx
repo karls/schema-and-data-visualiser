@@ -10,13 +10,18 @@ import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
-import { BsBodyText, BsCalendar3, BsPieChart } from "react-icons/bs";
+import { BsBodyText, BsCalendar3, BsLightbulb, BsPieChart } from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
-import { HiRectangleGroup } from "react-icons/hi2";
-import { TbChartSankey, TbCirclesFilled } from "react-icons/tb";
+import {
+  TbChartSankey,
+  TbChartTreemap,
+  TbCircles,
+  TbGridDots,
+} from "react-icons/tb";
 import { VscGraphScatter } from "react-icons/vsc";
 import { ImSphere, ImTree } from "react-icons/im";
 import { TiChartPieOutline } from "react-icons/ti";
+
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
@@ -69,8 +74,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     }
     return [
       {
-        key: "Guide",
-        label: <>Guide</>,
+        key: "Suggested",
+        label: (
+          <>
+            <BsLightbulb size={15} /> Suggested
+          </>
+        ),
         children: <></>,
       },
       {
@@ -135,7 +144,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.TreeMap,
         label: (
           <>
-            <HiRectangleGroup size={18} /> Treemap
+            <TbChartTreemap size={18} /> Treemap
           </>
         ),
         children: (
@@ -151,7 +160,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.CirclePacking,
         label: (
           <>
-            <TbCirclesFilled size={18} /> Circle Packing
+            <TbCircles size={18} /> Circle Packing
           </>
         ),
         children: (
@@ -244,7 +253,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.HeatMap,
         label: (
           <>
-            <ImSphere size={18} /> Heat Map
+            <TbGridDots size={20} /> Heat Map
           </>
         ),
         children: (
