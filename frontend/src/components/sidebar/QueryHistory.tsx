@@ -34,7 +34,7 @@ const QueryHistory = observer(() => {
       )}
       {repositoryStore.getCurrentRepository() &&
         repositoryStore.getQueryHistory().length === 0 && (
-          <Text style={{ width: '95%', padding: 5 }}>
+          <Text style={{ width: "95%", padding: 5 }}>
             There are no queries for this repository
           </Text>
         )}
@@ -44,6 +44,7 @@ const QueryHistory = observer(() => {
           overflow: "auto",
           display: "flex",
           flexDirection: "column",
+          width: "100%",
         }}
       >
         {repositoryStore
@@ -52,11 +53,21 @@ const QueryHistory = observer(() => {
             <Popover
               key={`query-${id}`}
               placement="right"
-              title={title}
-              content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
+              title={`${title} (${date})`}
+              content={<div style={{ whiteSpace: "pre-wrap", fontFamily: 'consolas' }}>{sparql}</div>}
               trigger="hover"
+              style={{ width: "100%" }}
             >
-              <Button title="Click to open tab" onClick={() => queriesStore.addQuery(sparql, title) }>{date}</Button>
+              <Button
+                title="Click to open tab"
+                onClick={() => {
+                  const qid = queriesStore.addQuery(sparql, title);
+                  queriesStore.setCurrentQueryId(qid);
+                }}
+                style={{ width: "95%", margin: "auto" }}
+              >
+                {title}
+              </Button>
             </Popover>
           ))}
       </Space>
@@ -78,10 +89,11 @@ const DeleteHistory = observer(() => {
       onConfirm={() => repositoryStore.clearQueryHistory()}
       style={{ justifyContent: "center" }}
       placement="top"
+      disabled={repositoryStore.queryHistory.length === 0}
     >
       <Button
         danger
-        style={{ margin: 5, width: '95%' }}
+        style={{ margin: 5, width: "95%" }}
         disabled={repositoryStore.queryHistory.length === 0}
         title="Clear history"
       >

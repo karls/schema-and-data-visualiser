@@ -15,9 +15,10 @@ import { MdOutlineEditNote } from "react-icons/md";
 type QueryProps = {
   query: string;
   setQueryText: any;
+  title: string;
 };
 
-const Query = observer(({ query, setQueryText }: QueryProps) => {
+const Query = observer(({ query, setQueryText, title }: QueryProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
@@ -51,6 +52,7 @@ const Query = observer(({ query, setQueryText }: QueryProps) => {
       children: (
         <Editor
           query={query}
+          queryTitle={title}
           onChange={setQueryText}
           onRun={(results) => {
             setResults(results);

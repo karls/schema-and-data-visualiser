@@ -61,7 +61,7 @@ const QueryBrowser = observer(() => {
                 borderLeft: "none",
                 borderRight: "none",
               }}
-              defaultValue={queriesStore.openQueries[qid].title}
+              defaultValue={queriesStore.getQueryTitle(qid)}
               onPressEnter={(e) =>
                 queriesStore.setQueryTitle(qid, e.currentTarget.value)
               }
@@ -76,6 +76,7 @@ const QueryBrowser = observer(() => {
               setQueryText={(text: string) =>
                 queriesStore.setQueryText(qid, text)
               }
+              title={queriesStore.getQueryTitle(qid)}
             />
           ),
           key: qid,
