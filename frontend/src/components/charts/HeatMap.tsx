@@ -3,6 +3,7 @@ import { HeatMapGrid } from "react-grid-heatmap";
 import { QueryResults, VariableCategories } from "../../types";
 import { useMemo } from "react";
 import { useStore } from "../../stores/store";
+import randomColor from "randomcolor";
 
 type HeatMapProps = {
   results: QueryResults;
@@ -35,13 +36,7 @@ export const HeatMap = observer(
         sizes[key2][key1] = row[scalarIdx];
       }
       const xLabels: string[] = Array.from(key1Values);
-        // key1Values.size < key2Values.size
-        //   ? Array.from(key1Values)
-        //   : Array.from(key2Values);
       const yLabels: string[] = Array.from(key2Values);
-        // key1Values.size >= key2Values.size
-        //   ? Array.from(key1Values)
-        //   : Array.from(key2Values);
 
       const data: number[][] = [];
 
@@ -71,16 +66,14 @@ export const HeatMap = observer(
           yLabels={yLabels}
           // Reder cell with tooltip
           cellRender={(y, x, value) => (
-            <div title={`${xLabels[x]}, ${yLabels[y]}`}>
-              {value}
-            </div>
+            <div title={`${xLabels[x]}, ${yLabels[y]}`}>{value === 0 ? '•' : value}</div>
           )}
           xLabelsStyle={(index) => ({
             // color: "#777",
             fontSize: ".65rem",
             marginLeft: 5,
             marginRight: 5,
-            color: settings.darkMode ? "white" : "black"
+            color: settings.darkMode ? "white" : "black",
           })}
           yLabelsStyle={() => ({
             fontSize: ".65rem",
@@ -88,23 +81,25 @@ export const HeatMap = observer(
             // color: "#777",
             lineHeight: "0.6rem",
             height: 30,
-            margin: 'auto',
-            textAlign: 'center',
+            margin: "auto",
+            textAlign: "center",
             padding: 10,
-            position: 'sticky',
-            color: settings.darkMode ? "white" : "black"
+            position: "sticky",
+            color: settings.darkMode ? "white" : "black",
           })}
           cellStyle={(_x, _y, ratio) => ({
             background: `rgb(12, 160, 44, ${ratio})`,
             fontSize: ".7rem",
             // fontColor: settings.darkMode ? "white" : "black",
-            color: settings.darkMode ? "white" : "black", //  `rgb(0, 0, 0, ${ratio / 2 + 0.4})`,
-            cursor: 'pointer',
+            color: settings.darkMode
+              ? `rgb(255, 255, 255)` // , ${ratio / 2 + 0.4})`
+              : `rgb(0, 0, 0, ${ratio / 2 + 0.4})`,
+            cursor: "pointer",
             height: 30,
           })}
           cellHeight="2rem"
           xLabelsPos="top"
-        //   onClick={(x, y) => alert(`Clicked (${x}, ${y})`)}
+          //   onClick={(x, y) => alert(`Clicked (${x}, ${y})`)}
           // yLabelsPos="right"
           // square
         />
