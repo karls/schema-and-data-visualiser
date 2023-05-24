@@ -329,7 +329,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ? items
             : items.filter(
                 ({ key }) =>
-                  key === "Guide" ||
+                  key === "Suggested" ||
                   possibleVis.map(({ name }) => name).includes(key as ChartType)
               )
         }
