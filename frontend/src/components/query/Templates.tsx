@@ -15,7 +15,7 @@ const Templates = ({ templates }: TemplatesProps) => {
 
   const items: TabsProps["items"] = templates.map(({ title, query }) => {
     return {
-      key: "summary",
+      key: title,
       label: title,
       children: (
         <QueryTemplate
@@ -47,7 +47,7 @@ const Templates = ({ templates }: TemplatesProps) => {
         footer={null}
         onCancel={() => setIsModalOpen(false)}
         maskClosable
-        width={Math.floor(window.screen.width / 2)}
+        width={Math.floor(window.screen.width * 0.75)}
       >
         <Tabs
           tabPosition="left"
