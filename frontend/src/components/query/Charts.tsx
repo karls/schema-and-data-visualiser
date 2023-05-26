@@ -10,7 +10,13 @@ import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
-import { BsBodyText, BsCalendar3, BsLightbulb, BsPieChart } from "react-icons/bs";
+import { HiOutlineGlobe } from "react-icons/hi";
+import {
+  BsBodyText,
+  BsCalendar3,
+  BsLightbulb,
+  BsPieChart,
+} from "react-icons/bs";
 import { BiLineChart } from "react-icons/bi";
 import {
   TbChartSankey,
@@ -39,6 +45,7 @@ import { CirclePacking } from "../charts/CirclePacking";
 import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
+import ChoroplethMap from "../charts/ChoroplethMap";
 
 type ChartsProps = {
   query: string;
@@ -310,6 +317,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <HierarchyTree
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.ChoroplethMap,
+        label: (
+          <>
+            <HiOutlineGlobe size={20} /> Choropleth Map
+          </>
+        ),
+        children: (
+          <ChoroplethMap
             results={results}
             width={chartWidth}
             height={chartHeight}
