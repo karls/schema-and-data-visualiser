@@ -20,6 +20,8 @@ CORS(app)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
+BAD_REQUEST = 400
+
 
 @app.route('/', methods=['GET'])
 def get_api():
@@ -79,7 +81,8 @@ def run_query():
         results = response.text.replace('\r', '')
         header = []
         data = []
-        if 'error' in results.lower():
+
+        if response.status_code == BAD_REQUEST:
             header = ['ERROR']
             data = [[results]]
 
