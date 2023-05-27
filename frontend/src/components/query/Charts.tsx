@@ -31,7 +31,7 @@ import { TiChartPieOutline } from "react-icons/ti";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
-import RadarChart from "../charts/RadarChart";
+import SpiderChart from "../charts/RadarChart";
 import SankeyChart from "../charts/SankeyChart";
 import ScatterChart from "../charts/ScatterChart";
 import "./Charts.css";
@@ -46,6 +46,7 @@ import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
+import { possibleCharts } from "../../utils/chartAnalysis";
 
 type ChartsProps = {
   query: string;
@@ -66,31 +67,36 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     ? settings.screenHeight
     : settings.screenHeight - 325;
 
-  const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>();
-  const [possibleVis, setPossibleVis] = useState<Visualisation[]>([]);
+  const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>({
+    match: false,
+    pattern: "",
+    visualisations: [],
+    variables: {
+      key: [],
+      scalar: [],
+      geographical: [],
+      temporal: [],
+      lexical: [],
+      date: [],
+    },
+  });
+  const [possibleVis, setPossibleVis] = useState<ChartType[]>([]);
   useEffect(() => {
-    getQueryAnalysis(query, repositoryStore.currentRepository!).then((res) => {
-      setQueryAnalysis(res!);
-      setPossibleVis(res!.visualisations);
-    });
+    if (repositoryStore.currentRepository) {
+      getQueryAnalysis(query, repositoryStore.currentRepository).then((res) => {
+        setQueryAnalysis(res);
+        setPossibleVis(possibleCharts(res.variables));
+      });
+    }
   }, [query, repositoryStore.currentRepository]);
 
-  const items: TabsProps["items"] = useMemo(() => {
+  const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {
       return [];
     }
     return [
       {
-        key: "Suggested",
-        label: (
-          <>
-            <BsLightbulb size={15} /> Suggested
-          </>
-        ),
-        children: <></>,
-      },
-      {
-        key: ChartType.Bar,
+        key: ChartType.BAR,
         label: (
           <>
             <AiOutlineBarChart size={20} /> Bar
@@ -106,7 +112,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Pie,
+        key: ChartType.PIE,
         label: (
           <>
             <BsPieChart size={18} /> Pie
@@ -133,7 +139,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Line,
+        key: ChartType.LINE,
         label: (
           <>
             <BiLineChart size={18} /> Line
@@ -148,7 +154,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.TreeMap,
+        key: ChartType.TREE_MAP,
         label: (
           <>
             <TbChartTreemap size={18} /> Treemap
@@ -164,7 +170,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.CirclePacking,
+        key: ChartType.CIRCLE_PACKING,
         label: (
           <>
             <TbCircles size={18} /> Circle Packing
@@ -180,7 +186,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Sunburst,
+        key: ChartType.SUNBURST,
         label: (
           <>
             <TiChartPieOutline size={20} /> Sunburst
@@ -196,14 +202,14 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Radar,
+        key: ChartType.RADAR,
         label: (
           <>
             <AiOutlineRadarChart size={18} /> Radar
           </>
         ),
         children: (
-          <RadarChart
+          <SpiderChart
             results={results}
             width={chartWidth}
             height={chartHeight}
@@ -211,7 +217,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Sankey,
+        key: ChartType.SANKEY,
         label: (
           <>
             <TbChartSankey size={18} /> Sankey
@@ -226,7 +232,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Scatter,
+        key: ChartType.SCATTER,
         label: (
           <>
             <VscGraphScatter size={18} /> Scatter
@@ -242,7 +248,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.ChordDiagram,
+        key: ChartType.CHORD_DIAGRAM,
         label: (
           <>
             <ImSphere size={18} /> Chord
@@ -257,7 +263,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.HeatMap,
+        key: ChartType.HEAT_MAP,
         label: (
           <>
             <TbGridDots size={20} /> Heat Map
@@ -273,7 +279,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.WordCloud,
+        key: ChartType.WORD_CLOUD,
         label: (
           <>
             <BsBodyText size={18} /> Word Cloud
@@ -293,7 +299,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.Calendar,
+        key: ChartType.CALENDAR,
         label: (
           <>
             <BsCalendar3 size={20} /> Calendar
@@ -309,7 +315,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.HierarchyTree,
+        key: ChartType.HIERARCHY_TREE,
         label: (
           <>
             <ImTree size={20} /> Hierarchy Tree
@@ -325,7 +331,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.ChoroplethMap,
+        key: ChartType.CHOROPLETH_MAP,
         label: (
           <>
             <HiOutlineGlobe size={20} /> Choropleth Map
@@ -336,7 +342,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
-            variables={queryAnalysis!.variables}
+            variables={queryAnalysis.variables}
           />
         ),
       },
@@ -347,19 +353,34 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     <Fullscreen>
       <Tabs
         defaultActiveKey="1"
-        items={
-          settings.showAllCharts
-            ? items
-            : items.filter(
-                ({ key }) =>
-                  key === "Suggested" ||
-                  possibleVis.map(({ name }) => name).includes(key as ChartType)
-              )
-        }
+        items={[
+          {
+            key: "Suggested",
+            label: (
+              <>
+                <BsLightbulb size={15} /> Suggested
+              </>
+            ),
+            children: <Suggested queryAnalysis={queryAnalysis} />,
+          },
+          ...(settings.showAllCharts
+            ? chartTabs
+            : chartTabs.filter(({ key }) =>
+                possibleVis.includes(key as ChartType)
+              )),
+        ]}
         style={{ padding: 10 }}
       />
     </Fullscreen>
   );
 });
+
+type SuggestedProps = {
+  queryAnalysis: QueryAnalysis;
+};
+
+const Suggested = ({ queryAnalysis }: SuggestedProps) => {
+  return <></>;
+};
 
 export default Charts;
