@@ -69,7 +69,7 @@ export enum ChartType {
   HIERARCHY_TREE = "Hierarchy Tree",
   SUNBURST = "Sunburst",
   HEAT_MAP = "Heat Map",
-  SPIDER = "Spider"
+  SPIDER = "Spider",
 }
 
 export type Visualisation = {
@@ -77,6 +77,15 @@ export type Visualisation = {
   maxInstances?: number;
   maxClasses?: number;
 };
+
+export enum TypeCategory {
+  KEY = "key",
+  SCALAR = "scalar",
+  TEMPORAL = "temporal",
+  DATE = "date",
+  GEOGRAPHICAL = "geographical",
+  LEXICAL = "lexical",
+}
 
 export type VariableCategories = {
   key: string[];
