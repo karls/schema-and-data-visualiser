@@ -1,6 +1,14 @@
 import { observer } from "mobx-react-lite";
 import { useEffect } from "react";
-import { Button, Popconfirm, Popover, Space, Typography } from "antd";
+import {
+  Alert,
+  Button,
+  Popconfirm,
+  Popover,
+  Space,
+  Timeline,
+  Typography,
+} from "antd";
 import { useStore } from "../../stores/store";
 import { MdDelete } from "react-icons/md";
 
@@ -8,6 +16,7 @@ const { Title, Text } = Typography;
 
 const QueryHistory = observer(() => {
   const rootStore = useStore();
+  const settings = rootStore.settingsStore;
   const queriesStore = rootStore.queriesStore;
   const repositoryStore = rootStore.repositoryStore;
 
@@ -16,63 +25,85 @@ const QueryHistory = observer(() => {
   }, [repositoryStore]);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        justifyContent: "center",
-        display: "flex",
-        flexDirection: "column",
-      }}
+    <Space
+      direction="vertical"
+      style={{ width: "100%", justifyContent: "center" }}
     >
-      <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
-        Query History
-      </Title>
+      <Space
+        style={{
+          padding: 5,
+          margin: "auto",
+          width: "100%",
+          justifyContent: "center",
+        }}
+      >
+        <Title level={4}>Query History</Title>
+        <DeleteHistory />
+      </Space>
       {repositoryStore.getCurrentRepository() === null && (
         <Text style={{ padding: 5 }}>
           Select a repository to see the queries you have run in the past
         </Text>
       )}
       {repositoryStore.getCurrentRepository() &&
-        repositoryStore.getQueryHistory().length === 0 && (
-          <Text style={{ width: "95%", padding: 5 }}>
-            There are no queries for this repository
-          </Text>
-        )}
-      <Space
-        style={{
-          maxHeight: 500,
-          overflow: "auto",
-          display: "flex",
-          flexDirection: "column",
-          width: "100%",
-        }}
-      >
-        {repositoryStore
-          .getQueryHistory()
-          .map(({ id, sparql, date, title }) => (
-            <Popover
-              key={`query-${id}`}
-              placement="right"
-              title={`${title} (${date})`}
-              content={<div style={{ whiteSpace: "pre-wrap", fontFamily: 'consolas' }}>{sparql}</div>}
-              trigger="hover"
-              style={{ width: "100%" }}
-            >
-              <Button
-                title="Click to open tab"
-                onClick={() => {
-                  const qid = queriesStore.addQuery(sparql, title);
-                  queriesStore.setCurrentQueryId(qid);
-                }}
-                style={{ width: "95%", margin: "auto" }}
-              >
-                {title}
-              </Button>
-            </Popover>
-          ))}
-      </Space>
-      <DeleteHistory />
-    </div>
+      repositoryStore.getQueryHistory().length === 0 ? (
+        <div style={{ padding: 5 }}>
+          <Alert message="There are no saved queries for this repository" />
+        </div>
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            height: settings.screenHeight - 300,
+            overflowY: "scroll",
+          }}
+        >
+          <Timeline
+            style={{ padding: 5, paddingTop: 10, maxWidth: "100%" }}
+            items={repositoryStore
+              .getQueryHistory()
+              .map(({ id, sparql, date, title }) => {
+                return {
+                  children: (
+                    <Popover
+                      key={`query-${id}`}
+                      placement="right"
+                      title={`${title} (${date})`}
+                      content={
+                        <div
+                          style={{
+                            whiteSpace: "pre-wrap",
+                            fontFamily: "consolas",
+                          }}
+                        >
+                          {sparql}
+                        </div>
+                      }
+                      trigger="hover"
+                      style={{ width: "100%" }}
+                    >
+                      <Button
+                        title="Click to open tab"
+                        onClick={() => {
+                          const qid = queriesStore.addQuery(sparql, title);
+                          queriesStore.setCurrentQueryId(qid);
+                        }}
+                        style={{
+                          height: "auto",
+                          width: "100%",
+                          whiteSpace: "normal",
+                        }}
+                      >
+                        {title}
+                      </Button>
+                    </Popover>
+                  ),
+                };
+              })}
+          />
+        </div>
+      )}
+    </Space>
   );
 });
 
@@ -93,7 +124,6 @@ const DeleteHistory = observer(() => {
     >
       <Button
         danger
-        style={{ margin: 5, width: "95%" }}
         disabled={repositoryStore.queryHistory.length === 0}
         title="Clear history"
       >
