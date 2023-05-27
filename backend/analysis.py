@@ -159,7 +159,7 @@ def is_functional_property(*, prop_uri: str, api: str, repository: str):
     return 'FunctionalProperty' in list(map(remove_prefix, types))
 
 
-def is_key(*, prop_uri: str, api: str, repository: str):
+def is_key_property(*, prop_uri: str, api: str, repository: str):
     """
     Check if property is a key of its class
     :param prop_uri:
@@ -212,6 +212,7 @@ def get_where_clause(query: str):
 def get_variable_types(*, query, prefixes, api, repository):
     var_type = {}
     var_class = {}
+    var_prop = {}
 
     conditions = get_where_clause(query)
     if not conditions:
@@ -242,9 +243,7 @@ def get_variable_types(*, query, prefixes, api, repository):
                 if not prop_uri:
                     continue
 
-                if is_key(prop_uri=prop_uri, api=api, repository=repository):
-                    var_type[var2] = 'key'
-                    continue
+                var_prop[var2] = prop_uri
 
                 metadata = get_metadata(uri=prop_uri, api=api,
                                         repository=repository)
@@ -253,10 +252,11 @@ def get_variable_types(*, query, prefixes, api, repository):
                 if var1 not in var_class:
                     var_type[var1] = metadata['domain']
 
-    return var_type, var_class
+    return var_type, var_class, var_prop
 
 
-def variable_categories(*, var_type, variables, var_class) -> Dict:
+def variable_categories(*, var_type, variables, var_class, var_prop, api,
+                        repository) -> Dict:
     """
     Returns the variables of different categories
     :param var_class:
@@ -278,7 +278,10 @@ def variable_categories(*, var_type, variables, var_class) -> Dict:
         if var in var_class:
             var_categories['object'].append(var)
             continue
-        # print(var_class, var_type)
+        if is_key_property(prop_uri=var_prop[var], api=api,
+                           repository=repository):
+            var_categories['key'].append(var)
+            continue
         if var in var_type:
             type_name = var_type[var]
             catg = type_category(type_uri=type_name)
@@ -324,7 +327,7 @@ def class_with_data_properties(*, select_variables, class_properties,
     visualisations = []
     if len(get_classes_used(select_variables=select_variables,
                             class_properties=class_properties)) != 1:
-        return {'valid': False}
+        return {'match': False}
 
     # print(var_categories)
     if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
@@ -346,7 +349,7 @@ def class_with_data_properties(*, select_variables, class_properties,
     if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
         visualisations.append({'name': 'Word Cloud'})
 
-    return {'valid': True,
+    return {'match': True,
             'pattern': 'Class with data properties',
             'variables': var_categories,
             'visualisations': visualisations}
@@ -359,7 +362,7 @@ def two_classes_linked_by_func_prop(*, query, select_variables,
     visualisations = []
     if len(get_classes_used(select_variables=select_variables,
                             class_properties=class_properties)) != 2:
-        return {'valid': False}
+        return {'match': False}
 
     conditions = get_where_clause(query)
     if not conditions:
@@ -395,7 +398,7 @@ def two_classes_linked_by_func_prop(*, query, select_variables,
                     break
 
     if not var1 and not var2:
-        return {'valid': False}
+        return {'match': False}
 
     class_a_prop_var = class_properties[var_class[var1]].values()
     class_a_key = any(map(lambda var: var in var_categories['key'],
@@ -412,7 +415,7 @@ def two_classes_linked_by_func_prop(*, query, select_variables,
             visualisations.append({'name': 'Sunburst'})
             visualisations.append({'name': 'Circle Packing'})
 
-    return {'valid': True,
+    return {'match': True,
             'pattern': 'Two classes linked by functional property',
             'variables': var_categories,
             'visualisations': visualisations}
@@ -422,9 +425,10 @@ def query_analysis(query: str, api: str, repository):
     query = remove_comments(query)
     # Prefixes defined in query
     prefixes = get_prefixes(query)
-    var_type, var_class = get_variable_types(query=query, prefixes=prefixes,
-                                             api=api,
-                                             repository=repository)
+    var_type, var_class, var_prop = get_variable_types(query=query,
+                                                       prefixes=prefixes,
+                                                       api=api,
+                                                       repository=repository)
     # print('var_type', var_type)
     # return
     # Variables that will be returned
@@ -435,7 +439,9 @@ def query_analysis(query: str, api: str, repository):
 
     var_categories = variable_categories(var_type=var_type,
                                          variables=select_variables,
-                                         var_class=var_class)
+                                         var_class=var_class,
+                                         var_prop=var_prop,
+                                         api=api, repository=repository)
     for c in var_categories:
         var_categories[c] = sorted(var_categories[c],
                                    key=lambda var: select_variables.index(var))
@@ -443,7 +449,7 @@ def query_analysis(query: str, api: str, repository):
     res = class_with_data_properties(select_variables=select_variables,
                                      class_properties=class_properties,
                                      var_categories=var_categories)
-    if res['valid']:
+    if res['match']:
         return res
 
     res = two_classes_linked_by_func_prop(query=query,
@@ -453,10 +459,10 @@ def query_analysis(query: str, api: str, repository):
                                           var_class=var_class,
                                           prefixes=prefixes,
                                           api=api, repository=repository)
-    if res['valid']:
+    if res['match']:
         return res
     # print(var_categories)
-    return {'valid': False, 'variables': var_categories, 'visualisations': []}
+    return {'match': False, 'variables': var_categories, 'visualisations': []}
 
 
 if __name__ == '__main__':
