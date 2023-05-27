@@ -31,7 +31,7 @@ export async function addQueryToHistory(
   } catch (error) {
     console.log(error);
   }
-  return '';
+  return "";
 }
 
 export async function clearQueryHistory(repositoryId: string) {
@@ -49,7 +49,7 @@ export async function clearQueryHistory(repositoryId: string) {
 export async function getQueryAnalysis(
   query: string,
   repositoryId: string
-): Promise<QueryAnalysis | null> {
+): Promise<QueryAnalysis> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/analysis?repository=${repositoryId}&query=${encodeURIComponent(
@@ -60,5 +60,17 @@ export async function getQueryAnalysis(
   } catch (error) {
     console.log(error);
   }
-  return null;
+  return {
+    match: false,
+    pattern: "",
+    visualisations: [],
+    variables: {
+      key: [],
+      scalar: [],
+      geographical: [],
+      temporal: [],
+      lexical: [],
+      date: [],
+    },
+  };
 }
