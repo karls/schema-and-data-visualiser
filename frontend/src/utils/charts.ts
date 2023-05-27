@@ -1,6 +1,6 @@
 import { ChartType, VariableCategories } from "../types";
 
-function possibleCharts(variables: VariableCategories ) {
+function possibleCharts(variables: VariableCategories) {
   const { scalar, temporal, geographical, key, lexical, date } = variables;
 
   const charts: ChartType[] = [];
@@ -17,7 +17,7 @@ function possibleCharts(variables: VariableCategories ) {
     }
   }
 
-  if (key.length === 1 && scalar.length === 1) {
+  if (key.length === 1 && scalar.length >= 1) {
     charts.push(ChartType.BAR);
   }
 
@@ -25,7 +25,7 @@ function possibleCharts(variables: VariableCategories ) {
     charts.push(ChartType.CHOROPLETH_MAP);
   }
 
-  if (key.length === 1 && lexical.includes(key[0]) && scalar.length >= 1) {
+  if ((key.length === 1 || lexical.length === 1) && scalar.length >= 1) {
     charts.push(ChartType.WORD_CLOUD);
   }
 
@@ -38,7 +38,7 @@ function possibleCharts(variables: VariableCategories ) {
       charts.push(ChartType.SANKEY);
       charts.push(ChartType.HEAT_MAP);
       charts.push(ChartType.CHORD_DIAGRAM);
-    
+
       charts.push(ChartType.SPIDER);
       if (scalar.length >= 2 && scalar.includes(key[1])) {
         charts.push(ChartType.LINE);
@@ -47,7 +47,6 @@ function possibleCharts(variables: VariableCategories ) {
       }
     }
   }
-
 
   return charts;
 }
