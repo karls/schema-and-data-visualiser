@@ -36,7 +36,7 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
       {queryAnalysis && (
         <Space direction="vertical" style={{ width: "100%" }}>
           <Variables variableCategories={queryAnalysis.variables} />
-          {queryAnalysis.valid ? (
+          {queryAnalysis.match ? (
             <RecommendedCharts
               query={query}
               visualisations={queryAnalysis.visualisations}
@@ -57,11 +57,11 @@ type RecommendedProps = {
 
 const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
   const chartIcons = {
-    [ChartType.Bar]: <AiOutlineBarChart size={35} />,
-    [ChartType.Scatter]: <VscGraphScatter size={30} />,
-    [ChartType.Bubble]: <BiScatterChart size={35} />,
-    [ChartType.WordCloud]: <BsBodyText size={30} />,
-    [ChartType.Calendar]: <BsCalendar3 size={30} />,
+    [ChartType.BAR]: <AiOutlineBarChart size={35} />,
+    [ChartType.SCATTER]: <VscGraphScatter size={30} />,
+    [ChartType.BUBBLE]: <BiScatterChart size={35} />,
+    [ChartType.WORD_CLOUD]: <BsBodyText size={30} />,
+    [ChartType.CALENDAR]: <BsCalendar3 size={30} />,
   };
   return (
     <Card
