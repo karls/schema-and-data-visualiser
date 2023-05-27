@@ -78,7 +78,7 @@ export type Visualisation = {
   maxClasses?: number;
 };
 
-export enum TypeCategory {
+export enum CategoryType {
   KEY = "key",
   SCALAR = "scalar",
   TEMPORAL = "temporal",

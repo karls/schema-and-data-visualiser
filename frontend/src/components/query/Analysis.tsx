@@ -4,7 +4,7 @@ import {
   ChartType,
   QueryAnalysis,
   RepositoryId,
-  TypeCategory,
+  CategoryType,
   VariableCategories,
   Visualisation,
 } from "../../types";
@@ -115,12 +115,12 @@ type VariablesProps = {
 };
 
 const categoryIcon = {
-  [TypeCategory.KEY]: <GoKey title="Key" size={20} />,
-  [TypeCategory.DATE]: <BsCalendarDateFill title="Date" size={20} />,
-  [TypeCategory.TEMPORAL]: <IoMdTime title="Temporal" size={20} />,
-  [TypeCategory.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
-  [TypeCategory.SCALAR]: <MdNumbers title="Scalar" size={20} />,
-  [TypeCategory.LEXICAL]: <BiText title="Lexical" size={20} />,
+  [CategoryType.KEY]: <GoKey title="Key" size={20} />,
+  [CategoryType.DATE]: <BsCalendarDateFill title="Date" size={20} />,
+  [CategoryType.TEMPORAL]: <IoMdTime title="Temporal" size={20} />,
+  [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
+  [CategoryType.SCALAR]: <MdNumbers title="Scalar" size={20} />,
+  [CategoryType.LEXICAL]: <BiText title="Lexical" size={20} />,
 };
 
 const Variables = ({ variableCategories }: VariablesProps) => {
