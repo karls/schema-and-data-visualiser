@@ -1,10 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Tabs, TabsProps } from "antd";
-import {
-  ChartType,
-  QueryAnalysis,
-  QueryResults,
-} from "../../types";
+import { ChartType, QueryAnalysis, QueryResults } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
@@ -228,6 +224,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+            variables={queryAnalysis.variables}
           />
         ),
       },
@@ -361,7 +358,9 @@ const Charts = observer(({ query, results }: ChartsProps) => {
                 <BsLightbulb size={15} /> Suggested
               </>
             ),
-            children: <Suggested queryAnalysis={queryAnalysis} results={results} />,
+            children: (
+              <Suggested queryAnalysis={queryAnalysis} results={results} />
+            ),
           },
           ...(settings.showAllCharts
             ? chartTabs
