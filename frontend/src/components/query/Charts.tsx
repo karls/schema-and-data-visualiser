@@ -81,10 +81,10 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     if (repositoryStore.currentRepository) {
       getQueryAnalysis(query, repositoryStore.currentRepository).then((res) => {
         setQueryAnalysis(res);
-        setPossibleVis(possibleCharts(res.variables));
+        setPossibleVis(possibleCharts(res.variables, results));
       });
     }
-  }, [query, repositoryStore.currentRepository]);
+  }, [query, repositoryStore.currentRepository, results]);
 
   const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {
