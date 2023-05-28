@@ -280,10 +280,11 @@ def variable_categories(*, var_type, variables, var_class, var_prop, api,
         if var in var_class:
             var_categories['object'].append(var)
             continue
+
         if is_key_property(prop_uri=var_prop[var], api=api,
                            repository=repository):
             var_categories['key'].append(var)
-            continue
+
         if var in var_type:
             type_name = var_type[var]
             catg = type_category(type_uri=type_name)
