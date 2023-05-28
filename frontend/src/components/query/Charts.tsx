@@ -4,7 +4,6 @@ import {
   ChartType,
   QueryAnalysis,
   QueryResults,
-  Visualisation,
 } from "../../types";
 import BarChart from "../charts/BarChart";
 import { observer } from "mobx-react-lite";
@@ -46,7 +45,8 @@ import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
-import { possibleCharts } from "../../utils/chartAnalysis";
+import { possibleCharts } from "../../utils/charts";
+import { Suggested } from "./Suggested";
 
 type ChartsProps = {
   query: string;
@@ -361,7 +361,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
                 <BsLightbulb size={15} /> Suggested
               </>
             ),
-            children: <Suggested queryAnalysis={queryAnalysis} />,
+            children: <Suggested queryAnalysis={queryAnalysis} results={results} />,
           },
           ...(settings.showAllCharts
             ? chartTabs
@@ -374,13 +374,5 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     </Fullscreen>
   );
 });
-
-type SuggestedProps = {
-  queryAnalysis: QueryAnalysis;
-};
-
-const Suggested = ({ queryAnalysis }: SuggestedProps) => {
-  return <></>;
-};
 
 export default Charts;
