@@ -34,7 +34,7 @@ export function possibleCharts(variables: VariableCategories) {
     charts.push(ChartType.WORD_CLOUD);
   }
 
-  if (key.length === 2) {
+  if (key.length >= 2) {
     charts.push(ChartType.HIERARCHY_TREE);
     if (scalar.length >= 1) {
       charts.push(ChartType.TREE_MAP);
@@ -81,6 +81,7 @@ export function getColumnRelationship(
   let oneToOne = true;
   let oneToMany = true;
   let manyToOne = true;
+  let manyToMany = true;
 
   for (let parent of Object.keys(outgoingLinks)) {
     const children = outgoingLinks[parent];
@@ -88,31 +89,33 @@ export function getColumnRelationship(
       oneToOne = false;
       manyToOne = false;
     }
-    for (let child of children) {
-      let parents = incomingLinks[child];
-      if (parents && parents.size > 1) {
-        if (colA === "continent") {
-          console.log(child, parents);
-        }
-        oneToMany = false;
-        oneToOne = false;
-      }
-      // Check if only one boolean variable is true. Not equals is equivalent to XOR
-      if ((oneToOne !== oneToMany) !== manyToOne) {
-        break;
-      }
-    }
-    if ((oneToOne !== oneToMany) !== manyToOne) {
+
+    if (((oneToOne !== oneToMany) !== manyToOne) !== manyToMany) {
       break;
     }
   }
 
-  if (oneToOne) {
-    return RelationType.ONE_TO_ONE;
-  } else if (oneToMany) {
-    return RelationType.ONE_TO_MANY;
-  } else if (manyToOne) {
-    return RelationType.MANY_TO_ONE;
+  for (let child of Object.keys(incomingLinks)) {
+    const parents = incomingLinks[child];
+
+    if (parents.size > 1) {
+      oneToOne = false;
+      oneToMany = false;
+    }
+
+    if (((oneToOne !== oneToMany) !== manyToOne) !== manyToMany) {
+      break;
+    }
   }
-  return RelationType.MANY_TO_MANY;
+
+  let relationType = RelationType.MANY_TO_MANY;
+
+  if (oneToOne) {
+    relationType = RelationType.ONE_TO_ONE;
+  } else if (oneToMany) {
+    relationType = RelationType.ONE_TO_MANY;
+  } else if (manyToOne) {
+    relationType = RelationType.MANY_TO_ONE;
+  }
+  return { relationType, incomingLinks, outgoingLinks };
 }
