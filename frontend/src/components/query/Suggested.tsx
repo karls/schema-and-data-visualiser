@@ -8,6 +8,7 @@ import { CgArrowLongLeftC, CgArrowLongRightC } from "react-icons/cg";
 import { QueryAnalysis, QueryResults, RelationType } from "../../types";
 import { getColumnRelationship } from "../../utils/charts";
 import {
+  Alert,
   Card,
   Modal,
   Segmented,
@@ -55,15 +56,24 @@ const ColumnRelations = observer(
   ({ keyColumns, results }: ColumnRelationsProps) => {
     return (
       <Card title="Entity Relationships">
-        <Space>
-          {keyColumns.map((colA, i) =>
-            keyColumns.map((colB, j) => {
-              return (
-                i < j && <Relation results={results} colA={colA} colB={colB} />
-              );
-            })
-          )}
-        </Space>
+        {keyColumns.length < 2 ? (
+          <Alert
+            banner
+            message="Only applicable for multiple key variables"
+          />
+        ) : (
+          <Space>
+            {keyColumns.map((colA, i) =>
+              keyColumns.map((colB, j) => {
+                return (
+                  i < j && (
+                    <Relation results={results} colA={colA} colB={colB} />
+                  )
+                );
+              })
+            )}
+          </Space>
+        )}
       </Card>
     );
   }
