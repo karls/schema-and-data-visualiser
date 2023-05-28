@@ -5,7 +5,10 @@ import {
   VariableCategories,
 } from "../types";
 
-export function possibleCharts(variables: VariableCategories) {
+export function possibleCharts(
+  variables: VariableCategories,
+  results: QueryResults
+) {
   const { scalar, temporal, geographical, key, lexical, date } = variables;
 
   const charts: ChartType[] = [];
@@ -35,14 +38,20 @@ export function possibleCharts(variables: VariableCategories) {
   }
 
   if (key.length >= 2) {
-    charts.push(ChartType.HIERARCHY_TREE);
+    const isHierarchical = columnsAreHierarchical(results, variables.key);
+    if (isHierarchical) {
+      charts.push(ChartType.HIERARCHY_TREE);
+    }
     if (scalar.length >= 1) {
-      charts.push(ChartType.TREE_MAP);
-      charts.push(ChartType.SUNBURST);
-      charts.push(ChartType.CIRCLE_PACKING);
-      charts.push(ChartType.SANKEY);
-      charts.push(ChartType.HEAT_MAP);
-      charts.push(ChartType.CHORD_DIAGRAM);
+      if (isHierarchical) {
+        charts.push(ChartType.TREE_MAP);
+        charts.push(ChartType.SUNBURST);
+        charts.push(ChartType.CIRCLE_PACKING);
+      } else {
+        charts.push(ChartType.HEAT_MAP);
+        charts.push(ChartType.CHORD_DIAGRAM);
+        charts.push(ChartType.SANKEY);
+      }
 
       charts.push(ChartType.SPIDER);
       if (scalar.length >= 2 && scalar.includes(key[1])) {
@@ -118,4 +127,36 @@ export function getColumnRelationship(
     relationType = RelationType.MANY_TO_ONE;
   }
   return { relationType, incomingLinks, outgoingLinks };
+}
+
+function getAdjacentRelations(results: QueryResults, columns: string[]) {
+  const relations: RelationType[] = [];
+
+  for (let i = 0; i < columns.length - 1; i++) {
+    const { relationType } = getColumnRelationship(
+      results,
+      columns[i],
+      columns[i + 1]
+    );
+    relations.push(relationType);
+  }
+
+  return relations;
+}
+
+function columnsAreHierarchical(
+  results: QueryResults,
+  columns: string[]
+): boolean {
+  const relations: RelationType[] = getAdjacentRelations(results, columns);
+  return relationsAreHierarchical(relations);
+}
+
+function relationsAreHierarchical(relations: RelationType[]) {
+  for (let r of relations) {
+    if (r !== RelationType.ONE_TO_MANY && r !== RelationType.ONE_TO_ONE) {
+      return false;
+    }
+  }
+  return true;
 }
