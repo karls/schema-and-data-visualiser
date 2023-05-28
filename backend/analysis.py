@@ -186,7 +186,6 @@ def type_category(*, type_uri) \
     """
 
     categories = {
-        'key': ['key'],
         'scalar': ['int', 'integer', 'decimal', 'negativeInteger',
                    'nonNegativeInteger'],
         'temporal': ['gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
@@ -259,6 +258,9 @@ def variable_categories(*, var_type, variables, var_class, var_prop, api,
                         repository) -> Dict:
     """
     Returns the variables of different categories
+    :param repository:
+    :param api:
+    :param var_prop:
     :param var_class:
     :param variables:
     :param var_type:
