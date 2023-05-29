@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Dropdown, Popover, Space } from "antd";
+import { Button, Divider, Dropdown, Popover, Space } from "antd";
 import { allRepositories } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
@@ -19,6 +19,7 @@ const Sidebar = observer(() => {
         <div style={{ justifyContent: "center" }}>
           <SelectRepository />
           <ExploreDataset repository={repositoryStore.currentRepository} />
+          <Divider />
           <QueryHistory />
         </div>
       )}

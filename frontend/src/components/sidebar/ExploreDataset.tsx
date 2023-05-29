@@ -22,7 +22,7 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
   const width = Math.floor(window.screen.width * 0.8);
   const height = Math.floor(window.screen.height * 0.75);
 
-  const items: TabsProps["items"] = [
+  const infoTabs: TabsProps["items"] = [
     {
       key: "summary",
       label: `Summary`,
@@ -70,7 +70,7 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
       >
         <Space>
           <MdOutlineExplore size={20} />
-          Explore Dataset
+          Explore dataset
         </Space>
       </Button>
       {repository && (
@@ -82,7 +82,11 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
           width={width}
           maskClosable
         >
-          <Tabs defaultActiveKey="1" items={items} style={{ padding: 10 }} />
+          <Tabs
+            defaultActiveKey="1"
+            items={infoTabs}
+            style={{ padding: 10 }}
+          />
         </Modal>
       )}
     </>

@@ -32,7 +32,6 @@ const ChoroplethMap = ({ results, variables, width, height }: ChoroplethMapProps
       maxValue = Math.max(maxValue, value);
       geoValue[location] = value;
     }
-    console.log(geoValue);
 
     return features.map((location: any) => {
       const { ADMIN, ISO_A3 } = location.properties;

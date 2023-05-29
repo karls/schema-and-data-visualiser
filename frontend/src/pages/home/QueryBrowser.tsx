@@ -52,7 +52,7 @@ const QueryBrowser = observer(() => {
             <Input
               title={queriesStore.openQueries[qid].title}
               onKeyDown={(e) => e.stopPropagation()}
-              onChange={(e) => console.log(e.target.value)}
+              // onChange={(e) => console.log(e.target.value)}
               style={{
                 margin: 0,
                 cursor: "pointer",

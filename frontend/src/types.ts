@@ -51,22 +51,25 @@ export enum PropertyType {
 }
 
 export enum ChartType {
-  Bar = "Bar",
-  Scatter = "Scatter",
-  WordCloud = "Word Cloud",
-  Calendar = "Calendar",
-  Bubble = "Bubble",
-  ChoroplethMap = "Choropleth Map",
-  Pie = "Pie",
-  Line = "Line",
-  TreeMap = "Tree Map",
-  Radar = "Radar",
-  Sankey = "Sankey",
-  ChordDiagram = "Chord Diagram",
-  CirclePacking = "Circle Packing",
-  HierarchyTree = "Hierarchy Tree",
-  Sunburst = "Sunburst",
-  HeatMap = "Heat Map",
+  BAR = "Bar",
+  STACKED_BAR = "Stacked Bar",
+  GROUPED_BAR = "Grouped Bar",
+  SCATTER = "Scatter",
+  WORD_CLOUD = "Word Cloud",
+  CALENDAR = "Calendar",
+  BUBBLE = "Bubble",
+  CHOROPLETH_MAP = "Choropleth Map",
+  PIE = "Pie",
+  LINE = "Line",
+  TREE_MAP = "Tree Map",
+  RADAR = "Radar",
+  SANKEY = "Sankey",
+  CHORD_DIAGRAM = "Chord Diagram",
+  CIRCLE_PACKING = "Circle Packing",
+  HIERARCHY_TREE = "Hierarchy Tree",
+  SUNBURST = "Sunburst",
+  HEAT_MAP = "Heat Map",
+  SPIDER = "Spider",
 }
 
 export type Visualisation = {
@@ -74,6 +77,15 @@ export type Visualisation = {
   maxInstances?: number;
   maxClasses?: number;
 };
+
+export enum CategoryType {
+  KEY = "key",
+  SCALAR = "scalar",
+  TEMPORAL = "temporal",
+  DATE = "date",
+  GEOGRAPHICAL = "geographical",
+  LEXICAL = "lexical",
+}
 
 export type VariableCategories = {
   key: string[];
@@ -85,8 +97,15 @@ export type VariableCategories = {
 };
 
 export type QueryAnalysis = {
-  valid: boolean;
+  match: boolean;
   pattern: string;
   variables: VariableCategories;
   visualisations: Visualisation[];
 };
+
+export enum RelationType {
+  ONE_TO_ONE = 'One-to-one',
+  ONE_TO_MANY = 'One-to-many',
+  MANY_TO_ONE = 'Many-to-one',
+  MANY_TO_MANY = 'Many-to-many',
+}

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useStore } from "../../stores/store";
 import { Button, Modal, Space, Tabs, TabsProps, Typography } from "antd";
 import { AiOutlineFileSearch } from "react-icons/ai";
-import { SPARQLTemplate } from "./sparql_templates";
+import { SPARQLTemplate } from "../../utils/sparql_templates";
 
 type TemplatesProps = {
   templates: SPARQLTemplate[];

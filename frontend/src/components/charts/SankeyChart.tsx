@@ -1,45 +1,47 @@
+import { useMemo } from "react";
 import { Chart } from "react-google-charts";
-import { QueryResults, URI } from "../../types";
-import { numericColumns, removePrefix } from "../../utils/queryResults";
-import { useMemo, useState } from "react";
-import { Alert, Select, Space } from "antd";
-import { categoricalColumns } from "../../utils/queryResults";
-
-type SankeyChartProps = {
-  results: QueryResults;
-  width: number;
-  height: number;
-};
+import { QueryResults, URI, VariableCategories } from "../../types";
+import { removePrefix } from "../../utils/queryResults";
 
 function getLinks(
   results: QueryResults,
-  col1: number = 0,
-  col2: number = 1,
-  valueCol: number = 2
+  colA: string,
+  colB: string,
+  valueCol: string
 ) {
+  const colAIndex = results.header.indexOf(colA);
+  const colBIndex = results.header.indexOf(colB);
+  const valueColIndex = results.header.indexOf(valueCol);
+
   const links: [URI, URI, number][] = [];
   for (let row of results.data) {
     links.push([
-      removePrefix(row[col1]),
-      removePrefix(row[col2]),
-      parseFloat(row[valueCol]),
+      removePrefix(row[colAIndex]),
+      removePrefix(row[colBIndex]),
+      parseFloat(row[valueColIndex]),
     ]);
   }
 
   return [["From", "To", results.header[2]], ...links];
 }
 
-const SankeyChart = ({ results, width, height }: SankeyChartProps) => {
-  const categIdxs = categoricalColumns(results);
-  const [col1, setCol1] = useState(categIdxs[0]);
-  const [col2, setCol2] = useState(categIdxs[1]);
+type SankeyChartProps = {
+  results: QueryResults;
+  width: number;
+  height: number;
+  variables: VariableCategories;
+};
 
-  const numIdxs = numericColumns(results);
-  const [valueColumn, setValueColumn] = useState<number>(numIdxs[0]);
-
+const SankeyChart = ({
+  results,
+  width,
+  height,
+  variables,
+}: SankeyChartProps) => {
   const data = useMemo(() => {
-    return getLinks(results, col1, col2, valueColumn);
-  }, [results, col1, col2,  valueColumn]);
+    const { key, scalar } = variables;
+    return getLinks(results, key[0], key[1], scalar[0]);
+  }, [variables, results]);
 
   const options = {
     width,
@@ -57,45 +59,9 @@ const SankeyChart = ({ results, width, height }: SankeyChartProps) => {
     },
   };
   return (
-    <Space direction="vertical">
-      <Space>
-        <Select
-          value={col1}
-          style={{ width: 120 }}
-          onChange={setCol1}
-          options={categIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Select
-          value={col2}
-          style={{ width: 120 }}
-          onChange={setCol2}
-          options={categIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Select
-          value={valueColumn}
-          style={{ width: 120 }}
-          onChange={setValueColumn}
-          options={numIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-      </Space>
-      {col1 !== col2 && <Chart chartType="Sankey" data={data} options={options} />}
-      {col1 === col2 && <Alert banner message="Both of the columns can't be the same" />}
-    </Space>
+    <>
+      <Chart chartType="Sankey" data={data} options={options} />
+    </>
   );
 };
 

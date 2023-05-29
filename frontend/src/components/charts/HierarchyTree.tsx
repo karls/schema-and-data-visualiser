@@ -29,6 +29,8 @@ const HierarchyTree = ({
         orientation="horizontal"
         collapsible={true}
         shouldCollapseNeighborNodes={true}
+        depthFactor={500}
+        initialDepth={1}
       />
     </div>
   );
@@ -54,7 +56,7 @@ export function getHierarchicalData(
         const columnIndex = results.header.indexOf(column);
         return {
           ...ac,
-          [column]: row[columnIndex],
+          [column]: parseFloat(row[columnIndex]).toLocaleString(),
         };
       }, {}),
       style: {

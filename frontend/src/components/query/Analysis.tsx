@@ -1,17 +1,35 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, List, Space, Tag, Typography } from "antd";
+import { Alert, Card, List, Space, Tag } from "antd";
 import {
   ChartType,
   QueryAnalysis,
   RepositoryId,
+  CategoryType,
   VariableCategories,
   Visualisation,
 } from "../../types";
 import { getQueryAnalysis } from "../../api/queries";
 import { AiOutlineBarChart } from "react-icons/ai";
-import { BiScatterChart } from "react-icons/bi";
+import { BiScatterChart, BiText } from "react-icons/bi";
 import { VscGraphScatter } from "react-icons/vsc";
-import { BsBodyText, BsCalendar3 } from "react-icons/bs";
+import {
+  BsBodyText,
+  BsCalendar3,
+  BsCalendarDateFill,
+  BsGeoAltFill,
+} from "react-icons/bs";
+import { GoKey } from "react-icons/go";
+import { IoMdTime } from "react-icons/io";
+import { MdNumbers } from "react-icons/md";
+import { Tb123 } from "react-icons/tb";
+
+export const chartIcons = {
+  [ChartType.BAR]: <AiOutlineBarChart size={35} />,
+  [ChartType.SCATTER]: <VscGraphScatter size={30} />,
+  [ChartType.BUBBLE]: <BiScatterChart size={35} />,
+  [ChartType.WORD_CLOUD]: <BsBodyText size={30} />,
+  [ChartType.CALENDAR]: <BsCalendar3 size={30} />,
+};
 
 type AnalysisProps = {
   query: string;
@@ -25,7 +43,6 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
   useEffect(() => {
     setLoading(true);
     getQueryAnalysis(query, repository).then((res) => {
-      console.log(res);
       setQueryAnalysis(res);
       setLoading(false);
     });
@@ -36,7 +53,7 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
       {queryAnalysis && (
         <Space direction="vertical" style={{ width: "100%" }}>
           <Variables variableCategories={queryAnalysis.variables} />
-          {queryAnalysis.valid ? (
+          {queryAnalysis.match ? (
             <RecommendedCharts
               query={query}
               visualisations={queryAnalysis.visualisations}
@@ -56,13 +73,6 @@ type RecommendedProps = {
 };
 
 const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
-  const chartIcons = {
-    [ChartType.Bar]: <AiOutlineBarChart size={35} />,
-    [ChartType.Scatter]: <VscGraphScatter size={30} />,
-    [ChartType.Bubble]: <BiScatterChart size={35} />,
-    [ChartType.WordCloud]: <BsBodyText size={30} />,
-    [ChartType.Calendar]: <BsCalendar3 size={30} />,
-  };
   return (
     <Card
       type="inner"
@@ -104,25 +114,38 @@ type VariablesProps = {
   variableCategories: VariableCategories;
 };
 
+const categoryIcon = {
+  [CategoryType.KEY]: <GoKey title="Key" size={20} />,
+  [CategoryType.DATE]: <BsCalendarDateFill title="Date" size={20} />,
+  [CategoryType.TEMPORAL]: <IoMdTime title="Temporal" size={20} />,
+  [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
+  [CategoryType.SCALAR]: <Tb123 title="Scalar" size={25} />,
+  [CategoryType.LEXICAL]: <BiText title="Lexical" size={20} />,
+};
+
 const Variables = ({ variableCategories }: VariablesProps) => {
   return (
-    <Card title="Variables">
-      <Space direction="vertical">
+    <div>
+      <List header={"Variables"}>
         {Object.keys(variableCategories).map(
           (category, index) =>
             variableCategories[category].length > 0 && (
-              <Space key={`categ-${index}`}>
-                <Typography.Text>{category}</Typography.Text>:
-                <>
-                  {variableCategories[category].map((v, index) => (
-                    <Tag key={index}>{v}</Tag>
-                  ))}
-                </>
-              </Space>
+              <List.Item key={category}>
+                <Space key={`categ-${index}`}>
+                  {categoryIcon[category]}
+                  <Space>
+                    {variableCategories[category].map(
+                      (v: string, index: number) => (
+                        <Tag key={index}>{v}</Tag>
+                      )
+                    )}
+                  </Space>
+                </Space>
+              </List.Item>
             )
         )}
-      </Space>
-    </Card>
+      </List>
+    </div>
   );
 };
 

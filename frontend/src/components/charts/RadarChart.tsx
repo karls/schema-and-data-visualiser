@@ -4,7 +4,7 @@ import {
   PolarGrid,
   PolarRadiusAxis,
   Radar,
-  RadarChart as RadarRechart,
+  RadarChart,
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
@@ -21,7 +21,7 @@ type RadarChartProps = {
   height: number;
 };
 
-const RadarChart = observer(
+const SpiderChart = observer(
   ({ results, width, height }: RadarChartProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
@@ -40,7 +40,7 @@ const RadarChart = observer(
 
     return (
       <ResponsiveContainer width="100%" height={height}>
-        <RadarRechart
+        <RadarChart
           cx="50%"
           cy="50%"
           outerRadius="80%"
@@ -67,10 +67,10 @@ const RadarChart = observer(
           })}
           <Tooltip />
           <Legend />
-        </RadarRechart>
+        </RadarChart>
       </ResponsiveContainer>
     );
   }
 );
 
-export default RadarChart;
+export default SpiderChart;
