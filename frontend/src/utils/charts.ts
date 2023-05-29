@@ -43,6 +43,8 @@ export function possibleCharts(
     const isHierarchical = columnsAreHierarchical(allRelations, variables.key);
     if (isHierarchical) {
       charts.push(ChartType.HIERARCHY_TREE);
+    } else {
+      charts.push(ChartType.NETWORK);
     }
     if (scalar.length >= 1) {
       if (isHierarchical) {

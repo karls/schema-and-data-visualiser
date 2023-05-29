@@ -19,11 +19,19 @@ type GraphVisProps = {
   width: number;
   height: number;
   hierarchical?: boolean;
-  repository: RepositoryId;
+  repository?: RepositoryId;
+  interactive?: boolean;
 };
 
 const GraphVis = observer(
-  ({ links, width, height, hierarchical, repository }: GraphVisProps) => {
+  ({
+    links,
+    width,
+    height,
+    hierarchical,
+    repository,
+    interactive = true,
+  }: GraphVisProps) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
     // const [, setLoading] = useState<boolean>(true);
@@ -93,13 +101,13 @@ const GraphVis = observer(
           springConstant: 0.01,
         },
         maxVelocity: 50,
-        solver: hierarchical ? 'hierarchicalRepulsion' : "forceAtlas2Based",
+        solver: hierarchical ? "hierarchicalRepulsion" : "forceAtlas2Based",
         timestep: 0.35,
         stabilization: true,
         hierarchicalRepulsion: {
           avoidOverlap: 1,
           nodeDistance: 180,
-        }
+        },
       },
     };
 
@@ -117,7 +125,7 @@ const GraphVis = observer(
           if (!isURL(uri)) continue; // Skip if node already contains a literal value
 
           getPropertyValues(
-            repository,
+            repository!,
             uri,
             PropertyType.DatatypeProperty
           ).then((res: [URI, string][]) => {
@@ -161,7 +169,7 @@ const GraphVis = observer(
           const uri = idToNode[nodeId].title!;
           if (!isURL(uri)) continue; // Skip if node contains a literal value
 
-          getPropertyValues(repository, uri, PropertyType.ObjectProperty).then(
+          getPropertyValues(repository!, uri, PropertyType.ObjectProperty).then(
             (res: [URI, string][]) => {
               const newLinks: Triplet[] = res.map(([prop, value]) => [
                 uri,
@@ -200,7 +208,7 @@ const GraphVis = observer(
       <NetworkGraph
         graph={graph}
         options={graphOptions}
-        events={events}
+        events={interactive ? events : {}}
         getNetwork={(network: any) => {
           //  if you want access to vis.js network api you can set the state in a parent component using this property
         }}

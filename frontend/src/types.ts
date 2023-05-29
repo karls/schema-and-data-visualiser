@@ -70,6 +70,7 @@ export enum ChartType {
   SUNBURST = "Sunburst",
   HEAT_MAP = "Heat Map",
   SPIDER = "Spider",
+  NETWORK = "Network",
 }
 
 export type Visualisation = {
@@ -104,8 +105,8 @@ export type QueryAnalysis = {
 };
 
 export enum RelationType {
-  ONE_TO_ONE = 'One-to-one',
-  ONE_TO_MANY = 'One-to-many',
-  MANY_TO_ONE = 'Many-to-one',
-  MANY_TO_MANY = 'Many-to-many',
+  ONE_TO_ONE = "One-to-one",
+  ONE_TO_MANY = "One-to-many",
+  MANY_TO_ONE = "Many-to-one",
+  MANY_TO_MANY = "Many-to-many",
 }
