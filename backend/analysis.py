@@ -170,11 +170,8 @@ def is_key_property(*, prop_uri: str, api: str, repository: str):
     types = list(map(remove_prefix,
                      get_types(uri=prop_uri, api=api, repository=repository)))
     metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
-    # print(prop_uri, metadata)
-    prop_range = remove_prefix(metadata['range'])
 
-    return 'InverseFunctionalProperty' in types or \
-           prop_range == 'string' and 'FunctionalProperty' in types
+    return 'InverseFunctionalProperty' in types
 
 
 def type_category(*, type_uri) \
