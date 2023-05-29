@@ -43,6 +43,8 @@ import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
 import { getAllRelations, possibleCharts } from "../../utils/charts";
 import { Suggested } from "./Suggested";
+import NetworkChart from "../charts/NetworkChart";
+import { IoMdGitNetwork } from "react-icons/io";
 
 type ChartsProps = {
   query: string;
@@ -262,6 +264,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+            variables={queryAnalysis!.variables}
           />
         ),
       },
@@ -326,6 +329,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <HierarchyTree
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.NETWORK,
+        label: (
+          <>
+            <IoMdGitNetwork size={20} /> Network
+          </>
+        ),
+        children: (
+          <NetworkChart
             results={results}
             width={chartWidth}
             height={chartHeight}
