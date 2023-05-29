@@ -1,5 +1,5 @@
 import ReactChordDiagram from "react-chord-diagram";
-import { QueryResults, URI } from "../../types";
+import { QueryResults, URI, VariableCategories } from "../../types";
 import { useStore } from "../../stores/store";
 import { useMemo, useState } from "react";
 import randomColor from "randomcolor";
@@ -10,44 +10,43 @@ import {
 } from "../../utils/queryResults";
 import { Select, Space, Switch } from "antd";
 
-type ChordDiagProps = {
+type ChordDiagramProps = {
   results: QueryResults;
   width: number;
   height: number;
+  variables: VariableCategories;
 };
 
-const ChordDiagram = ({ results, width, height }: ChordDiagProps) => {
+const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
+  const { header, data } = results;
+  const col1Idx = header.indexOf(variables.key[0]);
+  const col2Idx = header.indexOf(variables.key[1]);
 
-  const categIdxs = categoricalColumns(results);
-  const [col1, setCol1] = useState(categIdxs[0]);
-  const [col2, setCol2] = useState(categIdxs[1]);
-
-  const numIdxs = numericColumns(results);
-  const [valueColumn, setValueColumn] = useState<number>(numIdxs[0]);
+  const valueColumn = variables.scalar[0];
   const [labels, setLabels] = useState<URI[]>([]);
   const [symmetric, setSymmetric] = useState<boolean>(true);
 
   const matrix: number[][] = useMemo(() => {
     const uniqueLabels = new Set<URI>();
     const links: { [key: string]: { [key: string]: number } } = {};
-    for (let row of results.data) {
-      uniqueLabels.add(row[col1]);
-      uniqueLabels.add(row[col2]);
+    for (let row of data) {
+      uniqueLabels.add(row[col1Idx]);
+      uniqueLabels.add(row[col2Idx]);
 
-      if (!links[row[col1]]) {
-        links[row[col1]] = {};
+      if (!links[row[col1Idx]]) {
+        links[row[col1Idx]] = {};
       }
 
-      links[row[col1]][row[col2]] = parseFloat(row[valueColumn]);
+      links[row[col1Idx]][row[col2Idx]] = parseFloat(row[valueColumn]);
 
       if (symmetric) {
-        if (!links[row[col2]]) {
-            links[row[col2]] = {};
+        if (!links[row[col2Idx]]) {
+            links[row[col2Idx]] = {};
           }
     
-          links[row[col2]][row[col1]] = parseFloat(row[valueColumn]);
+          links[row[col2Idx]][row[col1Idx]] = parseFloat(row[valueColumn]);
       }
     }
     const allLabels = Array.from(uniqueLabels);
@@ -60,52 +59,10 @@ const ChordDiagram = ({ results, width, height }: ChordDiagProps) => {
       )
     );
     return m;
-  }, [results, col1, col2, valueColumn, symmetric]);
+  }, [results, col1Idx, col2Idx, valueColumn, symmetric]);
 
   return (
     <Space direction="vertical" style={{ width, height }}>
-      <Space>
-        <Select
-          value={col1}
-          style={{ width: 120 }}
-          onChange={setCol1}
-          options={categIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Select
-          value={col2}
-          style={{ width: 120 }}
-          onChange={setCol2}
-          options={categIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Select
-          value={valueColumn}
-          style={{ width: 120 }}
-          onChange={setValueColumn}
-          options={numIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Space>
-          <Switch
-            checked={symmetric}
-            onChange={(checked: boolean) => setSymmetric(checked)}
-          />
-          Symmetric
-        </Space>
-      </Space>
       <ReactChordDiagram
         matrix={matrix}
         componentId={1}
