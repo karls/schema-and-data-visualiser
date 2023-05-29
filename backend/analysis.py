@@ -182,21 +182,23 @@ def type_category(*, type_uri) \
     :return:
     """
 
-    categories = {
-        'scalar': ['int', 'integer', 'decimal', 'negativeInteger',
-                   'nonNegativeInteger'],
+    categories_types = {
+        'numeric': ['int', 'integer', 'decimal', 'negativeInteger',
+                    'nonNegativeInteger'],
         'temporal': ['gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
                      'gYearMonth'],
         'date': ['date'  'dateTime'],
         'lexical': ['string'],
         'geographical': []
     }
-    type_name = remove_prefix(type_uri)
-    for c in categories:
-        if type_name in categories[c]:
-            return c
 
-    return 'object'
+    type_name = remove_prefix(type_uri)
+    categories = []
+    for ctg in categories_types:
+        if type_name in categories_types[ctg]:
+            categories.append(ctg)
+
+    return categories if categories else ['object']
 
 
 def get_where_clause(query: str):
@@ -270,7 +272,8 @@ def variable_categories(*, var_type, variables, var_class, var_prop, api,
         'geographical': [],
         'lexical': [],
         'date': [],
-        'object': []
+        'object': [],
+        'numeric': []
     }
 
     for var in variables:
@@ -284,8 +287,11 @@ def variable_categories(*, var_type, variables, var_class, var_prop, api,
 
         if var in var_type:
             type_name = var_type[var]
-            catg = type_category(type_uri=type_name)
-            var_categories[catg].append(var)
+            for catg in type_category(type_uri=type_name):
+                var_categories[catg].append(var)
+
+    var_categories['scalar'] = \
+        var_categories['numeric'] + var_categories['temporal']
 
     return var_categories
 

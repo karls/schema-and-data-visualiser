@@ -86,6 +86,7 @@ export enum CategoryType {
   DATE = "date",
   GEOGRAPHICAL = "geographical",
   LEXICAL = "lexical",
+  NUMERIC = "numeric",
 }
 
 export type VariableCategories = {
@@ -95,6 +96,7 @@ export type VariableCategories = {
   geographical: string[];
   lexical: string[];
   date: string[];
+  numeric: string[];
 };
 
 export type QueryAnalysis = {

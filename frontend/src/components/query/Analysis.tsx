@@ -119,8 +119,9 @@ const categoryIcon = {
   [CategoryType.DATE]: <BsCalendarDateFill title="Date" size={20} />,
   [CategoryType.TEMPORAL]: <IoMdTime title="Temporal" size={20} />,
   [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
-  [CategoryType.SCALAR]: <Tb123 title="Scalar" size={25} />,
+  [CategoryType.SCALAR]: <MdNumbers title="Scalar" size={25} />,
   [CategoryType.LEXICAL]: <BiText title="Lexical" size={20} />,
+  [CategoryType.NUMERIC]: <Tb123 title="Numeric" size={25} />
 };
 
 const Variables = ({ variableCategories }: VariablesProps) => {

@@ -71,6 +71,7 @@ export async function getQueryAnalysis(
       temporal: [],
       lexical: [],
       date: [],
+      numeric: [],
     },
   };
 }

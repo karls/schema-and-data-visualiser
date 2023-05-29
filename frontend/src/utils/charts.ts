@@ -6,12 +6,14 @@ import {
 } from "../types";
 
 type RelationMap = { [key: string]: { [key: string]: RelationType } };
+type LinkMap = { [key: string]: Set<string> };
 
 export function possibleCharts(
   variables: VariableCategories,
   allRelations: RelationMap
 ) {
-  const { scalar, temporal, geographical, key, lexical, date } = variables;
+  const { scalar, temporal, geographical, key, lexical, date, numeric } =
+    variables;
 
   const charts: ChartType[] = [];
 
@@ -27,8 +29,11 @@ export function possibleCharts(
     }
   }
 
-  if (key.length === 1 && scalar.length >= 1) {
+  if (key.length === 1 && numeric.length >= 1) {
     charts.push(ChartType.BAR);
+    if (numeric.length === 2) {
+      charts.push(ChartType.LINE);
+    }
   }
 
   if (geographical.length === 1 && scalar.length >= 1) {
@@ -47,6 +52,10 @@ export function possibleCharts(
       charts.push(ChartType.NETWORK);
     }
     if (scalar.length >= 1) {
+      charts.push(ChartType.STACKED_BAR);
+      charts.push(ChartType.GROUPED_BAR);
+      charts.push(ChartType.SPIDER);
+
       if (isHierarchical) {
         charts.push(ChartType.TREE_MAP);
         charts.push(ChartType.SUNBURST);
@@ -55,13 +64,6 @@ export function possibleCharts(
         charts.push(ChartType.HEAT_MAP);
         charts.push(ChartType.CHORD_DIAGRAM);
         charts.push(ChartType.SANKEY);
-      }
-
-      charts.push(ChartType.SPIDER);
-      if (scalar.length >= 2 && scalar.includes(key[1])) {
-        charts.push(ChartType.LINE);
-        charts.push(ChartType.STACKED_BAR);
-        charts.push(ChartType.GROUPED_BAR);
       }
     }
   }
@@ -90,7 +92,10 @@ export function getLinks(results: QueryResults, colA: string, colB: string) {
 
   return { incomingLinks, outgoingLinks };
 }
-export function getColumnRelationship(outgoingLinks, incomingLinks) {
+export function getColumnRelationship(
+  outgoingLinks: LinkMap,
+  incomingLinks: LinkMap
+) {
   let oneToOne = true;
   let oneToMany = true;
   let manyToOne = true;
