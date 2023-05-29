@@ -6,7 +6,7 @@ import {
 } from "react-icons/tb";
 import { CgArrowLongLeftC, CgArrowLongRightC } from "react-icons/cg";
 import { QueryAnalysis, QueryResults, RelationType } from "../../types";
-import { getColumnRelationship } from "../../utils/charts";
+import { getColumnRelationship, getLinks } from "../../utils/charts";
 import {
   Alert,
   Card,
@@ -23,14 +23,23 @@ import { useStore } from "../../stores/store";
 
 type SuggestedProps = {
   queryAnalysis: QueryAnalysis;
-  results: QueryResults;
+  allRelations: any;
+  allOutgoingLinks: any;
+  allIncomingLinks: any;
 };
-export const Suggested = ({ queryAnalysis, results }: SuggestedProps) => {
+export const Suggested = ({
+  queryAnalysis,
+  allRelations,
+  allIncomingLinks,
+  allOutgoingLinks,
+}: SuggestedProps) => {
   return (
     <>
       <ColumnRelations
         keyColumns={queryAnalysis.variables.key}
-        results={results}
+        allRelations={allRelations}
+        allIncomingLinks={allIncomingLinks}
+        allOutgoingLinks={allOutgoingLinks}
       />
     </>
   );
@@ -49,25 +58,35 @@ const relationIcons: { [key: string]: JSX.Element } = {
 };
 
 type ColumnRelationsProps = {
-  results: QueryResults;
   keyColumns: string[];
+  allRelations: any;
+  allIncomingLinks: any;
+  allOutgoingLinks: any;
 };
 const ColumnRelations = observer(
-  ({ keyColumns, results }: ColumnRelationsProps) => {
+  ({
+    keyColumns,
+    allRelations,
+    allIncomingLinks,
+    allOutgoingLinks,
+  }: ColumnRelationsProps) => {
     return (
       <Card title="Entity Relationships">
         {keyColumns.length < 2 ? (
-          <Alert
-            banner
-            message="Only applicable for multiple key variables"
-          />
+          <Alert banner message="Only applicable for multiple key variables" />
         ) : (
           <Space>
             {keyColumns.map((colA, i) =>
               keyColumns.map((colB, j) => {
                 return (
                   i < j && (
-                    <Relation results={results} colA={colA} colB={colB} />
+                    <Relation
+                      colA={colA}
+                      colB={colB}
+                      allRelations={allRelations}
+                      allIncomingLinks={allIncomingLinks}
+                      allOutgoingLinks={allOutgoingLinks}
+                    />
                   )
                 );
               })
@@ -143,18 +162,23 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
     </Space>
   );
 };
-const Relation = observer(({ colA, colB, results }: any) => {
-  const rootStore = useStore();
-  const settings = rootStore.settingsStore;
 
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+const Relation = observer(
+  ({ colA, colB, allRelations, allIncomingLinks, allOutgoingLinks }: any) => {
+    const rootStore = useStore();
+    const settings = rootStore.settingsStore;
 
-  const { relationType, left, right, outgoingLinks, incomingLinks } =
-    useMemo(() => {
-      let { relationType, outgoingLinks, incomingLinks } =
-        getColumnRelationship(results, colA, colB);
-      setLoading(false);
+    const [showModal, setShowModal] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
+    const { incomingLinks, outgoingLinks } = useMemo(() => {
+      return {
+        incomingLinks: allIncomingLinks[colB][colA],
+        outgoingLinks: allOutgoingLinks[colA][colB],
+      };
+    }, [allIncomingLinks, allOutgoingLinks, colA, colB]);
+
+    const { relationType, left, right } = useMemo(() => {
+      let relationType = allRelations[colA][colB];
       let left = colA;
       let right = colB;
       if (relationType === RelationType.MANY_TO_ONE) {
@@ -163,41 +187,42 @@ const Relation = observer(({ colA, colB, results }: any) => {
         relationType = RelationType.ONE_TO_MANY;
       }
       return { left, right, relationType, outgoingLinks, incomingLinks };
-    }, [colA, colB, results]);
+    }, [allRelations, colA, colB, incomingLinks, outgoingLinks]);
 
-  return (
-    <Skeleton loading={loading} active>
-      <Card
-        bodyStyle={{ padding: 10 }}
-        hoverable
-        onClick={() => setShowModal(true)}
-      >
-        <Space>
-          <Typography.Text>{left}</Typography.Text>
-          {relationIcons[relationType]}
-          <Typography.Text>{right}</Typography.Text>
-        </Space>
-      </Card>
-      <Modal
-        open={showModal}
-        title={
+    return (
+      <>
+        <Card
+          bodyStyle={{ padding: 10 }}
+          hoverable
+          onClick={() => setShowModal(true)}
+        >
           <Space>
-            <Typography.Text>{colA}</Typography.Text>
+            <Typography.Text>{left}</Typography.Text>
             {relationIcons[relationType]}
-            <Typography.Text>{colB}</Typography.Text>
+            <Typography.Text>{right}</Typography.Text>
           </Space>
-        }
-        footer={null}
-        onCancel={() => setShowModal(false)}
-        width={Math.floor(settings.screenWidth * 0.75)}
-      >
-        <RelationDetails
-          colA={colA}
-          colB={colB}
-          incomingLinks={incomingLinks}
-          outgoingLinks={outgoingLinks}
-        />
-      </Modal>
-    </Skeleton>
-  );
-});
+        </Card>
+        <Modal
+          open={showModal}
+          title={
+            <Space>
+              <Typography.Text>{colA}</Typography.Text>
+              {relationIcons[relationType]}
+              <Typography.Text>{colB}</Typography.Text>
+            </Space>
+          }
+          footer={null}
+          onCancel={() => setShowModal(false)}
+          width={Math.floor(settings.screenWidth * 0.75)}
+        >
+          <RelationDetails
+            colA={colA}
+            colB={colB}
+            incomingLinks={incomingLinks}
+            outgoingLinks={outgoingLinks}
+          />
+        </Modal>
+      </>
+    );
+  }
+);

@@ -41,7 +41,7 @@ import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
-import { possibleCharts } from "../../utils/charts";
+import { getAllRelations, possibleCharts } from "../../utils/charts";
 import { Suggested } from "./Suggested";
 
 type ChartsProps = {
@@ -76,12 +76,18 @@ const Charts = observer(({ query, results }: ChartsProps) => {
       date: [],
     },
   });
-  const [possibleVis, setPossibleVis] = useState<ChartType[]>([]);
+  const { allRelations, allIncomingLinks, allOutgoingLinks } = useMemo(
+    () => getAllRelations(results, queryAnalysis.variables.key),
+    [queryAnalysis.variables.key, results]
+  );
+  const possibleVis: ChartType[] = useMemo(
+    () => possibleCharts(queryAnalysis.variables, allRelations),
+    [allRelations, queryAnalysis.variables]
+  );
   useEffect(() => {
     if (repositoryStore.currentRepository) {
       getQueryAnalysis(query, repositoryStore.currentRepository).then((res) => {
         setQueryAnalysis(res);
-        setPossibleVis(possibleCharts(res.variables, results));
       });
     }
   }, [query, repositoryStore.currentRepository, results]);
@@ -359,7 +365,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
               </>
             ),
             children: (
-              <Suggested queryAnalysis={queryAnalysis} results={results} />
+              <Suggested
+                queryAnalysis={queryAnalysis}
+                allRelations={allRelations}
+                allIncomingLinks={allIncomingLinks}
+                allOutgoingLinks={allOutgoingLinks}
+              />
             ),
           },
           ...(settings.showAllCharts

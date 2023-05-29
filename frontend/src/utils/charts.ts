@@ -5,9 +5,11 @@ import {
   VariableCategories,
 } from "../types";
 
+type RelationMap = { [key: string]: { [key: string]: RelationType } };
+
 export function possibleCharts(
   variables: VariableCategories,
-  results: QueryResults
+  allRelations: RelationMap
 ) {
   const { scalar, temporal, geographical, key, lexical, date } = variables;
 
@@ -38,7 +40,7 @@ export function possibleCharts(
   }
 
   if (key.length >= 2) {
-    const isHierarchical = columnsAreHierarchical(results, variables.key);
+    const isHierarchical = columnsAreHierarchical(allRelations, variables.key);
     if (isHierarchical) {
       charts.push(ChartType.HIERARCHY_TREE);
     }
@@ -65,11 +67,7 @@ export function possibleCharts(
   return charts;
 }
 
-export function getColumnRelationship(
-  results: QueryResults,
-  colA: string,
-  colB: string
-) {
+export function getLinks(results: QueryResults, colA: string, colB: string) {
   const outgoingLinks = {};
   const incomingLinks = {};
   const { header, data } = results;
@@ -87,6 +85,10 @@ export function getColumnRelationship(
     incomingLinks[target] = incomingLinks[target] ?? new Set();
     incomingLinks[target].add(source);
   }
+
+  return { incomingLinks, outgoingLinks };
+}
+export function getColumnRelationship(outgoingLinks, incomingLinks) {
   let oneToOne = true;
   let oneToMany = true;
   let manyToOne = true;
@@ -126,18 +128,16 @@ export function getColumnRelationship(
   } else if (manyToOne) {
     relationType = RelationType.MANY_TO_ONE;
   }
-  return { relationType, incomingLinks, outgoingLinks };
+  return relationType;
 }
 
-function getAdjacentRelations(results: QueryResults, columns: string[]) {
+function getAdjacentRelations(allRelations: RelationMap, columns: string[]) {
   const relations: RelationType[] = [];
 
   for (let i = 0; i < columns.length - 1; i++) {
-    const { relationType } = getColumnRelationship(
-      results,
-      columns[i],
-      columns[i + 1]
-    );
+    const colA = columns[i];
+    const colB = columns[i + 1];
+    const relationType = allRelations[colA][colB];
     relations.push(relationType);
   }
 
@@ -145,10 +145,10 @@ function getAdjacentRelations(results: QueryResults, columns: string[]) {
 }
 
 function columnsAreHierarchical(
-  results: QueryResults,
+  allRelations: RelationMap,
   columns: string[]
 ): boolean {
-  const relations: RelationType[] = getAdjacentRelations(results, columns);
+  const relations: RelationType[] = getAdjacentRelations(allRelations, columns);
   return relationsAreHierarchical(relations);
 }
 
@@ -159,4 +159,29 @@ function relationsAreHierarchical(relations: RelationType[]) {
     }
   }
   return true;
+}
+
+export function getAllRelations(results: QueryResults, columns: string[]) {
+  const allRelations: RelationMap = {};
+  const allOutgoingLinks = {};
+  const allIncomingLinks = {};
+
+  for (let i = 0; i < columns.length - 1; i++) {
+    for (let j = i + 1; j < columns.length; j++) {
+      const colA = columns[i];
+      const colB = columns[j];
+      allRelations[colA] = allRelations[colA] ?? {};
+      allOutgoingLinks[colA] = allOutgoingLinks[colA] ?? {};
+      allIncomingLinks[colB] = allIncomingLinks[colB] ?? {};
+
+      const { outgoingLinks, incomingLinks } = getLinks(results, colA, colB);
+      allOutgoingLinks[colA][colB] = outgoingLinks;
+      allIncomingLinks[colB][colA] = incomingLinks;
+
+      const relationType = getColumnRelationship(outgoingLinks, incomingLinks);
+      allRelations[colA][colB] = relationType;
+    }
+  }
+
+  return { allRelations, allOutgoingLinks, allIncomingLinks };
 }
