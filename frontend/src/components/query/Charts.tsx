@@ -76,6 +76,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
       temporal: [],
       lexical: [],
       date: [],
+      numeric: [],
     },
   });
   const { allRelations, allIncomingLinks, allOutgoingLinks } = useMemo(
@@ -154,6 +155,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+            variables={queryAnalysis!.variables}
           />
         ),
       },

@@ -24,7 +24,7 @@ const BarChart = ({ results, width, height, variables }: BarChartProps) => {
   return (
     <Tabs
       defaultActiveKey="1"
-      items={variables.scalar.map((column, id) => {
+      items={variables.numeric.map((column, id) => {
         const keyIndex = results.header.indexOf(variables.key[0]);
         const columnIndex = results.header.indexOf(column);
 

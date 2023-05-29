@@ -1,5 +1,6 @@
-import { QueryResults } from "../../types";
-import { numericColumns, removePrefix } from "../../utils/queryResults";
+import { useMemo, useState } from "react";
+import { QueryResults, Row, VariableCategories } from "../../types";
+import { removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
@@ -12,112 +13,105 @@ import {
   VictoryTooltip,
   createContainer,
 } from "victory";
-import { useMemo, useState } from "react";
-import { Select, Space } from "antd";
 
 type LineChartProps = {
   results: QueryResults;
   width: number;
   height: number;
+  variables: VariableCategories;
 };
 
-const LineChart = observer(({ results, width, height }: LineChartProps) => {
-  const rootStore = useStore();
-  const settings = rootStore.settingsStore;
-  const numIdxs = numericColumns(results);
-  const [col1, setCol1] = useState(numIdxs[0]);
-  const [col2, setCol2] = useState(numIdxs[1]);
+const LineChart = observer(
+  ({ results, width, height, variables }: LineChartProps) => {
+    const rootStore = useStore();
+    const settings = rootStore.settingsStore;
+    const { header, data } = results;
+    const keyIdx = header.indexOf(variables.key[0]);
+    const xIdx = header.indexOf(variables.scalar[0]);
+    const yIdx = header.indexOf(variables.scalar[1]);
 
-  const data = useMemo(
-    () =>
-      results.data.map((row) => {
-        const label = `${removePrefix(row[0])}
+    const linesData = useMemo(() => {
+      const lines = keyIdx !== -1 ? groupRows(data, keyIdx) : [data];
+      console.log(lines);
+      return lines.map((rows) =>
+        rows.map((row) => {
+          const label = `${removePrefix(row[0])}
 
-      ${results.header[col1]}: ${row[col1]}
-      ${results.header[col2]}: ${row[col2]}`;
+      ${header[xIdx]}: ${row[xIdx]}
+      ${header[yIdx]}: ${row[yIdx]}`;
 
-        return {
-          label,
-          x: parseFloat(row[col1]),
-          y: parseFloat(row[col2]),
-          fill: randomColor({
-            luminosity: settings.darkMode ? "light" : "dark",
-          }),
-        };
-      }),
-    [col1, col2, results.data, results.header, settings.darkMode]
-  );
+          return {
+            label,
+            x: parseFloat(row[xIdx]),
+            y: parseFloat(row[yIdx]),
+            fill: randomColor({
+              luminosity: settings.darkMode ? "light" : "dark",
+            }),
+          };
+        })
+      );
+    }, [keyIdx, data, header, xIdx, yIdx, settings.darkMode]);
 
-  const VictoryZoomVoronoiContainer: any = createContainer("zoom", "voronoi");
+    const VictoryZoomVoronoiContainer: any = createContainer("zoom", "voronoi");
 
-  return (
-    <div>
-      <Space>
-        <Select
-          value={col1}
-          style={{ width: 120 }}
-          onChange={setCol1}
-          options={numIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-        <Select
-          value={col2}
-          style={{ width: 120 }}
-          onChange={setCol2}
-          options={numIdxs.map((i) => {
-            return {
-              label: results.header[i],
-              value: i,
-            };
-          })}
-        />
-      </Space>
-      <VictoryChart
-        width={width}
-        height={height}
-        theme={VictoryTheme.material}
-        padding={{ bottom: 40, left: 100, right: 10, top: 10 }}
-        domainPadding={{ x: 10, y: 10 }}
-        containerComponent={
-          <VictoryZoomVoronoiContainer
-            width={width}
-            height={height}
-            responsive={false}
-            labels={({ datum }: any) => datum.label}
+    return (
+      <div>
+        <VictoryChart
+          width={width}
+          height={height}
+          theme={VictoryTheme.material}
+          padding={{ bottom: 40, left: 100, right: 10, top: 10 }}
+          domainPadding={{ x: 10, y: 10 }}
+          containerComponent={
+            <VictoryZoomVoronoiContainer
+              width={width}
+              height={height}
+              responsive={false}
+              labels={({ datum }: any) => datum.label}
+            />
+          }
+        >
+          <VictoryAxis
+            label={results.header[xIdx]}
+            axisLabelComponent={<VictoryLabel dy={20} />}
+            style={{
+              tickLabels: { fontSize: 15, padding: 5 },
+            }}
+            fixLabelOverlap
+            domainPadding={{ x: [10, -10], y: 5 }}
           />
-        }
-      >
-        <VictoryAxis
-          label={results.header[col1]}
-          axisLabelComponent={<VictoryLabel dy={20} />}
-          style={{
-            tickLabels: { fontSize: 15, padding: 5 },
-          }}
-          fixLabelOverlap
-          domainPadding={{ x: [10, -10], y: 5 }}
-        />
-        <VictoryAxis
-          label={results.header[col2]}
-          // axisLabelComponent={<VictoryLabel dy={-75} />}
-          style={{
-            tickLabels: { fontSize: 15, padding: 5 },
-          }}
-          dependentAxis
-          fixLabelOverlap
-          domainPadding={{ x: [10, -10], y: 5 }}
-        />
-        <VictoryLine
-          labelComponent={<VictoryTooltip style={{ fontSize: 15 }} />}
-          // style={{ data: { fill: ({ datum }) => datum.fill } }}
-          data={data}
-        />
-      </VictoryChart>
-    </div>
-  );
-});
+          <VictoryAxis
+            label={results.header[yIdx]}
+            // axisLabelComponent={<VictoryLabel dy={-75} />}
+            style={{
+              tickLabels: { fontSize: 15, padding: 5 },
+            }}
+            dependentAxis
+            fixLabelOverlap
+            domainPadding={{ x: [10, -10], y: 5 }}
+          />
+          {linesData.map((data, index) => (
+            <VictoryLine
+              key={`line-${index}`}
+              labelComponent={<VictoryTooltip style={{ fontSize: 15 }} />}
+              style={{ data: { stroke: randomColor() } }}
+              data={data}
+            />
+          ))}
+        </VictoryChart>
+      </div>
+    );
+  }
+);
+
+function groupRows(data: Row[], keyIdx: number): Row[][] {
+  const keyToRows = {};
+  for (let row of data) {
+    const key = row[keyIdx];
+    keyToRows[key] = keyToRows[key] ?? [];
+    keyToRows[key].push(row);
+  }
+  return Object.values(keyToRows);
+}
 
 export default LineChart;
