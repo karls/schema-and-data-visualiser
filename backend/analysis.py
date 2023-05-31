@@ -44,6 +44,7 @@ class QueryAnalyser:
         return prefixes
 
     def scan_conditions(self):
+        print(self.query)
         conditions = get_where_clause(self.query)
 
         statement_pattern = re.compile(
@@ -62,7 +63,7 @@ class QueryAnalyser:
 
             pairs = [shlex.split(s.strip()) for s in
                      separator_split(properties)]
-
+            print(pairs)
             for [prop, obj] in pairs:
                 if prop in ['rdf:type', 'rdfs:type',
                             'a'] and is_sparql_variable(subject):
@@ -159,27 +160,23 @@ class QueryAnalyser:
             'object': [],
             'numeric': []
         }
-
         for var in self.select_variables:
+            var_name = variable_name(var)
             if var in self.var_class:
-                var_categories['object'].append(var)
+                var_categories['object'].append(var_name)
                 continue
 
             if var in self.key_of_var:
-                var_categories['key'].append(var)
+                var_categories['key'].append(var_name)
 
             if var in self.data_var_type:
-
                 type_name = remove_prefix(self.data_var_type[var])
+
                 for catg in type_category(type_uri=type_name):
-                    var_categories[catg].append(var)
+                    var_categories[catg].append(var_name)
 
-        var_categories['scalar'] = \
-            var_categories['numeric'] + var_categories['temporal']
-
-        for c in var_categories:
-            var_categories[c] = sorted(var_categories[c],
-                                       key=self.select_variables.index)
+        var_categories['scalar'] = var_categories['temporal'] + \
+                                   var_categories['numeric']
 
         return var_categories
 
@@ -402,7 +399,7 @@ def query_analysis(query: str, api: str, repository):
         visualisations = ['Line', 'Spider', 'Stacked Bar', 'Grouped Bar']
     elif analyser.three_classes_linked_by_func_props():
         pattern = 'Three classes linked by a functional property'
-        visualisations = ['Sankey', 'Network', 'Chord', 'Heat Map']
+        visualisations = ['Sankey', 'Network', 'Chord Diagram', 'Heat Map']
 
     result = {'pattern': pattern, 'variables': analyser.var_categories,
               'visualisations': visualisations}
