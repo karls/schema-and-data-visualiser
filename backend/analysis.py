@@ -1,43 +1,288 @@
-import json
 import re
 import shlex
-from collections import defaultdict
 from typing import Dict
 import requests
 import urllib
 
-from util import remove_comments, is_url
+from util import remove_comments, is_url, separator_split
 
 
-def get_prefixes(query: str):
-    prefixes = {}
-    prefix_pattern = re.compile(
-        r'prefix\s+(?P<name>[^\s\n]+)\s+<(?P<uri>[^\s\n]+)>\s*\n',
-        re.IGNORECASE | re.MULTILINE | re.DOTALL)
-    for name, uri in prefix_pattern.findall(query):
-        prefixes[name] = uri
+class QueryAnalyser:
+    def __init__(self, *, query: str, api: str, repository: str):
+        self.query = remove_comments(query)
+        self.api = api
+        self.repository = repository
+        self.prefixes = self.get_prefixes()
+        # Dictionary of all triples in where clause
+        self.triples = {}
+        # Mapping from a key to the class variable it is a key of
+        self.key_of_var = {}
+        # Mapping from a data variable to its class variable
+        self.data_prop_of_var = {}
+        # Variables in the select clause
+        self.select_variables = self.get_select_variables()
+        # Type of data variable
+        self.data_var_type = {}
+        # Class of variable if it is an object
+        self.var_class = {}
+        # All functional properties used in query
+        self.func_props = set()
+        # All inverse functional properties used in query
+        self.key_func_props = set()
+        self.scan_conditions()
+        # Different type categories for the variables
+        self.var_categories = self.get_variable_categories()
 
-    return prefixes
+    def get_prefixes(self):
+        prefixes = {}
+        prefix_pattern = re.compile(
+            r'prefix\s+(?P<name>[^\s\n]+)\s+<(?P<uri>[^\s\n]+)>\s*\n',
+            re.IGNORECASE | re.MULTILINE | re.DOTALL)
+        for name, uri in prefix_pattern.findall(self.query):
+            prefixes[name] = uri
 
+        return prefixes
 
-def get_select_variables(query: str):
-    """
-    List of variables used in the SELECT statement of the query
-    :param query:
-    :return:
-    """
-    select_pattern = re.compile(
-        r'select\s+(distinct\s+)?(?P<variables>.+)\n*(from|where)',
-        re.MULTILINE | re.IGNORECASE | re.DOTALL)
-    select_statement = select_pattern.search(query)
-    print(select_statement)
-    if not select_statement:
-        return []
+    def scan_conditions(self):
+        print(self.query)
+        conditions = get_where_clause(self.query)
 
-    line = select_statement.group('variables')
-    names = [token.replace('?', '')
-             for token in shlex.split(line) if token.startswith('?')]
-    return names
+        statement_pattern = re.compile(
+            r'^(\n*|;) *(?P<subject>\?\w+) +(?P<properties>[^.]+)\s*\.\s*$',
+            re.IGNORECASE | re.MULTILINE | re.DOTALL)
+
+        statements = statement_pattern.finditer(conditions)
+
+        for match in statements:
+            # print(match.group())
+            subject = match.group('subject')
+            properties = match.group('properties')
+
+            if subject not in self.triples:
+                self.triples[subject] = {}
+
+            pairs = [shlex.split(s.strip()) for s in
+                     separator_split(properties)]
+            print(pairs)
+            for [prop, obj] in pairs:
+                if prop in ['rdf:type', 'rdfs:type',
+                            'a'] and is_sparql_variable(subject):
+                    self.var_class[subject] = obj
+                    continue
+
+                prop_uri = get_full_uri(uri=prop, prefixes=self.prefixes)
+
+                self.add_triple(subject, prop_uri, obj)
+
+                if not prop_uri or not is_sparql_variable(obj):
+                    continue
+
+                prop_types = list(map(remove_prefix,
+                                      self.get_types(uri=prop_uri)))
+
+                if 'DatatypeProperty' in prop_types:
+                    self.data_var_type[obj] = self.get_prop_range(
+                        prop_uri=prop_uri)
+                    self.data_prop_of_var[obj] = subject
+
+                if 'FunctionalProperty' in prop_types:
+                    self.func_props.add(prop_uri)
+
+                if 'InverseFunctionalProperty' in prop_types:
+                    self.key_of_var[obj] = subject
+                    self.key_func_props.add(prop_uri)
+
+    def add_triple(self, sub: str, predicate: str, obj: str):
+        if sub not in self.triples:
+            self.triples[sub] = {}
+        if predicate not in self.triples[sub]:
+            self.triples[sub][predicate] = set()
+
+        self.triples[sub][predicate].add(obj)
+
+    def get_prop_range(self, *, prop_uri: str):
+        metadata = get_metadata(uri=prop_uri, api=self.api,
+                                repository=self.repository)
+
+        return metadata['range']
+
+    def get_types(self, *, uri: str):
+        with open('queries/get_type.sparql', 'r') as query:
+            encoded = urllib.parse.quote(query.read().format(uri=uri), safe="")
+            response = requests.get(
+                f'{self.api}/repositories/{self.repository}'
+                f'?query={encoded}')
+
+        return response.text.replace('\r', '').splitlines()[1:]
+
+    def get_select_variables(self):
+        """
+        List of variables used in the SELECT statement of the query
+        :param query:
+        :return:
+        """
+        select_pattern = re.compile(
+            r'select +(distinct +)?(?P<variables>.+)\n*(from|where)',
+            re.MULTILINE | re.IGNORECASE | re.DOTALL)
+
+        select_statement = select_pattern.search(self.query)
+
+        if not select_statement:
+            return []
+
+        line = select_statement.group('variables')
+        names = [token for token in shlex.split(line) if token.startswith('?')]
+
+        return names
+
+    def is_data_property(self, *, prop_uri: str):
+        types = self.get_types(uri=prop_uri)
+        return 'DatatypeProperty' in list(map(remove_prefix, types))
+
+    def get_variable_categories(self) -> Dict:
+        """
+        Returns the variables of different categories
+        :param repository:
+        :param api:
+        :param var_prop:
+        :param var_class:
+        :param variables:
+        :param var_type:
+        :return:
+        """
+        var_categories = {
+            'key': [],
+            'scalar': [],
+            'temporal': [],
+            'geographical': [],
+            'lexical': [],
+            'date': [],
+            'object': [],
+            'numeric': []
+        }
+        for var in self.select_variables:
+            var_name = variable_name(var)
+            if var in self.var_class:
+                var_categories['object'].append(var_name)
+                continue
+
+            if var in self.key_of_var:
+                var_categories['key'].append(var_name)
+
+            if var in self.data_var_type:
+                type_name = remove_prefix(self.data_var_type[var])
+
+                for catg in type_category(type_uri=type_name):
+                    var_categories[catg].append(var_name)
+
+        var_categories['scalar'] = var_categories['temporal'] + \
+                                   var_categories['numeric']
+
+        return var_categories
+
+    def class_vars_used(self):
+        class_vars = set()
+
+        for var in self.select_variables:
+            class_vars.add(self.data_prop_of_var[var])
+
+        return len(class_vars)
+
+    def connected_by_props(self, var_a: str, var_b: str,
+                           func_props=False, key_func_props=False) -> bool:
+        stack = [var_a]
+        while stack:
+            curr = stack.pop()
+
+            if curr == var_b:
+                return True
+            if curr not in self.triples:
+                continue
+
+            for prop in self.triples[curr]:
+                if func_props and prop not in self.func_props:
+                    continue
+
+                if key_func_props and prop not in self.key_func_props:
+                    continue
+
+                obj_list = self.triples[curr][prop]
+                for obj in obj_list:
+                    if is_sparql_variable(obj):
+                        stack.append(obj)
+
+        return False
+
+    def class_with_data_properties(self):
+        if self.class_vars_used() != 1:
+            return False
+        for var in self.select_variables:
+            if var not in self.data_var_type:
+                return False
+
+        return True
+
+    def two_classes_linked_by_func_prop(self) -> Dict:
+        if self.class_vars_used() != 2:
+            return False
+
+        if len(self.key_of_var) < 2:
+            return False
+
+        key_vars = [var for var in self.select_variables if
+                    var in self.key_of_var]
+
+        for i in range(len(key_vars) - 1):
+            class_var_a = self.key_of_var[key_vars[i + 1]]
+            class_var_b = self.key_of_var[key_vars[i]]
+
+            if not self.connected_by_props(class_var_a, class_var_b,
+                                           func_props=True):
+                return False
+
+        return True
+
+    def two_classes_linked_by_key_func_prop(self) -> Dict:
+        if self.class_vars_used() != 2:
+            return False
+
+        key_vars = [var for var in self.select_variables if
+                    var in self.key_of_var]
+
+        if len(key_vars) != 2:
+            return False
+
+        for i in range(len(key_vars) - 1):
+            class_var_a = self.key_of_var[key_vars[i]]
+            class_var_b = self.key_of_var[key_vars[i + 1]]
+
+            if not self.connected_by_props(class_var_a, class_var_b,
+                                           key_func_props=True):
+                return False
+
+        return True
+
+    def three_classes_linked_by_func_props(self):
+        if self.class_vars_used() != 3:
+            return False
+
+        key_vars = [var for var in self.select_variables if
+                    var in self.key_of_var]
+
+        if len(key_vars) != 2:
+            return False
+
+        TBK = key_vars[0]
+        TCK = key_vars[1]
+        TA1 = self.select_variables[2]
+        CA = self.data_prop_of_var[TA1]
+        CB = self.data_prop_of_var[TBK]
+        CC = self.data_prop_of_var[TCK]
+
+        if self.connected_by_props(CA, CB) and self.connected_by_props(CA, CC):
+            return True
+
+        return False
 
 
 def is_sparql_variable(s: str):
@@ -46,39 +291,6 @@ def is_sparql_variable(s: str):
 
 def variable_name(var: str):
     return var.replace('?', '')
-
-
-def get_class_properties(*, query, var_class):
-    """
-    Get the properties and their variables for each class
-    :param var_class:
-    :param query:
-    :return:
-    """
-    classes = defaultdict(dict)
-
-    conditions = get_where_clause(query)
-    if not conditions:
-        return classes
-
-    statement_pattern = re.compile(
-        r'\n*\s*\?(?P<var1>\w*)\s+(?P<properties>[^.]*)\s*\.\s*\n*',
-        re.IGNORECASE | re.MULTILINE | re.DOTALL)
-
-    statements = statement_pattern.findall(conditions)
-
-    for var1, properties in statements:
-        # print(var1, '->\n', properties)
-        pairs = [shlex.split(s.strip()) for s in properties.strip().split(';')]
-        # print('pairs: ', pairs)
-        for prop, obj in pairs:
-            # print('line:', line)
-            if prop in ['rdf:type', 'a', 'owl:type']:
-                continue
-            if is_sparql_variable(obj) and var1 in var_class:
-                classes[var_class[var1]][prop] = variable_name(obj)
-
-    return classes
 
 
 def remove_prefix(uri: str, prefix=None) -> str:
@@ -96,7 +308,7 @@ def remove_prefix(uri: str, prefix=None) -> str:
     return uri.split('/')[-1].split('#')[-1]
 
 
-def get_full_uri(*, uri: str, prefixes) -> str:
+def get_full_uri(*, uri: str, prefixes) -> str | None:
     """
     Substitute the prefix back to get the original URI
     :param uri:
@@ -107,19 +319,11 @@ def get_full_uri(*, uri: str, prefixes) -> str:
         if is_url(uri):
             return uri
         uri = uri.replace(prefix, prefixes[prefix])
+
     if not is_url(uri):
         return None
+
     return uri
-
-
-def get_types(*, uri: str, api: str, repository: str):
-    with open('queries/get_type.sparql', 'r') as query:
-        encoded = urllib.parse.quote(query.read().format(uri=uri), safe="")
-        response = requests.get(
-            f'{api}/repositories/{repository}'
-            f'?query={encoded}')
-
-    return response.text.replace('\r', '').splitlines()[1:]
 
 
 def get_metadata(*, uri: str, api: str, repository: str):
@@ -145,37 +349,7 @@ def get_metadata(*, uri: str, api: str, repository: str):
     return dict(zip(fields, values))
 
 
-def is_data_property(*, prop_uri: str, api: str, repository: str):
-    types = get_types(uri=prop_uri, api=api, repository=repository)
-
-    return 'DatatypeProperty' in list(map(remove_prefix, types))
-
-
-def is_functional_property(*, prop_uri: str, api: str, repository: str):
-    if not is_url(prop_uri):
-        return False
-    types = get_types(uri=prop_uri, api=api, repository=repository)
-
-    return 'FunctionalProperty' in list(map(remove_prefix, types))
-
-
-def is_key_property(*, prop_uri: str, api: str, repository: str):
-    """
-    Check if property is a key of its class
-    :param prop_uri:
-    :param api:
-    :param repository:
-    :return:
-    """
-    types = list(map(remove_prefix,
-                     get_types(uri=prop_uri, api=api, repository=repository)))
-    metadata = get_metadata(uri=prop_uri, api=api, repository=repository)
-
-    return 'InverseFunctionalProperty' in types
-
-
-def type_category(*, type_uri) \
-        -> [str]:
+def type_category(*, type_uri) -> [str]:
     """
     Returns the category of the range of a property
     :param type_uri:
@@ -183,13 +357,13 @@ def type_category(*, type_uri) \
     """
 
     categories_types = {
-        'numeric': ['int', 'integer', 'decimal', 'negativeInteger',
-                    'nonNegativeInteger'],
-        'temporal': ['gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
-                     'gYearMonth'],
-        'date': ['date'  'dateTime'],
-        'lexical': ['string'],
-        'geographical': []
+        'numeric': {'int', 'integer', 'decimal', 'negativeInteger',
+                    'nonNegativeInteger'},
+        'temporal': {'gDay', 'gYear', 'time', 'gMonth', 'gMonthDay',
+                     'gYearMonth'},
+        'date': {'date'  'dateTime'},
+        'lexical': {'string'},
+        'geographical': {}
     }
 
     type_name = remove_prefix(type_uri)
@@ -207,273 +381,33 @@ def get_where_clause(query: str):
     return max(pattern.findall(query), key=len)
 
 
-def get_variable_types(*, query, prefixes, api, repository):
-    var_type = {}
-    var_class = {}
-    var_prop = {}
-
-    conditions = get_where_clause(query)
-    if not conditions:
-        return var_type, var_class
-
-    statement_pattern = re.compile(
-        r'\n*\s*\?(?P<var1>\w*)\s+(?P<properties>[^\.]*)\s*\.\s*\n*',
-        re.IGNORECASE | re.MULTILINE | re.DOTALL)
-
-    statements = statement_pattern.findall(conditions)
-
-    for var1, properties in statements:
-        pairs = [shlex.split(s.strip()) for s in properties.strip().split(';')]
-
-        for prop, obj in pairs:
-            # print('line:', line)
-            if prop in ['rdf:type', 'a', 'owl:type']:
-                class_ = get_full_uri(uri=obj,
-                                      prefixes=prefixes)
-                var_class[var1] = class_
-                continue
-
-            if is_sparql_variable(obj):
-                var2 = variable_name(obj)
-                # print('prop: ', prop)
-                # print('var2: ', var2)
-                prop_uri = get_full_uri(uri=prop, prefixes=prefixes)
-                if not prop_uri:
-                    continue
-
-                var_prop[var2] = prop_uri
-
-                metadata = get_metadata(uri=prop_uri, api=api,
-                                        repository=repository)
-
-                var_type[var2] = metadata['range']
-                if var1 not in var_class:
-                    var_type[var1] = metadata['domain']
-
-    return var_type, var_class, var_prop
-
-
-def variable_categories(*, var_type, variables, var_class, var_prop, api,
-                        repository) -> Dict:
-    """
-    Returns the variables of different categories
-    :param repository:
-    :param api:
-    :param var_prop:
-    :param var_class:
-    :param variables:
-    :param var_type:
-    :return:
-    """
-    var_categories = {
-        'key': [],
-        'scalar': [],
-        'temporal': [],
-        'geographical': [],
-        'lexical': [],
-        'date': [],
-        'object': [],
-        'numeric': []
-    }
-
-    for var in variables:
-        if var in var_class:
-            var_categories['object'].append(var)
-            continue
-
-        if is_key_property(prop_uri=var_prop[var], api=api,
-                           repository=repository):
-            var_categories['key'].append(var)
-
-        if var in var_type:
-            type_name = var_type[var]
-            for catg in type_category(type_uri=type_name):
-                var_categories[catg].append(var)
-
-    var_categories['scalar'] = \
-        var_categories['numeric'] + var_categories['temporal']
-
-    return var_categories
-
-
-def get_classes_used(select_variables, class_properties) -> [str]:
-    """
-    Returns the number of classes that the select variables belong to
-    :param select_variables:
-    :param class_properties:
-    :return:
-    """
-    used = set()
-    for cls in class_properties:
-        prop_vars = class_properties[cls]
-        for prop in prop_vars:
-            if prop_vars[prop] in select_variables:
-                used.add(cls)
-
-    return list(used)
-
-
-def property_links_classes(prop_uri: str, class_a, class_b, api, repository) \
-        -> bool:
-    with open('queries/get_type.sparql', 'r') as query:
-        encoded_query = urllib.parse.quote(
-            query.read().format(property=prop_uri, classA=class_a,
-                                classB=class_b), safe="")
-        response = requests.get(
-            f'{api}/repositories/{repository}'
-            f'?query={encoded_query}')
-
-        result = json.loads(response.text)
-
-    return result['boolean']
-
-
-def class_with_data_properties(*, select_variables, class_properties,
-                               var_categories) -> Dict:
-    visualisations = []
-    if len(get_classes_used(select_variables=select_variables,
-                            class_properties=class_properties)) != 1:
-        return {'match': False}
-
-    # print(var_categories)
-    if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
-        visualisations.append({'name': 'Bar', 'maxInstances': 100})
-
-    if len(var_categories['scalar']) >= 2:
-        visualisations.append({'name': 'Scatter'})
-
-    if len(var_categories['scalar']) >= 3:
-        visualisations.append({'name': 'Bubble'})
-
-    if len(var_categories['date']) >= 1 and var_categories['scalar'] >= 1:
-        visualisations.append({'name': 'Calendar'})
-
-    if len(var_categories['geographical']) == 1 \
-            and len(var_categories['scalar']) >= 1:
-        visualisations.append({'name': 'Choropleth Map'})
-
-    if len(var_categories['key']) == 1 and len(var_categories['scalar']) >= 1:
-        visualisations.append({'name': 'Word Cloud'})
-
-    return {'match': True,
-            'pattern': 'Class with data properties',
-            'variables': var_categories,
-            'visualisations': visualisations}
-
-
-def two_classes_linked_by_func_prop(*, query, select_variables,
-                                    class_properties,
-                                    var_categories, var_class,
-                                    prefixes, api, repository) -> Dict:
-    visualisations = []
-    if len(get_classes_used(select_variables=select_variables,
-                            class_properties=class_properties)) != 2:
-        return {'match': False}
-
-    conditions = get_where_clause(query)
-    if not conditions:
-        return {}
-    statement_pattern = re.compile(
-        r'\n*\s*\?(?P<sub>\w*)\s+(?P<properties>[^\.]*)\s*\.\s*\n*',
-        re.IGNORECASE | re.MULTILINE | re.DOTALL)
-
-    statements = statement_pattern.findall(conditions)
-    # print('var_class: ', var_class)
-    var1 = var2 = None
-    for sub, properties in statements:
-        if sub not in var_class:
-            continue
-        pairs = [shlex.split(s.strip()) for s in properties.strip().split(';')]
-
-        for prop, obj in pairs:
-
-            if prop in ['rdf:type', 'a', 'owl:type']:
-                continue
-
-            if is_sparql_variable(obj):
-                if variable_name(obj) not in var_class:
-                    continue
-                print(sub, prop, obj)
-                prop_uri = get_full_uri(uri=prop, prefixes=prefixes)
-                if not prop_uri:
-                    continue
-                if is_functional_property(
-                        prop_uri=get_full_uri(uri=prop_uri, prefixes=prefixes),
-                        api=api, repository=repository):
-                    var1, var2 = sub, obj
-                    break
-
-    if not var1 and not var2:
-        return {'match': False}
-
-    class_a_prop_var = class_properties[var_class[var1]].values()
-    class_a_key = any(map(lambda var: var in var_categories['key'],
-                          class_a_prop_var))
-    class_b_prop_var = class_properties[var_class[var2]].values()
-    class_b_key = any(map(lambda var: var in var_categories['key'],
-                          class_b_prop_var))
-
-    if class_a_key and class_b_key:
-        visualisations.append({'name': 'Hierarchy Tree'})
-
-        if len(var_categories['scalar']) >= 1:
-            visualisations.append({'name': 'Tree Map'})
-            visualisations.append({'name': 'Sunburst'})
-            visualisations.append({'name': 'Circle Packing'})
-
-    return {'match': True,
-            'pattern': 'Two classes linked by functional property',
-            'variables': var_categories,
-            'visualisations': visualisations}
-
-
 def query_analysis(query: str, api: str, repository):
     query = remove_comments(query)
-    # Prefixes defined in query
-    prefixes = get_prefixes(query)
-    var_type, var_class, var_prop = get_variable_types(query=query,
-                                                       prefixes=prefixes,
-                                                       api=api,
-                                                       repository=repository)
-    # print('var_type', var_type)
-    # return
-    # Variables that will be returned
-    select_variables = get_select_variables(query)
-    # All classes used in the WHERE clause
-    class_properties = get_class_properties(query=query, var_class=var_class)
-    # Checks if a variable from a class has already been used
+    analyser = QueryAnalyser(query=query, api=api, repository=repository)
+    pattern = None
+    visualisations = []
+    if analyser.class_with_data_properties():
+        pattern = 'Class with data properties'
+        visualisations = ['Calendar', 'Scatter', 'Bubble', 'Bar',
+                          'Choropleth Map', 'Word Cloud']
+    elif analyser.two_classes_linked_by_func_prop():
+        pattern = 'Two classes linked by a functional property'
+        visualisations = ['Tree Map', 'Hierarchy Tree', 'Circle Packing',
+                          'Sunburst']
+    elif analyser.two_classes_linked_by_key_func_prop():
+        pattern = 'Two classes linked by a key functional property'
+        visualisations = ['Line', 'Spider', 'Stacked Bar', 'Grouped Bar']
+    elif analyser.three_classes_linked_by_func_props():
+        pattern = 'Three classes linked by a functional property'
+        visualisations = ['Sankey', 'Network', 'Chord Diagram', 'Heat Map']
 
-    var_categories = variable_categories(var_type=var_type,
-                                         variables=select_variables,
-                                         var_class=var_class,
-                                         var_prop=var_prop,
-                                         api=api, repository=repository)
-    for c in var_categories:
-        var_categories[c] = sorted(var_categories[c],
-                                   key=lambda var: select_variables.index(var))
+    result = {'pattern': pattern, 'variables': analyser.var_categories,
+              'visualisations': visualisations}
 
-    res = class_with_data_properties(select_variables=select_variables,
-                                     class_properties=class_properties,
-                                     var_categories=var_categories)
-    if res['match']:
-        return res
-
-    res = two_classes_linked_by_func_prop(query=query,
-                                          select_variables=select_variables,
-                                          class_properties=class_properties,
-                                          var_categories=var_categories,
-                                          var_class=var_class,
-                                          prefixes=prefixes,
-                                          api=api, repository=repository)
-    if res['match']:
-        return res
-    # print(var_categories)
-    return {'match': False, 'variables': var_categories, 'visualisations': []}
+    return result
 
 
 if __name__ == '__main__':
-    # from app import API_URL
-
     example_query = '''
 PREFIX rdfs: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -485,21 +419,3 @@ WHERE {
     :unemployment ?unemployment .
 }
     '''
-    # print(patterns[0]['query'].replace('\t', ''))
-    #
-    # print(query.replace('\t', ''))
-    # print(parse.parse(patterns[0]['query'].replace('\t', ''),
-    #                   query.replace('\t', '')))
-    # print(get_prefixes(example_query))
-    # print(get_select_variables(example_query))
-    # print(get_class_variables(example_query))
-    # print(get_class_properties(example_query))
-    # triplet_pattern = re.compile(
-    #     r'\s*\?(\w*)\s[^.]*([^;\n\s]*)\s[^.]*\?(\w*)\s*\.',
-    #     re.IGNORECASE | re.MULTILINE | re.DOTALL)
-    # print(triplet_pattern.findall(example_query))
-
-    print(get_select_variables(example_query))
-    # print(query_analysis(query=example_query,
-    #                      api=API_URL,
-    #                      repository='mondial'))

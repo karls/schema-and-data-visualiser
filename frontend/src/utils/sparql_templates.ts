@@ -1,8 +1,7 @@
-
 export type SPARQLTemplate = {
-    title: string;
-    query: string;
-}
+  title: string;
+  query: string;
+};
 
 export const sparql_templates: SPARQLTemplate[] = [
   {
@@ -20,7 +19,7 @@ WHERE {
 }
 ORDER BY (?)
 LIMIT ?
-`	
+`,
   },
   {
     title: "Two classes linked by functional property",
@@ -39,6 +38,6 @@ WHERE {
     :{data property 2} ?{data var2} .
   ?{class var A} :{functional prop} ?{class var B} .
 }
-`
+`,
   },
 ];

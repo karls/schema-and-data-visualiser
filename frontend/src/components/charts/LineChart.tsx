@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { QueryResults, Row, VariableCategories } from "../../types";
-import { removePrefix } from "../../utils/queryResults";
+import { useMemo } from "react";
+import { QueryResults, VariableCategories } from "../../types";
+import { groupByColumn, removePrefix } from "../../utils/queryResults";
 import randomColor from "randomcolor";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
@@ -31,8 +31,8 @@ const LineChart = observer(
     const yIdx = header.indexOf(variables.scalar[1]);
 
     const linesData = useMemo(() => {
-      const lines = keyIdx !== -1 ? groupRows(data, keyIdx) : [data];
-      console.log(lines);
+      const lines = keyIdx !== -1 ? Object.values(groupByColumn(data, keyIdx)) : [data];
+
       return lines.map((rows) =>
         rows.map((row) => {
           const label = `${removePrefix(row[0])}
@@ -103,15 +103,5 @@ const LineChart = observer(
     );
   }
 );
-
-function groupRows(data: Row[], keyIdx: number): Row[][] {
-  const keyToRows = {};
-  for (let row of data) {
-    const key = row[keyIdx];
-    keyToRows[key] = keyToRows[key] ?? [];
-    keyToRows[key].push(row);
-  }
-  return Object.values(keyToRows);
-}
 
 export default LineChart;

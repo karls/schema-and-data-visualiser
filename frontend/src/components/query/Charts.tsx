@@ -26,7 +26,7 @@ import { TiChartPieOutline } from "react-icons/ti";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
-import SpiderChart from "../charts/RadarChart";
+import SpiderChart from "../charts/SpiderChart";
 import SankeyChart from "../charts/SankeyChart";
 import ScatterChart from "../charts/ScatterChart";
 import "./Charts.css";
@@ -45,6 +45,8 @@ import { getAllRelations, possibleCharts } from "../../utils/charts";
 import { Suggested } from "./Suggested";
 import NetworkChart from "../charts/NetworkChart";
 import { IoMdGitNetwork } from "react-icons/io";
+import { MdOutlineStackedBarChart } from "react-icons/md";
+import StackedBarChart from "../charts/StackedBarChart";
 
 type ChartsProps = {
   query: string;
@@ -66,8 +68,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     : settings.screenHeight - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>({
-    match: false,
-    pattern: "",
+    pattern: null,
     visualisations: [],
     variables: {
       key: [],
@@ -211,7 +212,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.RADAR,
         label: (
           <>
-            <AiOutlineRadarChart size={18} /> Radar
+            <AiOutlineRadarChart size={18} /> Spider
           </>
         ),
         children: (
@@ -219,6 +220,23 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+            variables={queryAnalysis!.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.STACKED_BAR,
+        label: (
+          <>
+            <MdOutlineStackedBarChart size={20} /> Stacked Bar
+          </>
+        ),
+        children: (
+          <StackedBarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis.variables}
           />
         ),
       },
@@ -295,14 +313,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <>
-            {queryAnalysis && (
-              <WordCloud
-                results={results}
-                width={chartWidth}
-                height={chartHeight}
-                variables={queryAnalysis.variables}
-              />
-            )}
+            <WordCloud
+              results={results}
+              width={chartWidth}
+              height={chartHeight}
+              variables={queryAnalysis.variables}
+            />
           </>
         ),
       },
@@ -395,7 +411,11 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ),
           },
           ...(settings.showAllCharts
-            ? chartTabs
+            ? queryAnalysis.pattern
+              ? chartTabs.filter(({ key }) =>
+                  queryAnalysis.visualisations.includes(key as ChartType)
+                )
+              : chartTabs
             : chartTabs.filter(({ key }) =>
                 possibleVis.includes(key as ChartType)
               )),

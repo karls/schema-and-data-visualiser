@@ -61,8 +61,7 @@ export async function getQueryAnalysis(
     console.log(error);
   }
   return {
-    match: false,
-    pattern: "",
+    pattern: null,
     visualisations: [],
     variables: {
       key: [],

@@ -80,3 +80,7 @@ def is_json(myjson):
 def remove_comments(code):
     code = str(code)
     return re.sub(r'(?m)^ *#.*\n?', '', code)
+
+
+def separator_split(text) -> [str]:
+    return re.split(''';(?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', text)

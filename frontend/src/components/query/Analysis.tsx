@@ -1,27 +1,37 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, List, Space, Tag } from "antd";
+import { Alert, Card, List, Space, Tag, Tooltip, Typography } from "antd";
 import {
   ChartType,
   QueryAnalysis,
   RepositoryId,
   CategoryType,
   VariableCategories,
-  Visualisation,
 } from "../../types";
 import { getQueryAnalysis } from "../../api/queries";
-import { AiOutlineBarChart } from "react-icons/ai";
-import { BiScatterChart, BiText } from "react-icons/bi";
+import { AiOutlineBarChart, AiOutlineRadarChart } from "react-icons/ai";
+import { BiLineChart, BiScatterChart, BiText } from "react-icons/bi";
 import { VscGraphScatter } from "react-icons/vsc";
 import {
   BsBodyText,
   BsCalendar3,
   BsCalendarDateFill,
   BsGeoAltFill,
+  BsPieChart,
 } from "react-icons/bs";
 import { GoKey } from "react-icons/go";
-import { IoMdTime } from "react-icons/io";
-import { MdNumbers } from "react-icons/md";
-import { Tb123 } from "react-icons/tb";
+import { IoMdGitNetwork, IoMdTime } from "react-icons/io";
+import { MdNumbers, MdOutlineStackedBarChart } from "react-icons/md";
+import {
+  Tb123,
+  TbChartSankey,
+  TbChartTreemap,
+  TbCircles,
+  TbGridDots,
+} from "react-icons/tb";
+import { TiChartPieOutline } from "react-icons/ti";
+import { ImSphere, ImTree } from "react-icons/im";
+import { HiOutlineGlobe } from "react-icons/hi";
+import { RiBarChartGroupedFill } from "react-icons/ri";
 
 export const chartIcons = {
   [ChartType.BAR]: <AiOutlineBarChart size={35} />,
@@ -29,6 +39,20 @@ export const chartIcons = {
   [ChartType.BUBBLE]: <BiScatterChart size={35} />,
   [ChartType.WORD_CLOUD]: <BsBodyText size={30} />,
   [ChartType.CALENDAR]: <BsCalendar3 size={30} />,
+  [ChartType.PIE]: <BsPieChart size={30} />,
+  [ChartType.LINE]: <BiLineChart size={30} />,
+  [ChartType.TREE_MAP]: <TbChartTreemap size={30} />,
+  [ChartType.CIRCLE_PACKING]: <TbCircles size={30} />,
+  [ChartType.SUNBURST]: <TiChartPieOutline size={30} />,
+  [ChartType.SPIDER]: <AiOutlineRadarChart size={30} />,
+  [ChartType.SANKEY]: <TbChartSankey size={30} />,
+  [ChartType.CHORD_DIAGRAM]: <ImSphere size={30} />,
+  [ChartType.HEAT_MAP]: <TbGridDots size={30} />,
+  [ChartType.HIERARCHY_TREE]: <ImTree size={30} />,
+  [ChartType.NETWORK]: <IoMdGitNetwork size={30} />,
+  [ChartType.CHOROPLETH_MAP]: <HiOutlineGlobe size={30} />,
+  [ChartType.STACKED_BAR]: <MdOutlineStackedBarChart size={30} />,
+  [ChartType.GROUPED_BAR]: <RiBarChartGroupedFill size={30} />,
 };
 
 type AnalysisProps = {
@@ -53,9 +77,9 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
       {queryAnalysis && (
         <Space direction="vertical" style={{ width: "100%" }}>
           <Variables variableCategories={queryAnalysis.variables} />
-          {queryAnalysis.match ? (
-            <RecommendedCharts
-              query={query}
+          {queryAnalysis.pattern ? (
+            <Pattern
+              pattern={queryAnalysis.pattern}
               visualisations={queryAnalysis.visualisations}
             />
           ) : (
@@ -67,45 +91,24 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
   );
 };
 
-type RecommendedProps = {
-  query: string;
-  visualisations: Visualisation[];
+type PatternProps = {
+  pattern: string;
+  visualisations: ChartType[];
 };
 
-const RecommendedCharts = ({ query, visualisations }: RecommendedProps) => {
+const Pattern = ({ pattern, visualisations }: PatternProps) => {
   return (
-    <Card
-      type="inner"
-      title={`Recommended chart${visualisations.length > 1 ? "s" : ""}`}
-      style={{ width: "100%" }}
-    >
-      <List
-        itemLayout="horizontal"
-        dataSource={visualisations}
-        renderItem={(item, index) => {
-          const { name, maxInstances } = item;
-          const ChartIcon = chartIcons[name];
-          return (
-            <List.Item>
-              <List.Item.Meta
-                key={name}
-                avatar={ChartIcon ? ChartIcon : name}
-                title={name}
-                description={
-                  <>
-                    {maxInstances && (
-                      <Alert
-                        banner
-                        message={`Add LIMIT ${maxInstances} in query for readability`}
-                      />
-                    )}
-                  </>
-                }
-              />
-            </List.Item>
-          );
-        }}
-      />
+    <Card type="inner" title={pattern} style={{ width: "100%" }}>
+      <Space direction="vertical">
+        <Typography.Text style={{ fontSize: 20 }}>
+          Typical charts
+        </Typography.Text>
+        <Space>
+          {visualisations.map((chart) => (
+            <Tooltip key={chart} title={chart}>{chartIcons[chart] ?? chart}</Tooltip>
+          ))}
+        </Space>
+      </Space>
     </Card>
   );
 };
@@ -121,7 +124,7 @@ const categoryIcon = {
   [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
   [CategoryType.SCALAR]: <MdNumbers title="Scalar" size={25} />,
   [CategoryType.LEXICAL]: <BiText title="Lexical" size={20} />,
-  [CategoryType.NUMERIC]: <Tb123 title="Numeric" size={25} />
+  [CategoryType.NUMERIC]: <Tb123 title="Numeric" size={25} />,
 };
 
 const Variables = ({ variableCategories }: VariablesProps) => {
