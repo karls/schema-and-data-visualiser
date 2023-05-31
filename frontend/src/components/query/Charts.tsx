@@ -26,7 +26,7 @@ import { TiChartPieOutline } from "react-icons/ti";
 import PieChart from "../charts/PieChart";
 import LineChart from "../charts/LineChart";
 import TreeMap from "../charts/TreeMap";
-import SpiderChart from "../charts/RadarChart";
+import SpiderChart from "../charts/SpiderChart";
 import SankeyChart from "../charts/SankeyChart";
 import ScatterChart from "../charts/ScatterChart";
 import "./Charts.css";
@@ -66,8 +66,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     : settings.screenHeight - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>({
-    match: false,
-    pattern: "",
+    pattern: null,
     visualisations: [],
     variables: {
       key: [],
@@ -211,7 +210,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.RADAR,
         label: (
           <>
-            <AiOutlineRadarChart size={18} /> Radar
+            <AiOutlineRadarChart size={18} /> Spider
           </>
         ),
         children: (
@@ -219,6 +218,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             results={results}
             width={chartWidth}
             height={chartHeight}
+            variables={queryAnalysis!.variables}
           />
         ),
       },
