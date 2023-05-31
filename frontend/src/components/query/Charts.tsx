@@ -45,6 +45,8 @@ import { getAllRelations, possibleCharts } from "../../utils/charts";
 import { Suggested } from "./Suggested";
 import NetworkChart from "../charts/NetworkChart";
 import { IoMdGitNetwork } from "react-icons/io";
+import { MdOutlineStackedBarChart } from "react-icons/md";
+import StackedBarChart from "../charts/StackedBarChart";
 
 type ChartsProps = {
   query: string;
@@ -223,6 +225,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
+        key: ChartType.STACKED_BAR,
+        label: (
+          <>
+            <MdOutlineStackedBarChart size={20} /> Stacked Bar
+          </>
+        ),
+        children: (
+          <StackedBarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis.variables}
+          />
+        ),
+      },
+      {
         key: ChartType.SANKEY,
         label: (
           <>
@@ -295,14 +313,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <>
-            {queryAnalysis && (
-              <WordCloud
-                results={results}
-                width={chartWidth}
-                height={chartHeight}
-                variables={queryAnalysis.variables}
-              />
-            )}
+            <WordCloud
+              results={results}
+              width={chartWidth}
+              height={chartHeight}
+              variables={queryAnalysis.variables}
+            />
           </>
         ),
       },
@@ -395,7 +411,11 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ),
           },
           ...(settings.showAllCharts
-            ? chartTabs
+            ? queryAnalysis.pattern
+              ? chartTabs.filter(({ key }) =>
+                  queryAnalysis.visualisations.includes(key as ChartType)
+                )
+              : chartTabs
             : chartTabs.filter(({ key }) =>
                 possibleVis.includes(key as ChartType)
               )),
