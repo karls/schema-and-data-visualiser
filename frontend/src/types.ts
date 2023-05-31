@@ -73,12 +73,6 @@ export enum ChartType {
   NETWORK = "Network",
 }
 
-export type Visualisation = {
-  name: ChartType;
-  maxInstances?: number;
-  maxClasses?: number;
-};
-
 export enum CategoryType {
   KEY = "key",
   SCALAR = "scalar",
@@ -100,10 +94,9 @@ export type VariableCategories = {
 };
 
 export type QueryAnalysis = {
-  match: boolean;
-  pattern: string;
+  pattern: string | null;
   variables: VariableCategories;
-  visualisations: Visualisation[];
+  visualisations: ChartType[];
 };
 
 export enum RelationType {
