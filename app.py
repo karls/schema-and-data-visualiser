@@ -18,7 +18,7 @@ app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
 
-API_URL = 'http://localhost:7200'
+API_URL = os.environ['GRAPHDB_SERVER']
 
 if os.environ['BUILD'] == 'development':
     CORS(app)
