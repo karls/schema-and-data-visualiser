@@ -1,0 +1,11 @@
+{
+  "name": "schema-and-data-visualiser",
+  "version": "1.0.0",
+  "scripts": {
+    "heroku-postbuild": "cd frontend && yarn install && yarn run build"
+  },
+  "license": "MIT",
+  "cacheDirectories": [
+    "frontend/node_modules"
+  ]
+}
