@@ -33,9 +33,12 @@ const StackedBarChart = observer(
 
     const tabHeight = 60;
     const { header } = results;
-    const barKeyIdx = header.indexOf(variables.key[0]);
-    const stackKeyIdx = header.indexOf(variables.key[1]);
-    const valueIdx = header.indexOf(variables.scalar[0]);
+    const barKey = variables.key[0];
+    const barKeyIdx = header.indexOf(barKey);
+    const stackKey = variables.key[1];
+    const stackKeyIdx = header.indexOf(stackKey);
+    const valueKey = variables.numeric[0];
+    const valueIdx = header.indexOf(valueKey);
 
     const data = useMemo(() => {
       const stacks = groupByColumn(results.data, stackKeyIdx);
