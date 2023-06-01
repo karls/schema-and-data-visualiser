@@ -1,57 +1,31 @@
-import React, { useRef, useState } from "react";
-import { Tabs } from "antd";
+import React from "react";
+import { Input, Tabs } from "antd";
 import Query from "../../components/query/Query";
+import { useStore } from "../../stores/store";
+import { observer } from "mobx-react-lite";
+import "./QueryBrowser.css";
 
 type TargetKey = React.MouseEvent | React.KeyboardEvent | string;
 
+const QueryBrowser = observer(() => {
+  const rootStore = useStore();
+  const queriesStore = rootStore.queriesStore;
 
-const initialItems = [
-  {
-    label: "Query 1",
-    children: <Query />,
-    key: "1",
-  },
-];
-
-const QueryBrowser: React.FC = () => {
-  const [activeKey, setActiveKey] = useState(initialItems[0].key);
-  const [items, setItems] = useState(initialItems);
-  const newTabIndex = useRef(initialItems.length);
-
-  const onChange = (newActiveKey: string) => {
-    setActiveKey(newActiveKey);
+  const onTabChange = (newActiveKey: string) => {
+    queriesStore.setCurrentQueryId(newActiveKey);
   };
 
   const add = () => {
-    const newActiveKey = `newTab${newTabIndex.current++}`;
-    const newPanes = [...items];
-    newPanes.push({
-      label: `Query ${newTabIndex.current}`,
-      children: <Query />,
-      key: newActiveKey,
-    });
-    setItems(newPanes);
-    setActiveKey(newActiveKey);
+    // So this changes the tab to the id of the new query
+    onTabChange(queriesStore.addQuery());
   };
 
   const remove = (targetKey: TargetKey) => {
-    let newActiveKey = activeKey;
-    let lastIndex = -1;
-    items.forEach((item, i) => {
-      if (item.key === targetKey) {
-        lastIndex = i - 1;
-      }
-    });
-    const newPanes = items.filter((item) => item.key !== targetKey);
-    if (newPanes.length && newActiveKey === targetKey) {
-      if (lastIndex >= 0) {
-        newActiveKey = newPanes[lastIndex].key;
-      } else {
-        newActiveKey = newPanes[0].key;
-      }
+    queriesStore.removeQuery(targetKey as string);
+    if (targetKey === queriesStore.currentQueryId) {
+      const newActiveKey = Object.keys(queriesStore.openQueries)[0];
+      onTabChange(newActiveKey);
     }
-    setItems(newPanes);
-    setActiveKey(newActiveKey);
   };
 
   const onEdit = (
@@ -68,12 +42,48 @@ const QueryBrowser: React.FC = () => {
   return (
     <Tabs
       type="editable-card"
-      onChange={onChange}
-      activeKey={activeKey}
+      onChange={onTabChange}
+      activeKey={queriesStore.currentQueryId}
       onEdit={onEdit}
-      items={items}
+      style={{ padding: 0 }}
+      items={Object.keys(queriesStore.openQueries).map((qid: string) => {
+        return {
+          label: (
+            <Input
+              title={queriesStore.openQueries[qid].title}
+              onKeyDown={(e) => e.stopPropagation()}
+              // onChange={(e) => console.log(e.target.value)}
+              style={{
+                margin: 0,
+                cursor: "pointer",
+                background: "none",
+                borderTop: "none",
+                borderLeft: "none",
+                borderRight: "none",
+              }}
+              defaultValue={queriesStore.getQueryTitle(qid)}
+              onPressEnter={(e) =>
+                queriesStore.setQueryTitle(qid, e.currentTarget.value)
+              }
+              onBlur={(e) =>
+                queriesStore.setQueryTitle(qid, e.currentTarget.value)
+              }
+            />
+          ),
+          children: (
+            <Query
+              query={queriesStore.openQueries[qid].sparql}
+              setQueryText={(text: string) =>
+                queriesStore.setQueryText(qid, text)
+              }
+              title={queriesStore.getQueryTitle(qid)}
+            />
+          ),
+          key: qid,
+        };
+      })}
     />
   );
-};
+});
 
 export default QueryBrowser;

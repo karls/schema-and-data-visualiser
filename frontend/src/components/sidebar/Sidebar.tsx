@@ -1,13 +1,35 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Divider, Dropdown, Popover, Space } from "antd";
-import { allRepositories } from "../../api/graphdb";
+import { allRepositories } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
 import { observer } from "mobx-react-lite";
-import Title from "antd/es/typography/Title";
+import { RiGitRepositoryLine } from "react-icons/ri";
+import QueryHistory from "./QueryHistory";
+import ExploreDataset from "./ExploreDataset";
 
 const Sidebar = observer(() => {
-  const { settings } = useStore();
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+  const repositoryStore = rootStore.repositoryStore;
+
+  return (
+    <>
+      {!settings.sidebarCollapsed && (
+        <div style={{ justifyContent: "center" }}>
+          <SelectRepository />
+          <ExploreDataset repository={repositoryStore.currentRepository} />
+          <Divider />
+          <QueryHistory />
+        </div>
+      )}
+    </>
+  );
+});
+
+const SelectRepository = () => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
@@ -15,82 +37,37 @@ const Sidebar = observer(() => {
   }, []);
 
   return (
-    <div style={{ justifyContent: "center" }}>
-      <Dropdown
-        menu={{
-          items: repositories.map(({ id, title }: RepositoryInfo, index) => {
-            return {
-              key: `${index}`,
-              label: (
-                <Popover
-                  placement="right"
-                  title={title ? "Description" : "No description available"}
-                  content={title}
-                  trigger="hover"
+    <Dropdown
+      menu={{
+        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+          return {
+            key: `${index}`,
+            label: (
+              <Popover
+                placement="right"
+                title={title ? "Description" : "No description available"}
+                content={title}
+                trigger="hover"
+              >
+                <Button
+                  onClick={() => repositoryStore.setCurrentRepository(id)}
+                  style={{ width: "100%", height: "100%" }}
                 >
-                  <Button
-                    onClick={() => settings.setCurrentRepository(id)}
-                    style={{ width: "100%", height: "100%" }}
-                  >
-                    {id}
-                  </Button>
-                </Popover>
-              ),
-            };
-          }),
-        }}
-      >
-        <Button style={{ width: "95%", margin: 5 }}>
-          <b>{settings.currentRepository || "Select repository"}</b>
-        </Button>
-      </Dropdown>
-      <Divider />
-      <QueryHistory />
-    </div>
-  );
-});
-
-const QueryHistory = observer(() => {
-  const { settings } = useStore();
-
-  useEffect(() => {
-    settings.updateQueryHistory();
-  }, [settings]);
-
-  return (
-    <div
-      style={{
-        width: "100%",
-        justifyContent: "center",
-        display: "flex",
-        flexDirection: "column",
+                  {id}
+                </Button>
+              </Popover>
+            ),
+          };
+        }),
       }}
     >
-      <Title level={4} style={{ margin: "auto", marginBottom: 5 }}>
-        History
-      </Title>
-      <Space
-        style={{
-          height: 500,
-          overflow: "auto",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        {settings.queryHistory.map(({ id, sparql, repositoryId, date }) => (
-          <Popover
-            key={`query-${id}`}
-            placement="right"
-            title={`Repository: ${repositoryId}`}
-            content={<div style={{ whiteSpace: "pre-line" }}>{sparql}</div>}
-            trigger="hover"
-          >
-            <Button onClick={() => {}}>{date}</Button>
-          </Popover>
-        ))}
-      </Space>
-    </div>
+      <Button style={{ width: "95%", margin: 5 }} title="Choose repository">
+        <Space>
+          <RiGitRepositoryLine size={20} />
+          <b>{repositoryStore.currentRepository || "Select repository"}</b>
+        </Space>
+      </Button>
+    </Dropdown>
   );
-});
-
+};
 export default Sidebar;

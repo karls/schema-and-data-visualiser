@@ -1,19 +1,11 @@
 import { createContext, useContext } from "react";
-import Settings from "./settings";
+import RootStore from "./root-store";
 
-interface Store {
-    settings: Settings;
-}
-
-const store: Store = {
-    settings: new Settings(),
-}
-
-export const StoreContext  = createContext(store);
-
+const rootStore: RootStore = new RootStore();
+export const StoreContext = createContext(rootStore);
 
 export function useStore() {
-    return useContext<Store>(StoreContext)
+  return useContext<RootStore>(StoreContext);
 }
 
-export default store;
+export default rootStore;

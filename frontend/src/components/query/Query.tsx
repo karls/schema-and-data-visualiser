@@ -1,117 +1,120 @@
-import { Button, Dropdown, Space, Tabs, TabsProps } from "antd";
+import React, { useState } from "react";
+import { Space, Tabs, TabsProps } from "antd";
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
 import { BiNetworkChart } from "react-icons/bi";
-import { TbVectorTriangle } from "react-icons/tb";
-import { allRepositories, runSparqlQuery } from "../../api/graphdb";
+import { BsBarChartSteps, BsTable } from "react-icons/bs";
 import { useStore } from "../../stores/store";
-import { QueryResult, RepositoryId, RepositoryInfo } from "../../types";
-import GraphVisualisation from "../graph-visualisation/GraphVisualisation";
-import QueryEditor from "./QueryEditor";
-import QueryResults from "./QueryResults";
+import { QueryResults, Triplet } from "../../types";
+import { isEmpty, isGraph } from "../../utils/queryResults";
+import Graph from "./Graph";
+import Editor from "./Editor";
+import Results from "./Results";
+import Charts from "./Charts";
+import { MdOutlineEditNote } from "react-icons/md";
 
-const Query: React.FC = observer(() => {
-  const { settings } = useStore();
-  const [query, setQuery] = useState<string>("");
-  const [repository, setRepository] = useState<RepositoryId | null>(
-    settings.currentRepository
-  );
-  const [results, setResults] = useState<QueryResult>({ header: [], data: []});
+type QueryProps = {
+  query: string;
+  setQueryText: any;
+  title: string;
+};
+
+const Query = observer(({ query, setQueryText, title }: QueryProps) => {
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+  const repositoryStore = rootStore.repositoryStore;
+
+  const [results, setResults] = useState<QueryResults>({
+    header: [],
+    data: [],
+  });
+
   const [graphKey, setGraphKey] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("editor");
+
+  const width = Math.floor(
+    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
+      (settings.fullScreen ? 0.95 : 0.85)
+  );
+  const height = Math.floor(
+    window.screen.height * (settings.fullScreen ? 0.75 : 0.6)
+  );
 
   const items: TabsProps["items"] = [
     {
-      key: "1",
+      key: "editor",
       label: (
-        <>
-          <TbVectorTriangle size={20} style={{ margin: 5 }} />
-          Query Editor
-        </>
+        <Space.Compact>
+          <MdOutlineEditNote size={25} />
+          Query
+        </Space.Compact>
       ),
       children: (
-        <>
-          <QueryEditor query={query} onChange={setQuery} />
-          <Space style={{ margin: 5 }}>
-            <SelectRepository
-              repository={repository}
-              setRepository={setRepository}
-            />
-            <Button
-              onClick={() => {
-                setLoading(true)
-                runSparqlQuery(repository!, query).then((results) => {
-                  setResults(results);
-                  setLoading(false);
-                  setGraphKey((key) => key + 1);
-                  settings.updateQueryHistory();
-                });
-              }}
-              disabled={repository === null}
-            >
-              Run
-            </Button>
-          </Space>
-          <QueryResults results={results} loading={loading} />
-        </>
+        <Editor
+          query={query}
+          queryTitle={title}
+          onChange={setQueryText}
+          onRun={(results) => {
+            setResults(results);
+            setGraphKey((key) => key + 1);
+            repositoryStore.updateQueryHistory();
+            setLoading(false);
+            setActiveTab("results");
+          }}
+          width={width}
+          height={height}
+          loading={loading}
+          setLoading={setLoading}
+        />
       ),
     },
     {
-      key: "2",
+      key: "results",
       label: (
-        <>
+        <Space.Compact>
+          <BsTable size={15} style={{ margin: 5 }} />
+          Results
+        </Space.Compact>
+      ),
+      children: <Results results={results} loading={loading} />,
+    },
+    {
+      key: "graph",
+      label: (
+        <Space.Compact title="Use CONSTRUCT for a graph">
           <BiNetworkChart size={20} style={{ margin: 5 }} />
           Graph
-        </>
+        </Space.Compact>
       ),
-      disabled: results.data.length === 0 || results.data[0].length < 3,
-      children: <GraphVisualisation key={graphKey} results={results.data} />,
+      disabled: isEmpty(results) || !isGraph(results),
+      children: (
+        <Graph
+          key={graphKey}
+          links={results.data as Triplet[]}
+          repository={repositoryStore.currentRepository!}
+        />
+      ),
+    },
+    {
+      key: "charts",
+      label: (
+        <Space.Compact>
+          <BsBarChartSteps size={15} style={{ margin: 5 }} />
+          Charts
+        </Space.Compact>
+      ),
+      disabled: isEmpty(results) || isGraph(results),
+      children: <Charts query={query} results={results} />,
     },
   ];
 
   return (
-    <>
-      <Tabs items={items} onChange={() => {}} />
-    </>
+    <Tabs
+      activeKey={activeTab}
+      items={items}
+      onChange={(activeKey) => setActiveTab(activeKey)}
+    />
   );
 });
-
-const SelectRepository = ({
-  repository,
-  setRepository,
-}: {
-  repository: string | null;
-  setRepository: React.Dispatch<React.SetStateAction<string | null>>;
-}) => {
-  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
-
-  useEffect(() => {
-    allRepositories().then((repositories) => {
-      setRepositories(repositories);
-    });
-  }, []);
-
-  return (
-    <Dropdown
-      menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
-          return {
-            key: `${index}`,
-            label: (
-              <Button
-                onClick={() => setRepository(id)}
-                style={{ width: "100%", height: "100%" }}
-              >
-                {id}
-              </Button>
-            ),
-          };
-        }),
-      }}
-    >
-      <Button>{repository || "Choose repository"}</Button>
-    </Dropdown>
-  );
-};
 
 export default Query;

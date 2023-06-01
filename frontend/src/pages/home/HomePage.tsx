@@ -2,17 +2,28 @@ import React from "react";
 import { Layout, theme } from "antd";
 import QueryBrowser from "./QueryBrowser";
 import Sidebar from "../../components/sidebar/Sidebar";
+import { useStore } from "../../stores/store";
+import { observer } from "mobx-react-lite";
 
 const { Content, Sider } = Layout;
 
-const HomePage: React.FC = () => {
+const HomePage = observer(() => {
+  const rootStore = useStore();
+  const settings = rootStore.settingsStore;
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
   return (
     <Layout>
-      <Sider width={200} style={{ background: colorBgContainer }}>
+      <Sider
+        collapsible
+        collapsed={settings.sidebarCollapsed}
+        onCollapse={(value: boolean) => settings.setSidebarCollapsed(value)}
+        width={settings.sidebarWidth}
+        style={{ background: colorBgContainer }}
+      >
         <Sidebar />
       </Sider>
       <Layout style={{ padding: "0 10px " }}>
@@ -28,6 +39,6 @@ const HomePage: React.FC = () => {
       </Layout>
     </Layout>
   );
-};
+});
 
 export default HomePage;

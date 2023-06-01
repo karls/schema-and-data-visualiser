@@ -1,0 +1,21 @@
+SELECT DISTINCT ?subject
+WHERE {
+    { ?subject a owl:Class . } UNION { ?individual a ?subject . } .
+    # ?individual a ?subject .
+    OPTIONAL { ?subject rdfs:subClassOf ?supertype } .
+    OPTIONAL { ?subject rdfs:label ?label }
+    FILTER (?subject != owl:Class &&
+          ?subject != rdf:List &&
+          ?subject != rdf:Property &&
+          ?subject != rdfs:Class &&
+          ?subject != rdfs:Datatype &&
+          ?subject != rdfs:ContainerMembershipProperty &&
+          ?subject != owl:DatatypeProperty &&
+          ?subject != owl:FunctionalProperty &&
+          ?subject != owl:InverseFunctionalProperty &&
+          ?subject != owl:ObjectProperty &&
+          ?subject != owl:TransitiveProperty &&
+          ?subject != owl:SymmetricProperty &&
+          ?subject != owl:NamedIndividual &&
+          ?subject != owl:Ontology )
+}

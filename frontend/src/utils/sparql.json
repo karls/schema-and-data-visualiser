@@ -1,0 +1,17 @@
+{
+  "keywords": [
+    "SELECT",
+    "FROM",
+    "WHERE",
+    "ORDER BY",
+    "FILTER",
+    "OPTIONAL",
+    "HAVING",
+    "PREFIX",
+    "IN",
+    "UNION",
+    "CONSTRUCT",
+    "ASK",
+    "BIND"
+  ]
+}
