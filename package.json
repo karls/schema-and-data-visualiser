@@ -1,6 +1,10 @@
 {
   "name": "schema-and-data-visualiser",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.15.x",
+    "yarn": "1.22.x"
+  },
   "scripts": {
     "heroku-postbuild": "cd frontend && yarn install && yarn run build"
   },
