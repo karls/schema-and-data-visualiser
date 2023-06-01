@@ -5,14 +5,14 @@ from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 import urllib
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
 from backend.db import add_to_history, get_queries, delete_all_queries
 from backend.util import csv_to_json, parse_csv_text, is_csv, \
     parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
     is_blank_node, is_json
 
-load_dotenv()
+load_dotenv(find_dotenv())
 
 app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 app.secret_key = 'imperial-college-london'
