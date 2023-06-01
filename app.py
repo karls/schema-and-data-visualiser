@@ -1,38 +1,37 @@
 import json
 import os
-from flask import Flask, request, jsonify, flash
+from flask import Flask, request, jsonify, flash, send_from_directory
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 import urllib
+from dotenv import load_dotenv
+from backend.analysis import query_analysis, QUERY_PATH
+from backend.db import add_to_history, get_queries, delete_all_queries
+from backend.util import csv_to_json, parse_csv_text, is_csv, \
+    parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
+    is_blank_node, is_json
 
-from analysis import query_analysis
-from db import add_to_history, get_queries, delete_all_queries
-from util import csv_to_json, parse_csv_text, is_csv, parse_ntriples_graph, \
-    is_ntriples_format, remove_blank_nodes, is_blank_node, is_json
+load_dotenv()
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
 
 API_URL = 'http://localhost:7200'
-CORS(app)
+
+if os.environ['BUILD'] == 'development':
+    CORS(app)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
 BAD_REQUEST = 400
 
 
-@app.route('/', methods=['GET'])
-def get_api():
-    api = {
-        '/repositories': 'GET - returns list of all repository ids',
-        '/upload': 'POST [file] - upload file with RDF data',
-        '/query': 'POST [repository, query] - runs query on given repository '
-                  'id ',
-        '/query/history': 'GET - Get all queries run on current repository'
-    }
-    return jsonify(api)
+@app.route("/", defaults={'path': ''})
+def serve(path):
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 def allowed_file(filename):
@@ -136,7 +135,7 @@ def graphdb_url():
 def classes():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('queries/all_classes.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/all_classes.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read(), safe="")}')
@@ -149,7 +148,7 @@ def classes():
 def class_hierarchy():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/class_hierarchy.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/class_hierarchy.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read(), safe="")}')
@@ -168,7 +167,7 @@ def class_hierarchy():
 def triplets():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('./queries/count_triplets.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/count_triplets.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read(), safe="")}')
@@ -182,7 +181,7 @@ def triplets():
 def all_types():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('queries/all_types.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/all_types.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read(), safe="")}')
@@ -196,7 +195,7 @@ def get_type():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
-        with open('queries/get_type.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
@@ -209,7 +208,7 @@ def type_properties():
     if request.method == 'GET':
         repository = request.args['repository']
         rdf_type = request.args['type']
-        with open('queries/type_properties.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/type_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(type=rdf_type), safe="")}'
@@ -223,7 +222,7 @@ def meta_information():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
-        with open('queries/meta_information.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/meta_information.sparql', 'r') as query:
             # print(query.read().format(uri=uri))
             # query.seek(0)
             response = requests.get(
@@ -243,7 +242,7 @@ def outgoing_links():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
-        with open('queries/outgoing_links.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/outgoing_links.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
@@ -261,7 +260,7 @@ def incoming_links():
     if request.method == 'GET':
         repository = request.args['repository']
         uri = request.args['uri']
-        with open('queries/incoming_links.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/incoming_links.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
@@ -278,7 +277,7 @@ def incoming_links():
 def all_properties():
     if request.method == 'GET':
         repository = request.args['repository']
-        with open('queries/all_properties.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/all_properties.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read(), safe="")}'
@@ -292,7 +291,7 @@ def type_instances():
     if request.method == 'GET':
         repository = request.args['repository']
         type_ = request.args['type']
-        with open('queries/type_instances.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/type_instances.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(type=type_), safe="")}'
@@ -307,7 +306,7 @@ def property_values():
         repository = request.args['repository']
         uri = request.args['uri']
         prop_type = request.args['propType']
-        with open('queries/property_values.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/property_values.sparql', 'r') as query:
             response = requests.get(
                 f'{API_URL}/repositories/{repository}'
                 f'?query={urllib.parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
