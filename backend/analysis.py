@@ -4,7 +4,9 @@ from typing import Dict
 import requests
 import urllib
 
-from util import remove_comments, is_url, separator_split
+from .util import remove_comments, is_url, separator_split
+
+QUERY_PATH = 'backend/queries'
 
 
 class QueryAnalyser:
@@ -44,7 +46,6 @@ class QueryAnalyser:
         return prefixes
 
     def scan_conditions(self):
-        print(self.query)
         conditions = get_where_clause(self.query)
 
         statement_pattern = re.compile(
@@ -54,7 +55,6 @@ class QueryAnalyser:
         statements = statement_pattern.finditer(conditions)
 
         for match in statements:
-            # print(match.group())
             subject = match.group('subject')
             properties = match.group('properties')
 
@@ -63,7 +63,7 @@ class QueryAnalyser:
 
             pairs = [shlex.split(s.strip()) for s in
                      separator_split(properties)]
-            print(pairs)
+
             for [prop, obj] in pairs:
                 if prop in ['rdf:type', 'rdfs:type',
                             'a'] and is_sparql_variable(subject):
@@ -107,7 +107,7 @@ class QueryAnalyser:
         return metadata['range']
 
     def get_types(self, *, uri: str):
-        with open('queries/get_type.sparql', 'r') as query:
+        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
             encoded = urllib.parse.quote(query.read().format(uri=uri), safe="")
             response = requests.get(
                 f'{self.api}/repositories/{self.repository}'
@@ -334,7 +334,7 @@ def get_metadata(*, uri: str, api: str, repository: str):
     :param repository:
     :return:
     """
-    with open('queries/meta_information.sparql', 'r') as query:
+    with open(f'{QUERY_PATH}/meta_information.sparql', 'r') as query:
         encoded_query = urllib.parse.quote(
             query.read().format(uri=uri), safe="")
         response = requests.get(

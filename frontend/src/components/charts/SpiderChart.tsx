@@ -34,15 +34,15 @@ const SpiderChart = observer(
     const { header } = results;
     const ringKeyIdx = header.indexOf(variables.key[0]);
     const spokeKeyIdx = header.indexOf(variables.key[1]);
-    const valueIdx = header.indexOf(variables.scalar[0]);
+    const valueIdx = header.indexOf(variables.numeric[0]);
 
     const data = useMemo(() => {
       const spokeGroups = groupByColumn(results.data, spokeKeyIdx);
       const data = Object.keys(spokeGroups).map((spoke: string) => {
-        const values = { [header[spokeKeyIdx]]: spoke };
+        const values: any = { [header[spokeKeyIdx]]: spoke };
 
         for (let row of spokeGroups[spoke]) {
-          values[row[ringKeyIdx]] = row[valueIdx];
+          values[row[ringKeyIdx]] = parseFloat(row[valueIdx]);
         }
         return values;
       });
@@ -60,7 +60,7 @@ const SpiderChart = observer(
         >
           <PolarGrid />
           <PolarAngleAxis dataKey={header[spokeKeyIdx]} />
-          <PolarRadiusAxis angle={30} domain={[0, 150]} />
+          <PolarRadiusAxis angle={30} />
 
           {uniqueValues(results.data, ringKeyIdx).map(
             (dataKey: string, index: number) => {

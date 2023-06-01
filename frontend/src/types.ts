@@ -62,7 +62,6 @@ export enum ChartType {
   PIE = "Pie",
   LINE = "Line",
   TREE_MAP = "Tree Map",
-  RADAR = "Radar",
   SANKEY = "Sankey",
   CHORD_DIAGRAM = "Chord Diagram",
   CIRCLE_PACKING = "Circle Packing",

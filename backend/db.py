@@ -1,8 +1,11 @@
 import sqlite3
 from datetime import datetime
 
+DB_PATH = 'backend/database.db'
+
+
 def get_queries(repository_id: str):
-    conn = sqlite3.connect('./database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
     cur.execute('SELECT * FROM query WHERE repositoryId = ? ORDER BY date DESC',
@@ -12,7 +15,7 @@ def get_queries(repository_id: str):
 
 
 def add_to_history(*, title: str, sparql: str, repository_id: str) -> None:
-    conn = sqlite3.connect('./database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('INSERT INTO query (title, sparql, repositoryId, date)'
                  'VALUES (?, ?, ?, ?)',
                  (title, sparql, repository_id,
@@ -22,13 +25,13 @@ def add_to_history(*, title: str, sparql: str, repository_id: str) -> None:
 
 
 def delete_all_queries(repository_id: str) -> None:
-    conn = sqlite3.connect('./database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.execute('DELETE FROM query WHERE repositoryId = ?', [repository_id])
     conn.commit()
 
 
-if __name__=='__main__':
-    conn = sqlite3.connect('./database.db')
+if __name__ == '__main__':
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute('DROP TABLE query')
     conn.execute('CREATE TABLE IF NOT EXISTS query ('
@@ -39,4 +42,3 @@ if __name__=='__main__':
                  'date TEXT'
                  ')')
     print(get_queries('mondial'))
-

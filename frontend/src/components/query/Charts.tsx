@@ -209,7 +209,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
       },
       {
-        key: ChartType.RADAR,
+        key: ChartType.SPIDER,
         label: (
           <>
             <AiOutlineRadarChart size={18} /> Spider
@@ -411,11 +411,11 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ),
           },
           ...(settings.showAllCharts
-            ? queryAnalysis.pattern
-              ? chartTabs.filter(({ key }) =>
-                  queryAnalysis.visualisations.includes(key as ChartType)
-                )
-              : chartTabs
+            ? chartTabs
+            : queryAnalysis.pattern
+            ? chartTabs.filter(({ key }) =>
+                queryAnalysis.visualisations.includes(key as ChartType)
+              )
             : chartTabs.filter(({ key }) =>
                 possibleVis.includes(key as ChartType)
               )),
