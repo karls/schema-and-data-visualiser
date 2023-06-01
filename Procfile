@@ -1,1 +1,1 @@
-web: gunicorn app:app
+web: cd frontend && yarn build && cd .. && gunicorn app:app
