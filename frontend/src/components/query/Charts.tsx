@@ -47,6 +47,7 @@ import NetworkChart from "../charts/NetworkChart";
 import { IoMdGitNetwork } from "react-icons/io";
 import { MdOutlineStackedBarChart } from "react-icons/md";
 import StackedBarChart from "../charts/StackedBarChart";
+import GroupedBarChart from "../charts/GroupedBarChart";
 
 type ChartsProps = {
   query: string;
@@ -233,6 +234,22 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         ),
         children: (
           <StackedBarChart
+            results={results}
+            width={chartWidth}
+            height={chartHeight}
+            variables={queryAnalysis.variables}
+          />
+        ),
+      },
+      {
+        key: ChartType.GROUPED_BAR,
+        label: (
+          <>
+            <MdOutlineStackedBarChart size={20} /> Grouped Bar
+          </>
+        ),
+        children: (
+          <GroupedBarChart
             results={results}
             width={chartWidth}
             height={chartHeight}
