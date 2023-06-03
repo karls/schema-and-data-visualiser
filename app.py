@@ -1,13 +1,15 @@
 import json
 import os
-from flask import Flask, request, jsonify, flash, send_from_directory
+from flask import Flask, request, jsonify, flash, send_from_directory, session
 from werkzeug.utils import secure_filename
 import requests
 from flask_cors import CORS
 import urllib
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
-from backend.db import add_to_history, get_queries, delete_all_queries
+from backend.db import add_to_history, get_queries, delete_all_queries, \
+    save_repository
+from backend.repository import LocalRepository, GraphDBRepository
 from backend.util import csv_to_json, parse_csv_text, is_csv, \
     parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
     is_blank_node, is_json
@@ -65,6 +67,41 @@ def upload_file():
                 os.makedirs(UPLOAD_FOLDER)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return {}
+
+
+@app.route('/login', method=['POST'])
+def login():
+    if request.method == 'POST':
+        username = request.args['username']
+        session['username'] = username
+
+
+@app.route('/logout', method=['POST'])
+def login():
+    if request.method == 'POST':
+        session.pop('username', None)
+
+
+@app.route('/repositories/local', method=['POST'])
+def login():
+    username = session['username']
+    if request.method == 'POST':
+        name = request.json['name']
+        data_url = request.json['dataUrl']
+        schema_url = request.json['schemaUrl']
+        repo = LocalRepository(name=name, data_url=data_url,
+                               schema_url=schema_url)
+        save_repository(repository=repo, username=username)
+
+
+@app.route('/repositories/graphdb', method=['POST'])
+def login():
+    username = session['username']
+    if request.method == 'POST':
+        name = request.json['name']
+        server = request.json['server']
+        repo = GraphDBRepository(name=name, server=server)
+        save_repository(repository=repo, username=username)
 
 
 @app.route('/sparql', methods=['GET'])

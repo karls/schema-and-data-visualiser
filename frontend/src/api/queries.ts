@@ -2,11 +2,11 @@ import axios from "axios";
 import { QueryAnalysis, QueryRecord } from "../types";
 
 export async function getQueryHistory(
-  repositoryId: string
+  repository: string
 ): Promise<QueryRecord[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/history?repository=${repositoryId}`;
+    const endpoint = `${BACKEND_API}/history?repository=${repository}`;
     const response = await axios.get(endpoint);
     const queries = response.data;
     return queries;
@@ -17,13 +17,13 @@ export async function getQueryHistory(
 }
 
 export async function addQueryToHistory(
-  repositoryId: string,
+  repository: string,
   query: string,
   title: string
 ) {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/history?repository=${repositoryId}&title=${encodeURIComponent(
+    const endpoint = `${BACKEND_API}/history?repository=${repository}&title=${encodeURIComponent(
       title
     )}&query=${encodeURIComponent(query)}`;
     const response = await axios.post(endpoint);
@@ -34,10 +34,10 @@ export async function addQueryToHistory(
   return "";
 }
 
-export async function clearQueryHistory(repositoryId: string) {
+export async function clearQueryHistory(repository: string) {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/history?repository=${repositoryId}`;
+    const endpoint = `${BACKEND_API}/history?repository=${repository}`;
     const response = await axios.delete(endpoint);
     return response;
   } catch (error) {
@@ -48,11 +48,11 @@ export async function clearQueryHistory(repositoryId: string) {
 
 export async function getQueryAnalysis(
   query: string,
-  repositoryId: string
+  repository: string
 ): Promise<QueryAnalysis> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/analysis?repository=${repositoryId}&query=${encodeURIComponent(
+    const endpoint = `${BACKEND_API}/analysis?repository=${repository}&query=${encodeURIComponent(
       query
     )}`;
     const response = await axios.get(endpoint);

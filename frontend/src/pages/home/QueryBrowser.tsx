@@ -50,7 +50,7 @@ const QueryBrowser = observer(() => {
         return {
           label: (
             <Input
-              title={queriesStore.openQueries[qid].title}
+              title={queriesStore.openQueries[qid].name}
               onKeyDown={(e) => e.stopPropagation()}
               // onChange={(e) => console.log(e.target.value)}
               style={{
@@ -61,7 +61,7 @@ const QueryBrowser = observer(() => {
                 borderLeft: "none",
                 borderRight: "none",
               }}
-              defaultValue={queriesStore.getQueryTitle(qid)}
+              defaultValue={queriesStore.getQueryName(qid)}
               onPressEnter={(e) =>
                 queriesStore.setQueryTitle(qid, e.currentTarget.value)
               }
@@ -76,7 +76,7 @@ const QueryBrowser = observer(() => {
               setQueryText={(text: string) =>
                 queriesStore.setQueryText(qid, text)
               }
-              title={queriesStore.getQueryTitle(qid)}
+              name={queriesStore.getQueryName(qid)}
             />
           ),
           key: qid,

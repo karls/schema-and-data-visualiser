@@ -24,7 +24,7 @@ type QueryEditorProps = {
   onRun: (results: QueryResults) => void;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  queryTitle: string;
+  queryName: string;
 };
 
 const Editor = ({
@@ -35,7 +35,7 @@ const Editor = ({
   onRun,
   loading,
   setLoading,
-  queryTitle,
+  queryName,
 }: QueryEditorProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
@@ -101,7 +101,7 @@ const Editor = ({
             Run
           </Button>
           <CopyToClipboard text={query} />
-          <SaveQuery repository={repository} query={query} title={queryTitle} />
+          <SaveQuery repository={repository} query={query} name={queryName} />
           <Templates templates={sparql_templates} />
         </Space>
 
@@ -154,22 +154,22 @@ const SelectRepository = ({
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+        items: repositories.map(({ name }: RepositoryInfo, index) => {
           return {
             key: `${index}`,
             label: (
               <Button
-                onClick={() => setRepository(id)}
+                onClick={() => setRepository(name)}
                 style={{ width: "100%", height: "100%" }}
               >
-                {id}
+                {name}
               </Button>
             ),
           };
         }),
       }}
     >
-      <Button title="Choose repository">
+      <Button name="Choose repository">
         <Space>
           <RiGitRepositoryLine size={20} />
           {repository || "Choose repository"}
@@ -192,11 +192,11 @@ const CopyToClipboard = ({ text }: { text: string }) => {
 
 const SaveQuery = observer(
   ({
-    title,
+    name,
     query,
     repository,
   }: {
-    title: string;
+    name: string;
     query: string;
     repository: RepositoryId | null;
   }) => {
@@ -207,7 +207,7 @@ const SaveQuery = observer(
         icon={<BiSave size={20} />}
         disabled={repository === null}
         onClick={() => {
-          addQueryToHistory(repository!, query, title).then(() => {
+          addQueryToHistory(repository!, query, name).then(() => {
             repositoryStore.updateQueryHistory();
           });
         }}

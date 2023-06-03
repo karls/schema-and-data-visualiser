@@ -39,21 +39,21 @@ const SelectRepository = () => {
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+        items: repositories.map(({ name }: RepositoryInfo, index) => {
           return {
             key: `${index}`,
             label: (
               <Popover
                 placement="right"
-                title={title ? "Description" : "No description available"}
-                content={title}
+                title={name ? "Description" : "No description available"}
+                content={name}
                 trigger="hover"
               >
                 <Button
-                  onClick={() => repositoryStore.setCurrentRepository(id)}
+                  onClick={() => repositoryStore.setCurrentRepository(name)}
                   style={{ width: "100%", height: "100%" }}
                 >
-                  {id}
+                  {name}
                 </Button>
               </Popover>
             ),
@@ -61,7 +61,7 @@ const SelectRepository = () => {
         }),
       }}
     >
-      <Button style={{ width: "95%", margin: 5 }} title="Choose repository">
+      <Button style={{ width: "95%", margin: 5 }} name="Choose repository">
         <Space>
           <RiGitRepositoryLine size={20} />
           <b>{repositoryStore.currentRepository || "Select repository"}</b>

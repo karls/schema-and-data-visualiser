@@ -3,9 +3,8 @@ export type RepositoryId = string;
 export type URI = string;
 
 export interface RepositoryInfo {
-  uri: String;
-  id: RepositoryId;
-  title: String;
+  uri: string;
+  name: string;
   readable: boolean;
   writeable: boolean;
 }
@@ -26,14 +25,14 @@ export type RDFGraph = {
 
 export type QueryRecord = {
   id: number;
-  title: string;
+  name: string;
   sparql: string;
-  repositoryId: string;
+  repository: string;
   date: string;
 };
 
 export type QueryId = string;
-export type QueryInfo = { title: string; sparql: string };
+export type QueryInfo = { name: string; sparql: string };
 
 export type Metadata = {
   label: string;
