@@ -3,12 +3,15 @@ import { Descriptions, Skeleton, Tag } from "antd";
 import { Metadata, RepositoryId, URI } from "../../types";
 import { getMetaInformation, getType } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
+import { useStore } from "../../stores/store";
 
 type MetaInfoProps = {
   repository: RepositoryId;
   uri: URI;
 };
 export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
+  const username = useStore().authStore.username!;
+
   const [metadata, setMetadata] = useState<Metadata>({
     comment: "",
     label: "",
@@ -20,11 +23,11 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getMetaInformation(repository, uri).then((res: Metadata) => {
+    getMetaInformation(repository, uri, username).then((res: Metadata) => {
       setMetadata(res);
       setLoading(false);
     });
-    getType(repository, uri).then((res: URI[]) => {
+    getType(repository, uri, username).then((res: URI[]) => {
       setTypes(res);
     });
   }, [repository, uri]);

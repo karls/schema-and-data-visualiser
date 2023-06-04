@@ -66,7 +66,8 @@ class RepositoryStore {
 
   clearQueryHistory() {
     if (this.state.currentRepository) {
-      clearQueryHistory(this.state.currentRepository).then(() => {
+      const username = this.rootStore.authStore.username!;
+      clearQueryHistory(this.state.currentRepository, username).then(() => {
         this.updateQueryHistory();
       });
     }

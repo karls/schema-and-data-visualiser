@@ -58,6 +58,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
+  const username = rootStore.authStore.username!;
 
   const chartWidth = Math.floor(
     (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
@@ -91,11 +92,11 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   );
   useEffect(() => {
     if (repositoryStore.currentRepository) {
-      getQueryAnalysis(query, repositoryStore.currentRepository).then((res) => {
+      getQueryAnalysis(query, repositoryStore.currentRepository, username).then((res) => {
         setQueryAnalysis(res);
       });
     }
-  }, [query, repositoryStore.currentRepository, results]);
+  }, [query, repositoryStore.currentRepository, results, username]);
 
   const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {

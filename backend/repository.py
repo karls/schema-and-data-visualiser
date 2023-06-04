@@ -3,14 +3,13 @@ from rdflib import Graph
 import requests
 import urllib
 
-from backend.util import parse_ntriples_graph, parse_csv_text, \
-    is_ntriples_format, is_json
+from backend.util import import_data, convert_sparql_json_result
 
 BAD_REQUEST = 400
 
 
 class RDFRepository:
-    def __init__(self, *, name: str):
+    def __init__(self, *, name):
         self.name = name
 
     def run_query(self, *, query: str):
@@ -18,30 +17,9 @@ class RDFRepository:
 
 
 class LocalRepository(RDFRepository):
-    def __init__(self, *, name: str, data_url: str, schema_url: str,
-                 graph: Graph=None):
+    def __init__(self, *, name, graph: Graph):
         super().__init__(name=name)
-        self.graph = graph if graph else Graph()
-        self.data_url = data_url
-        self.schema_url = schema_url
-        self.import_data()
-
-    def import_data(self):
-        formats = ['xml', 'nt', 'n3', 'ttl', 'turtle']
-        if self.data_url:
-            for ext in formats:
-                try:
-                    self.graph.parse(location=self.data_url, format=ext)
-                    break
-                except:
-                    pass
-        if self.schema_url:
-            for ext in formats:
-                try:
-                    self.graph.parse(location=self.schema_url, format=ext)
-                    break
-                except:
-                    pass
+        self.graph = graph
 
     def run_query(self, *, query: str):
         try:
@@ -63,57 +41,61 @@ class LocalRepository(RDFRepository):
             return {'header': [['ERROR']], 'data': str(e)}
 
 
-class GraphDBRepository(RDFRepository):
-    def __init__(self, *, name, server):
+class RemoteRepository(RDFRepository):
+    def __init__(self, *, name, endpoint):
         super().__init__(name=name)
-        self.server = server
+        self.endpoint = endpoint
 
     def run_query(self, *, query: str):
         response = requests.get(
-            f'{self.server}/repositories/{self.name}'
-            f'?query={urllib.parse.quote(query, safe="")}')
+            f'{self.endpoint}?query={urllib.parse.quote(query, safe="")}',
+            headers={'Accept': 'application/sparql-results+json'})
+        result = response.json()
+        # results = response.text.replace('\r', '')
+        # header = []
+        # data = []
+        #
+        # if response.status_code == BAD_REQUEST:
+        #     header = ['ERROR']
+        #     data = [[results]]
+        #
+        # elif is_json(results):  # For ASK queries
+        #     obj = json.loads(results)
+        #     if 'boolean' in obj:
+        #         header = ['boolean']
+        #         data = [[str(obj['boolean']).lower()]]
+        #
+        # elif is_ntriples_format(results):  # For CONSTRUCT queries
+        #     header = ['Subject', 'Predicate', 'Object']
+        #     data = parse_ntriples_graph(results)
+        #
+        # else:  # For SELECT queries
+        #     header = results.split('\n')[0].split(',')
+        #     data = parse_csv_text(results)
 
-        results = response.text.replace('\r', '')
-        header = []
-        data = []
-
-        if response.status_code == BAD_REQUEST:
-            header = ['ERROR']
-            data = [[results]]
-
-        elif is_json(results):  # For ASK queries
-            obj = json.loads(results)
-            if 'boolean' in obj:
-                header = ['boolean']
-                data = [[str(obj['boolean']).lower()]]
-
-        elif is_ntriples_format(results):  # For CONSTRUCT queries
-            header = ['Subject', 'Predicate', 'Object']
-            data = parse_ntriples_graph(results)
-
-        else:  # For SELECT queries
-            header = results.split('\n')[0].split(',')
-            data = parse_csv_text(results)
-
-        return {'header': header, 'data': data}
+        return convert_sparql_json_result(result)
 
 
 if __name__ == '__main__':
-    repo = LocalRepository(name="mondial",
-                           data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
-                           schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
+    graph = import_data(
+        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                 '/Mondial-RDF/mondial.n3',
+        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                   '/Mondial-RDF/mondial-meta.n3 '
+    )
+    repo = LocalRepository(name="mondial", graph=graph)
 
     qry = '''
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
-PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
-
-SELECT ?inflation ?unemployment
-WHERE {
-  ?c rdf:type :Country ;
-    :name "India" ;
-    :inflation ?inflation ;
-    :unemployment ?unemployment .
-}
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    PREFIX : <http://www.semwebtech.org/mondial/10/meta#>
+    
+    SELECT ?inflation ?unemployment
+    WHERE {
+      ?c rdf:type :Country ;
+        :name "India" ;
+        :inflation ?inflation ;
+        :unemployment ?unemployment .
+    }
     '''
     print(repo.run_query(query=qry))

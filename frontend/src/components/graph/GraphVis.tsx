@@ -33,6 +33,7 @@ const GraphVis = observer(
     interactive = true,
   }: GraphVisProps) => {
     const rootStore = useStore();
+    const username = rootStore.authStore.username!;
     const settings = rootStore.settingsStore;
     // const [, setLoading] = useState<boolean>(true);
 
@@ -127,7 +128,8 @@ const GraphVis = observer(
           getPropertyValues(
             repository!,
             uri,
-            PropertyType.DatatypeProperty
+            PropertyType.DatatypeProperty,
+            username
           ).then((res: [URI, string][]) => {
             const newLinks: Triplet[] = res.map(([prop, value]) => [
               uri,
@@ -163,32 +165,36 @@ const GraphVis = observer(
           setGraph(newGraph);
         }
       },
-      hold: function (event: any) {
+      hold: function (event: any) { // Click and hold on a node shows all object properties of current node
         const { nodes, edges } = event;
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
           if (!isURL(uri)) continue; // Skip if node contains a literal value
 
-          getPropertyValues(repository!, uri, PropertyType.ObjectProperty).then(
-            (res: [URI, string][]) => {
-              const newLinks: Triplet[] = res.map(([prop, value]) => [
-                uri,
-                prop,
-                value,
-              ]);
-              setGraph(
-                getNodesAndEdges({
-                  links: newLinks,
-                  nodeOptions: {
-                    shape: "box",
-                    color: randomColor({ luminosity: "light" }),
-                    font: { size: 30 },
-                  },
-                  edgeOptions,
-                })
-              );
-            }
-          );
+          getPropertyValues(
+            repository!,
+            uri,
+            PropertyType.ObjectProperty,
+            username
+          ).then((res: [URI, string][]) => {
+            const newLinks: Triplet[] = res.map(([prop, value]) => [
+              uri,
+              prop,
+              value,
+            ]);
+            // The initialGraph is not given so all other nodes, except for the current one, get removed
+            setGraph(
+              getNodesAndEdges({
+                links: newLinks,
+                nodeOptions: {
+                  shape: "box",
+                  color: randomColor({ luminosity: "light" }),
+                  font: { size: 30 },
+                },
+                edgeOptions,
+              })
+            );
+          });
         }
 
         for (let edgeId of edges) {

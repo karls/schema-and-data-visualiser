@@ -11,10 +11,54 @@ export async function allRepositories(
     )}`;
     const response = await axios.get(endpoint);
     const repositories = response.data;
-    console.log(repositories);
+
     return repositories;
   } catch (error) {}
   return [];
+}
+
+export async function addRemoteRepository(
+  name: string,
+  sparqlEndpoint: string,
+  description: string,
+  username: string
+): Promise<string> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/repositories/remote`;
+    const response = await axios.post(endpoint, {
+      name,
+      endpoint: sparqlEndpoint,
+      description,
+      username,
+    });
+    const repository_id = response.data;
+    return repository_id;
+  } catch (error) {}
+  return "";
+}
+
+export async function addLocalRepository(
+  name: string,
+  dataUrl: string,
+  schemaUrl: string,
+  description: string,
+  username: string
+): Promise<string> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/repositories/local`;
+    const response = await axios.post(endpoint, {
+      name,
+      dataUrl,
+      schemaUrl,
+      description,
+      username,
+    });
+    const repository_id = response.data;
+    return repository_id;
+  } catch (error) {}
+  return "";
 }
 
 export async function runSparqlQuery(
@@ -36,27 +80,4 @@ export async function runSparqlQuery(
     console.log(error);
   }
   return { header: [], data: [] };
-}
-
-export async function updateApiUrl(graphdbURL: string) {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
-  try {
-    const endpoint = `${BACKEND_API}/api-url?url=${graphdbURL}`;
-    await axios.post(endpoint);
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-export async function getApiUrl(): Promise<string> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
-  try {
-    const endpoint = `${BACKEND_API}/api-url`;
-    const response = await axios.get(endpoint);
-    const url = response.data;
-    return url;
-  } catch (error) {
-    console.log(error);
-  }
-  return "";
 }

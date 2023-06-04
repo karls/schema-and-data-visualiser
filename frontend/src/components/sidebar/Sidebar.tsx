@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import QueryHistory from "./QueryHistory";
 import ExploreDataset from "./ExploreDataset";
+import Repositories from "./Repositories";
 
 const Sidebar = observer(() => {
   const rootStore = useStore();
@@ -19,6 +20,7 @@ const Sidebar = observer(() => {
         <div style={{ justifyContent: "center" }}>
           <SelectRepository />
           <ExploreDataset repository={repositoryStore.currentRepository} />
+          <Repositories />
           <Divider />
           <QueryHistory />
         </div>
@@ -35,7 +37,6 @@ const SelectRepository = () => {
 
   useEffect(() => {
     allRepositories(authStore.username!).then((repositories) => {
-      console.log("repositories: ", repositories);
       setRepositories(repositories);
     });
   }, [authStore.username]);

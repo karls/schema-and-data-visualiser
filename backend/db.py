@@ -7,7 +7,7 @@ import pymongo
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-from backend.repository import RDFRepository, LocalRepository, GraphDBRepository
+from backend.repository import RDFRepository, LocalRepository, RemoteRepository
 
 load_dotenv(find_dotenv())
 
@@ -41,8 +41,11 @@ def get_repository(*, repository_id: str,
     repo = repositories.find_one({'name': repository_id, 'user': username})
     if not repo:
         return None
-    obj = repo['obj']
-    return compress_pickle.loads(obj, COMPRESSION)
+    if 'graph' in repo:
+        return LocalRepository(name=repository_id, graph=repo['graph'])
+    elif 'endpoint' in repo:
+        return RemoteRepository(name=repository_id, endpoint=repo['endpoint'])
+    return None
 
 
 def get_repository_info(*, username: str):
@@ -53,29 +56,39 @@ def get_repository_info(*, username: str):
     return list(details)
 
 
-def add_repository(*, repository: RDFRepository, username: str,
-                   description: str):
+def add_repository(*, repository_id: str, username: str,
+                   description: str, graph=None, endpoint=None):
     repositories = db['repositories']
-    return repositories.insert_one({
-        'name': repository.name,
-        'obj': compress_pickle.dumps(repository, COMPRESSION),
+    repo = {
+        'name': repository_id,
         'user': username,
         'description': description
-    })
+    }
+    if graph:
+        repo['graph'] = graph
+    elif endpoint:
+        repo['endpoint'] = endpoint
+    return repositories.insert_one(repo)
 
 
-def save_repository(*, repository: RDFRepository, username: str):
+def update_repository(*, username: str, repository_id: str, graph=None,
+                      endpoint=None):
     repositories = db['repositories']
-    repositories.update_one({'name': repository.name, 'user': username}, {
-        '$set': {'obj': compress_pickle.dumps(repository, COMPRESSION)}
-    })
+    if graph:
+        repositories.update_one({'name': repository_id, 'user': username}, {
+            '$set': {'graph': compress_pickle.dumps(graph, COMPRESSION)}
+        })
+    elif endpoint:
+        repositories.update_one({'name': repository_id, 'user': username}, {
+            '$set': {'endpoint': endpoint}
+        })
 
 
-def save_query(*, title: str, sparql: str, repository_id: str,
+def save_query(*, name: str, sparql: str, repository_id: str,
                username: str):
     queries = db['queries']
     return queries.insert_one({
-        'title': title,
+        'name': name,
         'sparql': sparql,
         'repository': repository_id,
         'user': username,
@@ -85,7 +98,7 @@ def save_query(*, title: str, sparql: str, repository_id: str,
 
 def delete_all_queries(*, repository_id: str, username: str) -> None:
     queries = db['queries']
-    queries.delete_many({'repository': repository_id, 'username': username})
+    queries.delete_many({'repository': repository_id, 'user': username})
 
 
 if __name__ == '__main__':
@@ -93,10 +106,12 @@ if __name__ == '__main__':
     #            sparql='SELECT ?country ...',
     #            repository_id='mondial',
     #            username='rohan')
-    repo = LocalRepository(name="mondial",
-                           data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
+    from backend.util import import_data
+
+    graph = import_data(data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
                            schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
-    add_repository(repository=repo, username='rohan', description="Trial")
+    repo = LocalRepository(name="mondial", graph=graph)
+    # add_repository(repository=repo, username='rohan', description="Trial")
     # print(list(get_queries('mondial', 'rohan')))
     import time
 

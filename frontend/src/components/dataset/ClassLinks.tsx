@@ -17,22 +17,24 @@ type ClassLinksProps = {
 };
 
 const ClassLinks = ({ repository, width }: ClassLinksProps) => {
+  const username = useStore().authStore.username!;
+
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
 
   const [types, setTypes] = useState<URI[]>([]);
 
   useEffect(() => {
-    getAllTypes(repository).then((res: URI[]) => {
+    getAllTypes(repository, username).then((res: URI[]) => {
       setTypes(res);
     });
-  }, [repository]);
+  }, [repository, username]);
 
   const outMatrix: number[][] = useMemo(() => {
     const links = {};
     for (let source of types) {
       links[source] = [];
-      getOutgoingLinks(repository, source).then((res) => {
+      getOutgoingLinks(repository, source, username).then((res) => {
         for (let target of types) {
           links[source].push(parseInt((res[target] ?? 0) as any));
         }
@@ -40,13 +42,13 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
     }
     const m = types.map((source) => links[source]);
     return m;
-  }, [repository, types]);
+  }, [repository, types, username]);
 
   const inMatrix: number[][] = useMemo(() => {
     const links = {};
     for (let source of types) {
       links[source] = [];
-      getIncomingLinks(repository, source).then((res) => {
+      getIncomingLinks(repository, source, username).then((res) => {
         for (let target of types) {
           links[source].push(parseInt((res[target] ?? 0) as any));
         }
@@ -54,7 +56,7 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
     }
     const m = types.map((source) => links[source]);
     return m;
-  }, [repository, types]);
+  }, [repository, types, username]);
 
   return (
     <div

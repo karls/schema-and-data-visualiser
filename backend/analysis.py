@@ -4,15 +4,16 @@ from typing import Dict
 import requests
 import urllib
 
+from backend.repository import RDFRepository
 from .util import remove_comments, is_url, separator_split
+
 
 QUERY_PATH = 'backend/queries'
 
 
 class QueryAnalyser:
-    def __init__(self, *, query: str, api: str, repository: str):
+    def __init__(self, *, query: str, repository: RDFRepository):
         self.query = remove_comments(query)
-        self.api = api
         self.repository = repository
         self.prefixes = self.get_prefixes()
         # Dictionary of all triples in where clause
@@ -103,19 +104,17 @@ class QueryAnalyser:
         self.triples[sub][predicate].add(obj)
 
     def get_prop_range(self, *, prop_uri: str):
-        metadata = get_metadata(uri=prop_uri, api=self.api,
+        metadata = get_metadata(uri=prop_uri,
                                 repository=self.repository)
 
         return metadata['range']
 
     def get_types(self, *, uri: str):
-        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
-            encoded = urllib.parse.quote(query.read().format(uri=uri), safe="")
-            response = requests.get(
-                f'{self.api}/repositories/{self.repository}'
-                f'?query={encoded}')
 
-        return response.text.replace('\r', '').splitlines()[1:]
+        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
+            result = self.repository.run_query(query=query.read().format(uri=uri))
+
+        return [row[0] for row in result['data']]
 
     def get_select_variables(self):
         """
@@ -330,7 +329,7 @@ def get_full_uri(*, uri: str, prefixes) -> str | None:
     return uri
 
 
-def get_metadata(*, uri: str, api: str, repository: str):
+def get_metadata(*, uri: str, repository: RDFRepository):
     """
     Returns metadata of a property
     :param uri:
@@ -339,16 +338,10 @@ def get_metadata(*, uri: str, api: str, repository: str):
     :return:
     """
     with open(f'{QUERY_PATH}/meta_information.sparql', 'r') as query:
-        encoded_query = urllib.parse.quote(
-            query.read().format(uri=uri), safe="")
-        response = requests.get(
-            f'{api}/repositories/{repository}'
-            f'?query={encoded_query}')
+        result = repository.run_query(query=query.read().format(uri=uri))
 
-    info = response.text.replace('\r', '')
-
-    fields = info.split('\n')[0].split(',')
-    values = info.split('\n')[1].split(',')
+    fields = result['header']
+    values = result['data'][0]
 
     return dict(zip(fields, values))
 
@@ -385,9 +378,9 @@ def get_where_clause(query: str):
     return max(pattern.findall(query), key=len)
 
 
-def query_analysis(query: str, api: str, repository):
+def query_analysis(query: str, repository):
     query = remove_comments(query)
-    analyser = QueryAnalyser(query=query, api=api, repository=repository)
+    analyser = QueryAnalyser(query=query, repository=repository)
     pattern = None
     visualisations = []
     if analyser.class_with_data_properties():

@@ -4,6 +4,8 @@ import io
 import shlex
 import re
 
+from rdflib import Graph
+
 
 def is_url(text):
     regex = re.compile(
@@ -84,3 +86,38 @@ def remove_comments(code):
 
 def separator_split(text) -> [str]:
     return re.split(''';(?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', text)
+
+
+def import_data(*, data_url, schema_url):
+    graph = Graph()
+    formats = ['xml', 'nt', 'n3', 'ttl', 'turtle']
+    for ext in formats:
+        try:
+            graph.parse(location=data_url, format=ext)
+            break
+        except:
+            pass
+    for ext in formats:
+        try:
+            graph.parse(location=schema_url, format=ext)
+            break
+        except:
+            pass
+
+    return graph
+
+
+def convert_sparql_json_result(result):
+    header = result['head']['vars']
+    data = []
+
+    for row in result['results']['bindings']:
+        data.append([row[var]['value'] if var in row else '' for var in header])
+
+    return {'header': header, 'data': data}
+
+
+def run_query_file(*, repository, path: str):
+    with open(path, 'r') as query:
+        result = repository.run_query(query=query.read())
+        return result

@@ -42,6 +42,7 @@ const Editor = ({
   const repositoryStore = rootStore.repositoryStore;
   const queriesStore = rootStore.queriesStore;
   const authStore = rootStore.authStore;
+  const username = authStore.username!;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
     repositoryStore.getCurrentRepository()
@@ -51,14 +52,14 @@ const Editor = ({
 
   useEffect(() => {
     if (repository !== null) {
-      getAllProperties(repository).then((res) => {
+      getAllProperties(repository, username).then((res) => {
         setProperties(res);
       });
-      getAllTypes(repository).then((res) => {
+      getAllTypes(repository, username).then((res) => {
         setTypes(res);
       });
     }
-  }, [repository]);
+  }, [repository, username]);
 
   const { notification } = AntdApp.useApp();
 
@@ -205,13 +206,15 @@ const SaveQuery = observer(
     repository: RepositoryId | null;
   }) => {
     const rootStore = useStore();
+    const username = rootStore.authStore.username!;
+
     const repositoryStore = rootStore.repositoryStore;
     return (
       <Button
         icon={<BiSave size={20} />}
         disabled={repository === null}
         onClick={() => {
-          addQueryToHistory(repository!, query, name).then(() => {
+          addQueryToHistory(repository!, query, name, username).then(() => {
             repositoryStore.updateQueryHistory();
           });
         }}

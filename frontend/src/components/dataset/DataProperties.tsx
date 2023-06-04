@@ -3,6 +3,7 @@ import { getPropertyValues } from "../../api/dataset";
 import { Descriptions, Skeleton } from "antd";
 import { removePrefix } from "../../utils/queryResults";
 import { PropertyType, RepositoryId, URI } from "../../types";
+import { useStore } from "../../stores/store";
 
 type PropertyValuesProps = {
   repository: RepositoryId;
@@ -15,12 +16,14 @@ export const PropertyValues = ({
   uri,
   propType,
 }: PropertyValuesProps) => {
+  const username = useStore().authStore.username!;
+  
   const [data, setData] = useState<[URI, string][]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
-    getPropertyValues(repository, uri, propType).then((res) => {
+    getPropertyValues(repository, uri, propType, username).then((res) => {
       setData(res);
       setLoading(false);
     });

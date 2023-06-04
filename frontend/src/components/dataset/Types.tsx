@@ -4,6 +4,7 @@ import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { getTypeProperties, getAllTypes } from "../../api/dataset";
 import { MetaInfo } from "./MetaInfo";
+import { useStore } from "../../stores/store";
 
 const { Panel } = Collapse;
 const { Text } = Typography;
@@ -13,15 +14,17 @@ type TypesProps = {
 };
 
 const Types = ({ repository }: TypesProps) => {
+  const username = useStore().authStore.username!;
+
   const [types, setTypes] = useState<URI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getAllTypes(repository).then((res: URI[]) => {
+    getAllTypes(repository, username).then((res: URI[]) => {
       setTypes(res);
       setLoading(false);
     });
-  }, [repository]);
+  }, [repository, username]);
 
   return (
     <Skeleton active loading={loading}>
@@ -45,15 +48,17 @@ type PropertiesProps = {
   type: URI;
 };
 const Properties = ({ repository, type }: PropertiesProps) => {
+  const username = useStore().authStore.username!;
+
   const [properties, setProperties] = useState<URI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getTypeProperties(repository, type).then((res: URI[]) => {
+    getTypeProperties(repository, type, username).then((res: URI[]) => {
       setProperties(res);
       setLoading(false);
     });
-  }, [repository, type]);
+  }, [repository, type, username]);
 
   return (
     <List
