@@ -32,9 +32,6 @@ class RepositoryStore {
     });
   }
 
-  setState(state: RepositoryStoreState) {
-    this.state = state;
-  }
 
   get currentRepository() {
     return this.state.currentRepository;
@@ -52,15 +49,17 @@ class RepositoryStore {
     return this.state.queryHistory;
   }
 
-  setCurrentRepository(name: string) {
-    this.setState({ ...this.state, currentRepository: name });
+  setCurrentRepository(repositoryId: string) {
+    this.state.currentRepository= repositoryId;
     this.updateQueryHistory();
   }
 
   updateQueryHistory() {
     if (this.state.currentRepository) {
-      getQueryHistory(this.state.currentRepository).then((queries: QueryRecord[]) => {
-        this.setState({ ...this.state, queryHistory: queries });
+      const username = this.rootStore.authStore.username!;
+      getQueryHistory(this.state.currentRepository, username).then((queries: QueryRecord[]) => {
+        console.log(queries);
+        this.state.queryHistory = queries;
       });
     }
   }

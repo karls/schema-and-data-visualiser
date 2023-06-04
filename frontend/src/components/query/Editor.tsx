@@ -41,6 +41,7 @@ const Editor = ({
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
   const queriesStore = rootStore.queriesStore;
+  const authStore = rootStore.authStore;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
     repositoryStore.getCurrentRepository()
@@ -89,7 +90,8 @@ const Editor = ({
               const start = new Date().getTime();
               runSparqlQuery(
                 repository!,
-                queriesStore.currentQuery.sparql
+                queriesStore.currentQuery.sparql,
+                authStore.username!
               ).then((results) => {
                 showNotification(new Date().getTime() - start);
                 onRun(results);
@@ -143,13 +145,15 @@ const SelectRepository = ({
   repository: string | null;
   setRepository: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+  const rootStore = useStore();
+  const authStore = rootStore.authStore;
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
-    allRepositories().then((repositories) => {
+    allRepositories(authStore.username!).then((repositories) => {
       setRepositories(repositories);
     });
-  }, []);
+  }, [authStore.username]);
 
   return (
     <Dropdown

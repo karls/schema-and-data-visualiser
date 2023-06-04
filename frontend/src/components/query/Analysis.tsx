@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, List, Space, Tag, Tooltip, Typography } from "antd";
+import { Alert, Card, Divider, List, Space, Tag, Tooltip, Typography } from "antd";
 import {
   ChartType,
   QueryAnalysis,
@@ -105,7 +105,10 @@ const Pattern = ({ pattern, visualisations }: PatternProps) => {
         </Typography.Text>
         <Space>
           {visualisations.map((chart) => (
+            <>
             <Tooltip key={chart} title={chart}>{chartIcons[chart] ?? chart}</Tooltip>
+            <Divider type="vertical"/>
+            </>
           ))}
         </Space>
       </Space>

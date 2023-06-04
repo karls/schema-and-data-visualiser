@@ -41,9 +41,9 @@ const QueryHistory = observer(() => {
         <DeleteHistory />
       </Space>
       {repositoryStore.getCurrentRepository() === null && (
-        <Text style={{ padding: 5 }}>
-          Select a repository to see the queries you have run in the past
-        </Text>
+        <div style={{ padding: 5 }}>
+          <Alert message="Select a repository to see the queries you have run in the past" />
+        </div>
       )}
       {repositoryStore.getCurrentRepository() &&
       repositoryStore.getQueryHistory().length === 0 ? (
@@ -54,8 +54,8 @@ const QueryHistory = observer(() => {
         <div
           style={{
             width: "100%",
-            height: settings.screenHeight - 300,
-            overflowY: "scroll",
+            height: settings.screenHeight - 450,
+            overflowY: "auto",
           }}
         >
           <Timeline

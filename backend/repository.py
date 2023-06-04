@@ -47,11 +47,15 @@ class LocalRepository(RDFRepository):
         try:
             result = self.graph.query(query)
 
-            header = [str(column) for column in result.vars]
-            data = []
-
-            for row in result:
-                data.append([str(value) for value in row])
+            if result.type == 'SELECT':
+                header = [str(column) for column in result.vars]
+                data = [[str(value) for value in row] for row in result]
+            elif result.type == 'BOOL':
+                header = ['boolean']
+                data = [[bool(result)]]
+            else:
+                header = ['Subject', 'Predicate', 'Object']
+                data = [[str(value) for value in row] for row in result]
 
             return {'header': header, 'data': data}
 

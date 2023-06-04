@@ -30,11 +30,15 @@ const Sidebar = observer(() => {
 const SelectRepository = () => {
   const rootStore = useStore();
   const repositoryStore = rootStore.repositoryStore;
+  const authStore = rootStore.authStore;
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
-    allRepositories().then((repositories) => setRepositories(repositories));
-  }, []);
+    allRepositories(authStore.username!).then((repositories) => {
+      console.log("repositories: ", repositories);
+      setRepositories(repositories);
+    });
+  }, [authStore.username]);
 
   return (
     <Dropdown

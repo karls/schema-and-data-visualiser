@@ -2,11 +2,14 @@ import axios from "axios";
 import { QueryAnalysis, QueryRecord } from "../types";
 
 export async function getQueryHistory(
-  repository: string
+  repository: string,
+  username: string
 ): Promise<QueryRecord[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/history?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/saved-queries?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const queries = response.data;
     return queries;

@@ -7,8 +7,8 @@ from flask_cors import CORS
 import urllib
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
-from backend.db import add_to_history, get_queries, delete_all_queries, \
-    save_repository
+from backend.db import save_query, get_queries, delete_all_queries, \
+    save_repository, get_repository, get_repository_info
 from backend.repository import LocalRepository, GraphDBRepository
 from backend.util import csv_to_json, parse_csv_text, is_csv, \
     parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
@@ -16,15 +16,18 @@ from backend.util import csv_to_json, parse_csv_text, is_csv, \
 
 load_dotenv(find_dotenv())
 
-app = Flask(__name__, static_url_path='', static_folder='frontend/build')
-app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
 
 API_URL = os.environ['GRAPHDB_SERVER']
+BUILD = os.environ['BUILD']
 
-if os.environ['BUILD'] == 'development':
-    CORS(app)
+if BUILD == 'development':
+    app = Flask(__name__)
+    CORS(app, origins=["http://localhost:3000"])
+else:
+    app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 
+app.secret_key = 'imperial-college-london'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
@@ -43,8 +46,9 @@ def allowed_file(filename):
 
 @app.route('/repositories', methods=['GET'])
 def get_repositories():
-    response = requests.get(f'{API_URL}/repositories')
-    return csv_to_json(response.text)
+    if request.method == 'GET':
+        username = request.args['username']
+        return jsonify(get_repository_info(username=username))
 
 
 @app.route('/upload', methods=['POST'])
@@ -69,21 +73,27 @@ def upload_file():
             return {}
 
 
-@app.route('/login', method=['POST'])
+@app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
         username = request.args['username']
         session['username'] = username
+        print('username: ', session)
+        return username
 
 
-@app.route('/logout', method=['POST'])
-def login():
+@app.route('/logout', methods=['POST'])
+def logout():
     if request.method == 'POST':
-        session.pop('username', None)
+        if 'username' in session:
+            username = session['username']
+            session.pop('username', None)
+            return username
+        return ''
 
 
-@app.route('/repositories/local', method=['POST'])
-def login():
+@app.route('/repositories/local', methods=['POST'])
+def add_local_repo():
     username = session['username']
     if request.method == 'POST':
         name = request.json['name']
@@ -94,8 +104,8 @@ def login():
         save_repository(repository=repo, username=username)
 
 
-@app.route('/repositories/graphdb', method=['POST'])
-def login():
+@app.route('/repositories/graphdb', methods=['POST'])
+def add_graphdb_repo():
     username = session['username']
     if request.method == 'POST':
         name = request.json['name']
@@ -107,55 +117,40 @@ def login():
 @app.route('/sparql', methods=['GET'])
 def run_query():
     if request.method == 'GET':
-        repository = request.args['repository']
+        repository_id = request.args['repository']
         query = request.args['query']
+        username = request.args['username']
 
-        response = requests.get(
-            f'{API_URL}/repositories/{repository}'
-            f'?query={urllib.parse.quote(query, safe="")}')
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
 
-        results = response.text.replace('\r', '')
-        header = []
-        data = []
-
-        if response.status_code == BAD_REQUEST:
-            header = ['ERROR']
-            data = [[results]]
-
-        elif is_json(results):  # For ASK queries
-            obj = json.loads(results)
-            if 'boolean' in obj:
-                header = ['boolean']
-                data = [[str(obj['boolean']).lower()]]
-
-        elif is_ntriples_format(results):  # For CONSTRUCT queries
-            header = ['Subject', 'Predicate', 'Object']
-            data = parse_ntriples_graph(results)
-
-        else:  # For SELECT queries
-            header = results.split('\n')[0].split(',')
-            data = parse_csv_text(results)
-
-        return jsonify({'header': header, 'data': data})
+        return repository.run_query(query=query)
 
 
-@app.route('/history', methods=['GET', 'POST', 'DELETE'])
+@app.route('/saved-queries', methods=['GET', 'POST', 'DELETE'])
 def history():
     if request.method == 'GET':
         repository_id = request.args['repository']
-        return jsonify(get_queries(repository_id))
+        username = request.args['username']
+        return jsonify(
+            get_queries(repository_id=repository_id, username=username))
+
     elif request.method == 'POST':
+        username = request.args['username']
         repository = request.args['repository']
         query = request.args['query']
         title = request.args['title']
         if title:
-            add_to_history(repository_id=repository,
-                           sparql=query,
-                           title=title)
+            save_query(repository_id=repository,
+                       sparql=query,
+                       title=title,
+                       username=username)
         return query
     elif request.method == 'DELETE':
+        username = request.args['username']
         repository_id = request.args['repository']
-        return delete_all_queries(repository_id)
+        return delete_all_queries(repository_id=repository_id,
+                                  username=username)
 
 
 @app.route('/api-url', methods=['GET', 'POST'])

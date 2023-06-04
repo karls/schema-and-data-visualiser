@@ -61,8 +61,10 @@ class QueryAnalyser:
             if subject not in self.triples:
                 self.triples[subject] = {}
 
-            pairs = [shlex.split(s.strip()) for s in
-                     separator_split(properties)]
+            groups = [shlex.split(s.strip()) for s in
+                      separator_split(properties)]
+
+            pairs = [group for group in groups if len(group) == 2]
 
             for [prop, obj] in pairs:
                 if prop in ['rdf:type', 'rdfs:type',
@@ -189,7 +191,7 @@ class QueryAnalyser:
         return len(class_vars)
 
     def connected_by_props(self, var_a: str, var_b: str,
-                           func_props=False, key_func_props=False) -> bool:
+                           func_props=False, inv_func_props=False) -> bool:
         stack = [var_a]
         while stack:
             curr = stack.pop()
@@ -203,7 +205,7 @@ class QueryAnalyser:
                 if func_props and prop not in self.func_props:
                     continue
 
-                if key_func_props and prop not in self.key_func_props:
+                if inv_func_props and prop not in self.key_func_props:
                     continue
 
                 obj_list = self.triples[curr][prop]
@@ -213,7 +215,7 @@ class QueryAnalyser:
 
         return False
 
-    def class_with_data_properties(self):
+    def class_with_data_properties(self) -> bool:
         if self.class_vars_used() != 1:
             return False
         for var in self.select_variables:
@@ -222,7 +224,7 @@ class QueryAnalyser:
 
         return True
 
-    def two_classes_linked_by_func_prop(self) -> Dict:
+    def two_classes_linked_by_func_prop(self) -> bool:
         if self.class_vars_used() != 2:
             return False
 
@@ -237,12 +239,14 @@ class QueryAnalyser:
             class_var_b = self.key_of_var[key_vars[i]]
 
             if not self.connected_by_props(class_var_a, class_var_b,
-                                           func_props=True):
+                                           func_props=True) and \
+                    not self.connected_by_props(class_var_b, class_var_a,
+                                                inv_func_props=True):
                 return False
 
         return True
 
-    def two_classes_linked_by_key_func_prop(self) -> Dict:
+    def two_classes_linked_by_key_func_prop(self) -> bool:
         if self.class_vars_used() != 2:
             return False
 
@@ -257,10 +261,10 @@ class QueryAnalyser:
             class_var_b = self.key_of_var[key_vars[i + 1]]
 
             if not self.connected_by_props(class_var_a, class_var_b,
-                                           key_func_props=True):
+                                           inv_func_props=True):
                 return False
 
-        return True
+        return len(self.var_categories['numeric']) == 1
 
     def three_classes_linked_by_func_props(self):
         if self.class_vars_used() != 3:
