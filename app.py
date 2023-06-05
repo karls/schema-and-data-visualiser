@@ -5,8 +5,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
 from backend.db import save_query, get_queries, delete_all_queries, \
-    update_repository, get_repository, get_repository_info, add_repository
-from backend.util import is_blank_node, run_query_file, import_data
+    get_repository, get_repository_info, add_repository
+from backend.util import run_query_file, import_data
 
 load_dotenv(find_dotenv())
 

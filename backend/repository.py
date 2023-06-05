@@ -1,4 +1,3 @@
-from flask import json
 from rdflib import Graph
 import requests
 import urllib
