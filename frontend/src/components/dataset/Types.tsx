@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import {
-  Collapse,
   Divider,
-  List,
   Select,
   Skeleton,
   Space,
-  Tooltip,
   Typography,
 } from "antd";
 import { RepositoryId, URI } from "../../types";
@@ -15,7 +12,6 @@ import { getTypeProperties, getAllTypes } from "../../api/dataset";
 import { MetaInfo } from "./MetaInfo";
 import { useStore } from "../../stores/store";
 
-const { Panel } = Collapse;
 const { Text } = Typography;
 
 type TypesProps = {
