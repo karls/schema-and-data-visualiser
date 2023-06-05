@@ -103,7 +103,7 @@ const Query = observer(({ query, setQueryText, name }: QueryProps) => {
           Charts
         </Space.Compact>
       ),
-      disabled: isEmpty(results) || isGraph(results),
+      disabled: isEmpty(results),
       children: <Charts query={query} results={results} />,
     },
   ];
