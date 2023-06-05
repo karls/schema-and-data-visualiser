@@ -4,18 +4,21 @@ import { getInstances, getAllTypes } from "../../api/dataset";
 import { Collapse, Divider, Select, Skeleton, Tooltip } from "antd";
 import { removePrefix } from "../../utils/queryResults";
 import { PropertyValues } from "./DataProperties";
+import { useStore } from "../../stores/store";
 
 const Instances = ({ repository }) => {
+  const username = useStore().authStore.username!;
+  
   const [allTypes, setAllTypes] = useState<URI[]>([]);
   const [type, setType] = useState<URI | null>(null);
   const [instances, setInstances] = useState<URI[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    getAllTypes(repository).then((res) => {
+    getAllTypes(repository, username).then((res) => {
       setAllTypes(res);
     });
-  }, [repository]);
+  }, [repository, username]);
 
   return (
     <>
@@ -30,7 +33,7 @@ const Instances = ({ repository }) => {
         onChange={(value) => {
           setLoading(true);
           setType(value);
-          getInstances(repository, value).then((res) => {
+          getInstances(repository, value, username).then((res) => {
             setInstances(res);
             setLoading(false);
           });

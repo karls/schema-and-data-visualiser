@@ -24,7 +24,7 @@ type QueryEditorProps = {
   onRun: (results: QueryResults) => void;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  queryTitle: string;
+  queryName: string;
 };
 
 const Editor = ({
@@ -35,12 +35,14 @@ const Editor = ({
   onRun,
   loading,
   setLoading,
-  queryTitle,
+  queryName,
 }: QueryEditorProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
   const queriesStore = rootStore.queriesStore;
+  const authStore = rootStore.authStore;
+  const username = authStore.username!;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
     repositoryStore.getCurrentRepository()
@@ -50,14 +52,14 @@ const Editor = ({
 
   useEffect(() => {
     if (repository !== null) {
-      getAllProperties(repository).then((res) => {
+      getAllProperties(repository, username).then((res) => {
         setProperties(res);
       });
-      getAllTypes(repository).then((res) => {
+      getAllTypes(repository, username).then((res) => {
         setTypes(res);
       });
     }
-  }, [repository]);
+  }, [repository, username]);
 
   const { notification } = AntdApp.useApp();
 
@@ -89,7 +91,8 @@ const Editor = ({
               const start = new Date().getTime();
               runSparqlQuery(
                 repository!,
-                queriesStore.currentQuery.sparql
+                queriesStore.currentQuery.sparql,
+                authStore.username!
               ).then((results) => {
                 showNotification(new Date().getTime() - start);
                 onRun(results);
@@ -101,7 +104,7 @@ const Editor = ({
             Run
           </Button>
           <CopyToClipboard text={query} />
-          <SaveQuery repository={repository} query={query} title={queryTitle} />
+          <SaveQuery repository={repository} query={query} name={queryName} />
           <Templates templates={sparql_templates} />
         </Space>
 
@@ -143,33 +146,35 @@ const SelectRepository = ({
   repository: string | null;
   setRepository: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
+  const rootStore = useStore();
+  const authStore = rootStore.authStore;
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
-    allRepositories().then((repositories) => {
+    allRepositories(authStore.username!).then((repositories) => {
       setRepositories(repositories);
     });
-  }, []);
+  }, [authStore.username]);
 
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+        items: repositories.map(({ name }: RepositoryInfo, index) => {
           return {
             key: `${index}`,
             label: (
               <Button
-                onClick={() => setRepository(id)}
+                onClick={() => setRepository(name)}
                 style={{ width: "100%", height: "100%" }}
               >
-                {id}
+                {name}
               </Button>
             ),
           };
         }),
       }}
     >
-      <Button title="Choose repository">
+      <Button name="Choose repository">
         <Space>
           <RiGitRepositoryLine size={20} />
           {repository || "Choose repository"}
@@ -192,22 +197,24 @@ const CopyToClipboard = ({ text }: { text: string }) => {
 
 const SaveQuery = observer(
   ({
-    title,
+    name,
     query,
     repository,
   }: {
-    title: string;
+    name: string;
     query: string;
     repository: RepositoryId | null;
   }) => {
     const rootStore = useStore();
+    const username = rootStore.authStore.username!;
+
     const repositoryStore = rootStore.repositoryStore;
     return (
       <Button
         icon={<BiSave size={20} />}
         disabled={repository === null}
         onClick={() => {
-          addQueryToHistory(repository!, query, title).then(() => {
+          addQueryToHistory(repository!, query, name, username).then(() => {
             repositoryStore.updateQueryHistory();
           });
         }}

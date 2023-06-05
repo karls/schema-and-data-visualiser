@@ -1,28 +1,26 @@
-import json
 import os
-from flask import Flask, request, jsonify, flash, send_from_directory
+from flask import Flask, request, jsonify, flash, send_from_directory, session
 from werkzeug.utils import secure_filename
-import requests
 from flask_cors import CORS
-import urllib
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
-from backend.db import add_to_history, get_queries, delete_all_queries
-from backend.util import csv_to_json, parse_csv_text, is_csv, \
-    parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
-    is_blank_node, is_json
+from backend.db import save_query, get_queries, delete_all_queries, \
+    get_repository, get_repository_info, add_repository
+from backend.util import run_query_file, import_data
 
 load_dotenv(find_dotenv())
 
-app = Flask(__name__, static_url_path='', static_folder='frontend/build')
-app.secret_key = 'imperial-college-london'
 UPLOAD_FOLDER = 'imports'
 
-API_URL = os.environ['GRAPHDB_SERVER']
+BUILD = os.environ['BUILD']
 
-if os.environ['BUILD'] == 'development':
-    CORS(app)
+if BUILD == 'development':
+    app = Flask(__name__)
+    CORS(app, origins=["http://localhost:3000"])
+else:
+    app = Flask(__name__, static_url_path='', static_folder='frontend/build')
 
+app.secret_key = 'imperial-college-london'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'rdf', 'xml', 'nt', 'n3', 'ttl', 'nt11', 'txt'}
 
@@ -41,8 +39,9 @@ def allowed_file(filename):
 
 @app.route('/repositories', methods=['GET'])
 def get_repositories():
-    response = requests.get(f'{API_URL}/repositories')
-    return csv_to_json(response.text)
+    if request.method == 'GET':
+        username = request.args['username']
+        return jsonify(get_repository_info(username=username))
 
 
 @app.route('/upload', methods=['POST'])
@@ -67,172 +66,191 @@ def upload_file():
             return {}
 
 
+@app.route('/login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        username = request.args['username']
+        session['username'] = username
+        print('username: ', session)
+        return username
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    if request.method == 'POST':
+        if 'username' in session:
+            username = session['username']
+            session.pop('username', None)
+            return username
+        return ''
+
+
+@app.route('/repositories/local', methods=['POST'])
+def add_local_repo():
+    username = session['username']
+    if request.method == 'POST':
+        name = request.json['name']
+        description = request.json['description']
+        data_url = request.json['dataUrl']
+        schema_url = request.json['schemaUrl']
+        graph = import_data(data_url=data_url,
+                            schema_url=schema_url)
+        add_repository(repository_id=name, username=username, graph=graph,
+                       description=description)
+
+        return name
+
+
+@app.route('/repositories/remote', methods=['POST'])
+def add_graphdb_repo():
+    if request.method == 'POST':
+        name = request.json['name']
+        endpoint = request.json['endpoint']
+        username = request.json['username']
+        description = request.json['description']
+
+        add_repository(repository_id=name, username=username, endpoint=endpoint,
+                       description=description)
+
+        return name
+
+
 @app.route('/sparql', methods=['GET'])
 def run_query():
     if request.method == 'GET':
-        repository = request.args['repository']
+        repository_id = request.args['repository']
         query = request.args['query']
+        username = request.args['username']
 
-        response = requests.get(
-            f'{API_URL}/repositories/{repository}'
-            f'?query={urllib.parse.quote(query, safe="")}')
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
 
-        results = response.text.replace('\r', '')
-        header = []
-        data = []
-
-        if response.status_code == BAD_REQUEST:
-            header = ['ERROR']
-            data = [[results]]
-
-        elif is_json(results):  # For ASK queries
-            obj = json.loads(results)
-            if 'boolean' in obj:
-                header = ['boolean']
-                data = [[str(obj['boolean']).lower()]]
-
-        elif is_ntriples_format(results):  # For CONSTRUCT queries
-            header = ['Subject', 'Predicate', 'Object']
-            data = parse_ntriples_graph(results)
-
-        else:  # For SELECT queries
-            header = results.split('\n')[0].split(',')
-            data = parse_csv_text(results)
-
-        return jsonify({'header': header, 'data': data})
+        return repository.run_query(query=query)
 
 
-@app.route('/history', methods=['GET', 'POST', 'DELETE'])
+@app.route('/saved-queries', methods=['GET', 'POST', 'DELETE'])
 def history():
     if request.method == 'GET':
         repository_id = request.args['repository']
-        return jsonify(get_queries(repository_id))
+        username = request.args['username']
+        return jsonify(
+            get_queries(repository_id=repository_id, username=username))
+
     elif request.method == 'POST':
-        repository = request.args['repository']
-        query = request.args['query']
-        title = request.args['title']
-        if title:
-            add_to_history(repository_id=repository,
-                           sparql=query,
-                           title=title)
-        return query
+        username = request.json['username']
+        repository = request.json['repository']
+        sparql = request.json['sparql']
+        name = request.json['name']
+        if name:
+            save_query(repository_id=repository,
+                       sparql=sparql,
+                       name=name,
+                       username=username)
+        return name
     elif request.method == 'DELETE':
+        username = request.args['username']
         repository_id = request.args['repository']
-        return delete_all_queries(repository_id)
-
-
-@app.route('/api-url', methods=['GET', 'POST'])
-def graphdb_url():
-    global API_URL
-    if request.method == 'GET':
-        return API_URL
-    elif request.method == 'POST':
-        API_URL = request.args['url']
-        return API_URL
+        return delete_all_queries(repository_id=repository_id,
+                                  username=username)
 
 
 @app.route('/dataset/classes', methods=['GET'])
 def classes():
     if request.method == 'GET':
-        repository = request.args['repository']
-        with open(f'{QUERY_PATH}/all_classes.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read(), safe="")}')
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
+        result = run_query_file(repository=repository,
+                                path=f'{QUERY_PATH}/all_classes.sparql')
 
-        return remove_blank_nodes(
-            response.text.replace('\r', '').splitlines()[1:])
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
 def class_hierarchy():
     if request.method == 'GET':
-        repository = request.args['repository']
-        with open(f'{QUERY_PATH}/class_hierarchy.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read(), safe="")}')
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
+        result = run_query_file(repository=repository,
+                                path=f'{QUERY_PATH}/class_hierarchy.sparql')
 
-        result = response.text
-
-        header = ['Subject', 'Predicate', 'Object']
-        data = parse_ntriples_graph(result)
-        data = list(filter(
-            lambda row: not is_blank_node(row[0]) and not is_blank_node(row[2]),
-            data))
+        header = ['subject', 'predicate', 'object']
+        data = result['data']
         return jsonify({'header': header, 'data': data})
 
 
 @app.route('/dataset/triplet-count', methods=['GET'])
 def triplets():
     if request.method == 'GET':
-        repository = request.args['repository']
-        with open(f'{QUERY_PATH}/count_triplets.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read(), safe="")}')
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
+        result = run_query_file(repository=repository,
+                                path=f'{QUERY_PATH}/count_triplets.sparql')
 
-        result = response.text
-
-        return result.split('\n')[1]
+        return result['data'][0][0]
 
 
 @app.route('/dataset/all-types', methods=['GET'])
 def all_types():
     if request.method == 'GET':
-        repository = request.args['repository']
-        with open(f'{QUERY_PATH}/all_types.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read(), safe="")}')
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
+        result = run_query_file(repository=repository,
+                                path=f'{QUERY_PATH}/all_types.sparql')
 
-        types = response.text.replace('\r', '').splitlines()[1:]
-        return remove_blank_nodes(types)
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/type', methods=['GET'])
 def get_type():
     if request.method == 'GET':
-        repository = request.args['repository']
         uri = request.args['uri']
-        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}')
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
 
-        return response.text.replace('\r', '').splitlines()[1:]
+        with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
+            result = repository.run_query(query=query.read().format(uri=uri))
+
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/type-properties', methods=['GET'])
 def type_properties():
     if request.method == 'GET':
-        repository = request.args['repository']
         rdf_type = request.args['type']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         with open(f'{QUERY_PATH}/type_properties.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(type=rdf_type), safe="")}'
-            )
+            result = repository.run_query(
+                query=query.read().format(type=rdf_type))
 
-        return response.text.replace('\r', '').splitlines()[1:]
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/meta-information', methods=['GET'])
 def meta_information():
     if request.method == 'GET':
-        repository = request.args['repository']
         uri = request.args['uri']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         with open(f'{QUERY_PATH}/meta_information.sparql', 'r') as query:
-            # print(query.read().format(uri=uri))
-            # query.seek(0)
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
-            )
-        info = response.text
+            result = repository.run_query(query=query.read().format(uri=uri))
 
-        fields = info.split('\n')[0].split(',')
-        values = info.split('\n')[1].split(',')
+        fields = result['header']
+        values = result['data'][0]
 
         return jsonify(dict(zip(fields, values)))
 
@@ -240,16 +258,16 @@ def meta_information():
 @app.route('/dataset/outgoing-links', methods=['GET'])
 def outgoing_links():
     if request.method == 'GET':
-        repository = request.args['repository']
         uri = request.args['uri']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         with open(f'{QUERY_PATH}/outgoing_links.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
-            )
-        result = parse_csv_text(response.text, skip_header=True)
+            result = repository.run_query(query=query.read().format(uri=uri))
+
         links = {}
-        for [uri, count] in result:
+        for [uri, count] in result['data']:
             links[uri] = int(count)
 
         return jsonify(links)
@@ -258,16 +276,16 @@ def outgoing_links():
 @app.route('/dataset/incoming-links', methods=['GET'])
 def incoming_links():
     if request.method == 'GET':
-        repository = request.args['repository']
         uri = request.args['uri']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         with open(f'{QUERY_PATH}/incoming_links.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(uri=uri), safe="")}'
-            )
-        result = parse_csv_text(response.text, skip_header=True)
+            result = repository.run_query(query=query.read().format(uri=uri))
+
         links = {}
-        for [uri, count] in result:
+        for [uri, count] in result['data']:
             links[uri] = int(count)
 
         return jsonify(links)
@@ -276,48 +294,53 @@ def incoming_links():
 @app.route('/dataset/all-properties', methods=['GET'])
 def all_properties():
     if request.method == 'GET':
-        repository = request.args['repository']
-        with open(f'{QUERY_PATH}/all_properties.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read(), safe="")}'
-            )
-        # Remove carriage return character and skip header on first line
-        return response.text.replace('\r', '').splitlines()[1:]
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
+        result = run_query_file(repository=repository,
+                                path=f'{QUERY_PATH}/all_properties.sparql')
+
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/type-instances', methods=['GET'])
 def type_instances():
     if request.method == 'GET':
-        repository = request.args['repository']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         type_ = request.args['type']
         with open(f'{QUERY_PATH}/type_instances.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(type=type_), safe="")}'
-            )
-        # Remove carriage return character and skip header on first line
-        return response.text.replace('\r', '').splitlines()[1:]
+            result = repository.run_query(query=query.read().format(type=type_))
+
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/property-values', methods=['GET'])
 def property_values():
     if request.method == 'GET':
-        repository = request.args['repository']
+        username = request.args['username']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         uri = request.args['uri']
         prop_type = request.args['propType']
         with open(f'{QUERY_PATH}/property_values.sparql', 'r') as query:
-            response = requests.get(
-                f'{API_URL}/repositories/{repository}'
-                f'?query={urllib.parse.quote(query.read().format(uri=uri, prop_type=prop_type), safe="")} '
-            )
-        return parse_csv_text(response.text, skip_header=True)
+            result = repository.run_query(
+                query=query.read().format(uri=uri, prop_type=prop_type))
+
+        return result['data']
 
 
 @app.route('/analysis', methods=['GET'])
 def analysis():
     if request.method == 'GET':
+        username = request.args['username']
         query = request.args['query']
-        repository = request.args['repository']
+        repository_id = request.args['repository']
+        repository = get_repository(repository_id=repository_id,
+                                    username=username)
         return jsonify(
-            query_analysis(query=query, repository=repository, api=API_URL))
+            query_analysis(query=query, repository=repository))

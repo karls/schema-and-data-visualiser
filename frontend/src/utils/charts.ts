@@ -8,11 +8,11 @@ import {
 type RelationMap = { [key: string]: { [key: string]: RelationType } };
 type LinkMap = { [key: string]: Set<string> };
 
-export function possibleCharts(
+export function recommendedCharts(
   variables: VariableCategories,
   allRelations: RelationMap
 ) {
-  const { scalar, temporal, geographical, key, lexical, date, numeric } =
+  const { scalar, geographical, key, lexical, date, numeric } =
     variables;
 
   const charts: ChartType[] = [];

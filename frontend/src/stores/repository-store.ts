@@ -1,11 +1,11 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
-import { QueryRecord, RepositoryId } from "../types";
+import { QueryRecord } from "../types";
 import RootStore from "./root-store";
 import { clearQueryHistory, getQueryHistory } from "../api/queries";
 
 type RepositoryStoreState = {
-  currentRepository: RepositoryId | null;
+  currentRepository: string | null;
   queryHistory: QueryRecord[];
 };
 
@@ -32,9 +32,6 @@ class RepositoryStore {
     });
   }
 
-  setState(state: RepositoryStoreState) {
-    this.state = state;
-  }
 
   get currentRepository() {
     return this.state.currentRepository;
@@ -52,22 +49,25 @@ class RepositoryStore {
     return this.state.queryHistory;
   }
 
-  setCurrentRepository(id: RepositoryId) {
-    this.setState({ ...this.state, currentRepository: id });
+  setCurrentRepository(repositoryId: string) {
+    this.state.currentRepository= repositoryId;
     this.updateQueryHistory();
   }
 
   updateQueryHistory() {
     if (this.state.currentRepository) {
-      getQueryHistory(this.state.currentRepository).then((queries: QueryRecord[]) => {
-        this.setState({ ...this.state, queryHistory: queries });
+      const username = this.rootStore.authStore.username!;
+      getQueryHistory(this.state.currentRepository, username).then((queries: QueryRecord[]) => {
+        console.log(queries);
+        this.state.queryHistory = queries;
       });
     }
   }
 
   clearQueryHistory() {
     if (this.state.currentRepository) {
-      clearQueryHistory(this.state.currentRepository).then(() => {
+      const username = this.rootStore.authStore.username!;
+      clearQueryHistory(this.state.currentRepository, username).then(() => {
         this.updateQueryHistory();
       });
     }

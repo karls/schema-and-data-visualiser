@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, List, Space, Tag, Tooltip, Typography } from "antd";
+import { Alert, Card, Divider, List, Space, Tag, Tooltip, Typography } from "antd";
 import {
   ChartType,
   QueryAnalysis,
@@ -32,6 +32,7 @@ import { TiChartPieOutline } from "react-icons/ti";
 import { ImSphere, ImTree } from "react-icons/im";
 import { HiOutlineGlobe } from "react-icons/hi";
 import { RiBarChartGroupedFill } from "react-icons/ri";
+import { useStore } from "../../stores/store";
 
 export const chartIcons = {
   [ChartType.BAR]: <AiOutlineBarChart size={35} />,
@@ -61,16 +62,18 @@ type AnalysisProps = {
 };
 
 const Analysis = ({ query, repository }: AnalysisProps) => {
+  const username = useStore().authStore.username!;
+
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis | null>();
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     setLoading(true);
-    getQueryAnalysis(query, repository).then((res) => {
+    getQueryAnalysis(query, repository, username).then((res) => {
       setQueryAnalysis(res);
       setLoading(false);
     });
-  }, [query, repository]);
+  }, [query, repository, username]);
 
   return (
     <Card title="Analysis" style={{ width: "100%" }} loading={loading}>
@@ -101,11 +104,14 @@ const Pattern = ({ pattern, visualisations }: PatternProps) => {
     <Card type="inner" title={pattern} style={{ width: "100%" }}>
       <Space direction="vertical">
         <Typography.Text style={{ fontSize: 20 }}>
-          Typical charts
+          Potential charts
         </Typography.Text>
         <Space>
           {visualisations.map((chart) => (
-            <Tooltip key={chart} title={chart}>{chartIcons[chart] ?? chart}</Tooltip>
+            <Space key={chart}>
+              <Tooltip title={chart}>{chartIcons[chart] ?? chart}</Tooltip>
+              <Divider type="vertical"/>
+            </Space>
           ))}
         </Space>
       </Space>

@@ -2,10 +2,15 @@ import axios from "axios";
 import { Metadata, PropertyType, RDFGraph, RepositoryId, URI } from "../types";
 import { emptyGraph } from "../utils/queryResults";
 
-export async function getClasses(repository: RepositoryId): Promise<URI[]> {
+export async function getClasses(
+  repository: RepositoryId,
+  username: string
+): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/classes?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/classes?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const classes = response.data;
     return classes;
@@ -14,11 +19,14 @@ export async function getClasses(repository: RepositoryId): Promise<URI[]> {
 }
 
 export async function getClassHierarchy(
-  repository: RepositoryId
+  repository: RepositoryId,
+  username: string
 ): Promise<RDFGraph> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/class-hierarchy?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/class-hierarchy?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const graph = response.data;
     return graph;
@@ -27,11 +35,14 @@ export async function getClassHierarchy(
 }
 
 export async function getNoOfTriplets(
-  repository: RepositoryId
+  repository: RepositoryId,
+  username: string
 ): Promise<number> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/triplet-count?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/triplet-count?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const totalTriplets = parseInt(response.data);
     return totalTriplets;
@@ -39,10 +50,15 @@ export async function getNoOfTriplets(
   return 0;
 }
 
-export async function getAllTypes(repository: RepositoryId): Promise<URI[]> {
+export async function getAllTypes(
+  repository: RepositoryId,
+  username: string
+): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/all-types?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/all-types?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const classes = response.data;
     return classes;
@@ -52,13 +68,14 @@ export async function getAllTypes(repository: RepositoryId): Promise<URI[]> {
 
 export async function getTypeProperties(
   repository: RepositoryId,
-  type: URI
+  type: URI,
+  username: string
 ): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type-properties?repository=${repository}&type=${encodeURIComponent(
       type
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
@@ -68,13 +85,14 @@ export async function getTypeProperties(
 
 export async function getMetaInformation(
   repository: RepositoryId,
-  uri: URI
+  uri: URI,
+  username: string
 ): Promise<Metadata> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/meta-information?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
@@ -85,13 +103,14 @@ export async function getMetaInformation(
 
 export async function getOutgoingLinks(
   repository: RepositoryId,
-  uri: URI
+  uri: URI,
+  username: string
 ): Promise<{ [key: URI]: number }> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/outgoing-links?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
@@ -102,13 +121,14 @@ export async function getOutgoingLinks(
 
 export async function getIncomingLinks(
   repository: RepositoryId,
-  uri: URI
+  uri: URI,
+  username: string
 ): Promise<{ [key: URI]: number }> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/incoming-links?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
@@ -118,11 +138,14 @@ export async function getIncomingLinks(
 }
 
 export async function getAllProperties(
-  repository: RepositoryId
+  repository: RepositoryId,
+  username: string
 ): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
-    const endpoint = `${BACKEND_API}/dataset/all-properties?repository=${repository}`;
+    const endpoint = `${BACKEND_API}/dataset/all-properties?repository=${repository}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const properties = response.data;
     return properties;
@@ -133,13 +156,16 @@ export async function getAllProperties(
 export async function getPropertyValues(
   repository: RepositoryId,
   uri: URI,
-  propType: PropertyType
+  propType: PropertyType,
+  username: string
 ): Promise<[URI, string][]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}&propType=${PropertyType[propType]}`;
+    )}&propType=${PropertyType[propType]}&username=${encodeURIComponent(
+      username
+    )}`;
     const response = await axios.get(endpoint);
     const data = response.data;
     return data;
@@ -149,13 +175,14 @@ export async function getPropertyValues(
 
 export async function getInstances(
   repository: RepositoryId,
-  type: URI
+  type: URI,
+  username: string
 ): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type-instances?repository=${repository}&type=${encodeURIComponent(
       type
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const data = response.data;
     return data;
@@ -166,13 +193,14 @@ export async function getInstances(
 
 export async function getType(
   repository: RepositoryId,
-  uri: URI
+  uri: URI,
+  username: string
 ): Promise<URI[]> {
   const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type?repository=${repository}&uri=${encodeURIComponent(
       uri
-    )}`;
+    )}&username=${encodeURIComponent(username)}`;
     const response = await axios.get(endpoint);
     const type = response.data;
     return type;

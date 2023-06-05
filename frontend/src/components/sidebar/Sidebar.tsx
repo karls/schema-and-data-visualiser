@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { RiGitRepositoryLine } from "react-icons/ri";
 import QueryHistory from "./QueryHistory";
 import ExploreDataset from "./ExploreDataset";
+import Repositories from "./Repositories";
 
 const Sidebar = observer(() => {
   const rootStore = useStore();
@@ -19,6 +20,7 @@ const Sidebar = observer(() => {
         <div style={{ justifyContent: "center" }}>
           <SelectRepository />
           <ExploreDataset repository={repositoryStore.currentRepository} />
+          <Repositories />
           <Divider />
           <QueryHistory />
         </div>
@@ -30,30 +32,33 @@ const Sidebar = observer(() => {
 const SelectRepository = () => {
   const rootStore = useStore();
   const repositoryStore = rootStore.repositoryStore;
+  const authStore = rootStore.authStore;
   const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
-    allRepositories().then((repositories) => setRepositories(repositories));
-  }, []);
+    allRepositories(authStore.username!).then((repositories) => {
+      setRepositories(repositories);
+    });
+  }, [authStore.username]);
 
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
+        items: repositories.map(({ name }: RepositoryInfo, index) => {
           return {
             key: `${index}`,
             label: (
               <Popover
                 placement="right"
-                title={title ? "Description" : "No description available"}
-                content={title}
+                title={name ? "Description" : "No description available"}
+                content={name}
                 trigger="hover"
               >
                 <Button
-                  onClick={() => repositoryStore.setCurrentRepository(id)}
+                  onClick={() => repositoryStore.setCurrentRepository(name)}
                   style={{ width: "100%", height: "100%" }}
                 >
-                  {id}
+                  {name}
                 </Button>
               </Popover>
             ),
@@ -61,7 +66,7 @@ const SelectRepository = () => {
         }),
       }}
     >
-      <Button style={{ width: "95%", margin: 5 }} title="Choose repository">
+      <Button style={{ width: "95%", margin: 5 }} name="Choose repository">
         <Space>
           <RiGitRepositoryLine size={20} />
           <b>{repositoryStore.currentRepository || "Select repository"}</b>

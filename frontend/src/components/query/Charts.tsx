@@ -41,7 +41,7 @@ import HierarchyTree from "../charts/HierarchyTree";
 import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
-import { getAllRelations, possibleCharts } from "../../utils/charts";
+import { getAllRelations, recommendedCharts } from "../../utils/charts";
 import { Suggested } from "./Suggested";
 import NetworkChart from "../charts/NetworkChart";
 import { IoMdGitNetwork } from "react-icons/io";
@@ -58,6 +58,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
+  const username = rootStore.authStore.username!;
 
   const chartWidth = Math.floor(
     (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
@@ -85,17 +86,19 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     () => getAllRelations(results, queryAnalysis.variables.key),
     [queryAnalysis.variables.key, results]
   );
-  const possibleVis: ChartType[] = useMemo(
-    () => possibleCharts(queryAnalysis.variables, allRelations),
+  const possibleCharts: ChartType[] = useMemo(
+    () => recommendedCharts(queryAnalysis.variables, allRelations),
     [allRelations, queryAnalysis.variables]
   );
   useEffect(() => {
     if (repositoryStore.currentRepository) {
-      getQueryAnalysis(query, repositoryStore.currentRepository).then((res) => {
-        setQueryAnalysis(res);
-      });
+      getQueryAnalysis(query, repositoryStore.currentRepository, username).then(
+        (res) => {
+          setQueryAnalysis(res);
+        }
+      );
     }
-  }, [query, repositoryStore.currentRepository, results]);
+  }, [query, repositoryStore.currentRepository, results, username]);
 
   const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {
@@ -430,11 +433,13 @@ const Charts = observer(({ query, results }: ChartsProps) => {
           ...(settings.showAllCharts
             ? chartTabs
             : queryAnalysis.pattern
-            ? chartTabs.filter(({ key }) =>
-                queryAnalysis.visualisations.includes(key as ChartType)
+            ? chartTabs.filter(
+                ({ key }) =>
+                  queryAnalysis.visualisations.includes(key as ChartType) &&
+                  possibleCharts.includes(key as ChartType)
               )
             : chartTabs.filter(({ key }) =>
-                possibleVis.includes(key as ChartType)
+                possibleCharts.includes(key as ChartType)
               )),
         ]}
         style={{ padding: 10 }}

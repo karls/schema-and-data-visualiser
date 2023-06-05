@@ -41,9 +41,9 @@ const QueryHistory = observer(() => {
         <DeleteHistory />
       </Space>
       {repositoryStore.getCurrentRepository() === null && (
-        <Text style={{ padding: 5 }}>
-          Select a repository to see the queries you have run in the past
-        </Text>
+        <div style={{ padding: 5 }}>
+          <Alert message="Select a repository to see the queries you have run in the past" />
+        </div>
       )}
       {repositoryStore.getCurrentRepository() &&
       repositoryStore.getQueryHistory().length === 0 ? (
@@ -54,21 +54,21 @@ const QueryHistory = observer(() => {
         <div
           style={{
             width: "100%",
-            height: settings.screenHeight - 300,
-            overflowY: "scroll",
+            height: settings.screenHeight - 450,
+            overflowY: "auto",
           }}
         >
           <Timeline
             style={{ padding: 5, paddingTop: 10, maxWidth: "100%" }}
             items={repositoryStore
               .getQueryHistory()
-              .map(({ id, sparql, date, title }) => {
+              .map(({ id, sparql, date, name }) => {
                 return {
                   children: (
                     <Popover
                       key={`query-${id}`}
                       placement="right"
-                      title={`${title} (${date})`}
+                      title={`${name} (${date})`}
                       content={
                         <div
                           style={{
@@ -83,9 +83,9 @@ const QueryHistory = observer(() => {
                       style={{ width: "100%" }}
                     >
                       <Button
-                        title="Click to open tab"
+                        name="Click to open tab"
                         onClick={() => {
-                          const qid = queriesStore.addQuery(sparql, title);
+                          const qid = queriesStore.addQuery(sparql, name);
                           queriesStore.setCurrentQueryId(qid);
                         }}
                         style={{
@@ -94,7 +94,7 @@ const QueryHistory = observer(() => {
                           whiteSpace: "normal",
                         }}
                       >
-                        {title}
+                        {name}
                       </Button>
                     </Popover>
                   ),
@@ -125,7 +125,7 @@ const DeleteHistory = observer(() => {
       <Button
         danger
         disabled={repositoryStore.queryHistory.length === 0}
-        title="Clear history"
+        name="Clear history"
       >
         <MdDelete size={20} />
       </Button>

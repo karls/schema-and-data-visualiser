@@ -1,11 +1,17 @@
 import { useEffect, useState } from "react";
-import { Collapse, List, Skeleton, Tooltip, Typography } from "antd";
+import {
+  Divider,
+  Select,
+  Skeleton,
+  Space,
+  Typography,
+} from "antd";
 import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { getTypeProperties, getAllTypes } from "../../api/dataset";
 import { MetaInfo } from "./MetaInfo";
+import { useStore } from "../../stores/store";
 
-const { Panel } = Collapse;
 const { Text } = Typography;
 
 type TypesProps = {
@@ -13,29 +19,42 @@ type TypesProps = {
 };
 
 const Types = ({ repository }: TypesProps) => {
-  const [types, setTypes] = useState<URI[]>([]);
+  const username = useStore().authStore.username!;
+
+  const [allTypes, setAllTypes] = useState<URI[]>([]);
+  const [type, setType] = useState<URI>("");
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getAllTypes(repository).then((res: URI[]) => {
-      setTypes(res);
+    getAllTypes(repository, username).then((res: URI[]) => {
+      setAllTypes(res);
       setLoading(false);
     });
-  }, [repository]);
+  }, [repository, username]);
 
   return (
     <Skeleton active loading={loading}>
-      <Collapse defaultActiveKey={["1"]} onChange={() => {}}>
-        {types.map((type: URI, index) => (
-          <Panel
-            header={<Tooltip title={type}>{removePrefix(type)}</Tooltip>}
-            key={`type-${index}`}
-          >
+      <Space direction="vertical">
+        <Space>
+          <Typography.Text>Select class</Typography.Text>
+          <Select
+            placeholder="Select type"
+            value={type}
+            options={allTypes.map((t) => {
+              return { value: t, label: removePrefix(t) };
+            })}
+            onChange={(value) => setType(value)}
+            style={{ width: 200 }}
+          />
+        </Space>
+        {type && (
+          <Space direction="vertical">
             <MetaInfo repository={repository} uri={type} />
+            <Divider />
             <Properties repository={repository} type={type} />
-          </Panel>
-        ))}
-      </Collapse>
+          </Space>
+        )}
+      </Space>
     </Skeleton>
   );
 };
@@ -45,31 +64,45 @@ type PropertiesProps = {
   type: URI;
 };
 const Properties = ({ repository, type }: PropertiesProps) => {
-  const [properties, setProperties] = useState<URI[]>([]);
+  const username = useStore().authStore.username!;
+
+  const [allProperties, setAllProperties] = useState<URI[]>([]);
+  const [property, setProperty] = useState<URI>("");
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getTypeProperties(repository, type).then((res: URI[]) => {
-      setProperties(res);
+    setLoading(true);
+    getTypeProperties(repository, type, username).then((res: URI[]) => {
+      setAllProperties(res);
       setLoading(false);
     });
-  }, [repository, type]);
+  }, [repository, type, username]);
 
   return (
-    <List
-      header={<Text style={{ fontWeight: "bold" }}>Properties</Text>}
-      dataSource={properties}
-      renderItem={(property: URI) => (
-        <Skeleton active loading={loading}>
-          <List.Item>
-            <Tooltip placement="topLeft" title={property}>
-              <Text>{removePrefix(property)}</Text>
-            </Tooltip>
-            <MetaInfo repository={repository} uri={property} />
-          </List.Item>
-        </Skeleton>
-      )}
-    />
+    <Skeleton loading={loading}>
+      <Space direction="vertical">
+        <Space>
+          <Typography.Text>Select property</Typography.Text>
+          <Select
+            placeholder="Select property"
+            value={property}
+            options={allProperties.map((prop) => {
+              return { value: prop, label: removePrefix(prop) };
+            })}
+            onChange={(value) => setProperty(value)}
+            style={{ width: 200 }}
+          />
+        </Space>
+        {property && (
+          <Skeleton active loading={loading}>
+            <Space direction="vertical">
+              <Text>{property}</Text>
+              <MetaInfo repository={repository} uri={property} />
+            </Space>
+          </Skeleton>
+        )}
+      </Space>
+    </Skeleton>
   );
 };
 
