@@ -47,31 +47,21 @@ class RemoteRepository(RDFRepository):
         self.endpoint = endpoint
 
     def run_query(self, *, query: str):
-        response = requests.get(
-            f'{self.endpoint}?query={urllib.parse.quote(query, safe="")}',
-            headers={'Accept': 'application/sparql-results+json'})
-        result = response.json()
-        # results = response.text.replace('\r', '')
-        # header = []
-        # data = []
-        #
-        # if response.status_code == BAD_REQUEST:
-        #     header = ['ERROR']
-        #     data = [[results]]
-        #
-        # elif is_json(results):  # For ASK queries
-        #     obj = json.loads(results)
-        #     if 'boolean' in obj:
-        #         header = ['boolean']
-        #         data = [[str(obj['boolean']).lower()]]
-        #
-        # elif is_ntriples_format(results):  # For CONSTRUCT queries
-        #     header = ['Subject', 'Predicate', 'Object']
-        #     data = parse_ntriples_graph(results)
-        #
-        # else:  # For SELECT queries
-        #     header = results.split('\n')[0].split(',')
-        #     data = parse_csv_text(results)
+        accepted_formats = ['application/sparql-results+json',
+                            'application/x-graphdb-table-results+json']
+        NOT_ACCEPTABLE = 406
+        result = None
+        response = None
+        for format in accepted_formats:
+            response = requests.get(
+                f'{self.endpoint}?query={urllib.parse.quote(query, safe="")}',
+                headers={'Accept': format})
+            if response.status_code != NOT_ACCEPTABLE:
+                result = response.json()
+                break
+
+        if not result:
+            return {'error': response.text}
 
         return convert_sparql_json_result(result)
 
