@@ -1,24 +1,17 @@
-import json
 import os
 from flask import Flask, request, jsonify, flash, send_from_directory, session
 from werkzeug.utils import secure_filename
-import requests
 from flask_cors import CORS
-import urllib
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
 from backend.db import save_query, get_queries, delete_all_queries, \
     update_repository, get_repository, get_repository_info, add_repository
-from backend.repository import LocalRepository, RemoteRepository
-from backend.util import csv_to_json, parse_csv_text, is_csv, \
-    parse_ntriples_graph, is_ntriples_format, remove_blank_nodes, \
-    is_blank_node, is_json, run_query_file, import_data
+from backend.util import is_blank_node, run_query_file, import_data
 
 load_dotenv(find_dotenv())
 
 UPLOAD_FOLDER = 'imports'
 
-# API_URL = os.environ['GRAPHDB_SERVER']
 BUILD = os.environ['BUILD']
 
 if BUILD == 'development':
@@ -171,7 +164,7 @@ def classes():
         result = run_query_file(repository=repository,
                                 path=f'{QUERY_PATH}/all_classes.sparql')
 
-        return remove_blank_nodes([row[0] for row in result['data']])
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/class-hierarchy', methods=['GET'])
@@ -184,11 +177,8 @@ def class_hierarchy():
         result = run_query_file(repository=repository,
                                 path=f'{QUERY_PATH}/class_hierarchy.sparql')
 
-        header = ['Subject', 'Predicate', 'Object']
+        header = ['subject', 'predicate', 'object']
         data = result['data']
-        data = list(filter(
-            lambda row: not is_blank_node(row[0]) and not is_blank_node(row[2]),
-            data))
         return jsonify({'header': header, 'data': data})
 
 
@@ -215,7 +205,7 @@ def all_types():
         result = run_query_file(repository=repository,
                                 path=f'{QUERY_PATH}/all_types.sparql')
 
-        return remove_blank_nodes([row[0] for row in result['data']])
+        return [row[0] for row in result['data']]
 
 
 @app.route('/dataset/type', methods=['GET'])
