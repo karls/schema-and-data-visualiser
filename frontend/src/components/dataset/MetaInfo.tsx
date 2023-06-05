@@ -30,15 +30,15 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
     getType(repository, uri, username).then((res: URI[]) => {
       setTypes(res);
     });
-  }, [repository, uri]);
+  }, [repository, uri, username]);
 
   return (
     <Skeleton loading={loading}>
-      <Descriptions size="small" bordered>
+      <Descriptions size="small" layout="vertical"  bordered>
         {types.length > 0 && (
           <Descriptions.Item key="type" label="Type">
             {types.map((t, index) => (
-              <Tag key={`type-${index}`}>{removePrefix(t)}</Tag>
+              <Tag key={`type-${index}`} title={t}>{removePrefix(t)}</Tag>
             ))}
           </Descriptions.Item>
         )}
