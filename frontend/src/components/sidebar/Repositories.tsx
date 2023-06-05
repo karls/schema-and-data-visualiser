@@ -50,7 +50,7 @@ const AddRepository = () => {
       <Input
         value={endpoint}
         onChange={(e) => setEndpoint(e.currentTarget.value)}
-        placeholder="Enter SPARQL endpoint"
+        placeholder="Enter URL of SPARQL endpoint"
       />
       <Input.TextArea
         placeholder="Enter a description"
