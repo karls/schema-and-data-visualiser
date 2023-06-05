@@ -67,10 +67,6 @@ def is_blank_node(uri: str):
     return uri.startswith('_:')
 
 
-def remove_blank_nodes(uris: [str]):
-    return list(filter(lambda uri: not is_blank_node(uri), uris))
-
-
 def is_json(myjson):
     try:
         json.loads(myjson)
@@ -108,6 +104,9 @@ def import_data(*, data_url, schema_url):
 
 
 def convert_sparql_json_result(result):
+    if 'boolean' in result:
+        return {'boolean': result['boolean']}
+
     header = result['head']['vars']
     data = []
 
