@@ -13,10 +13,11 @@ load_dotenv(find_dotenv())
 
 DB_PATH = 'backend/database.db'
 COMPRESSION = 'gzip'
+MONGODB_USERNAME = os.environ['MONGODB_USERNAME']
 MONGODB_PASSWORD = os.environ['MONGODB_PASSWORD']
 
-uri = f"mongodb+srv://user123:{MONGODB_PASSWORD}@cluster0.jpzpy.mongodb.net" \
-      "/?retryWrites=true"
+uri = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@cluster0.jpzpy" \
+      f".mongodb.net/?retryWrites=true"
 # Create a new client and connect to the server
 client = MongoClient(uri, server_api=ServerApi('1'))
 db = client['dataVisualiserDB']
@@ -108,8 +109,9 @@ if __name__ == '__main__':
     #            username='rohan')
     from backend.util import import_data
 
-    graph = import_data(data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
-                           schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
+    graph = import_data(
+        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
+        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
     repo = LocalRepository(name="mondial", graph=graph)
     # add_repository(repository=repo, username='rohan', description="Trial")
     # print(list(get_queries('mondial', 'rohan')))
