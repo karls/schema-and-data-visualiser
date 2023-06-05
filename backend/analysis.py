@@ -375,6 +375,10 @@ def type_category(*, type_uri) -> [str]:
 def get_where_clause(query: str):
     pattern = re.compile(r'\s*where\s*\{\s*(?P<conditions>.*)\s*\}\s*',
                          re.IGNORECASE | re.MULTILINE | re.DOTALL)
+    matches = pattern.findall(query)
+    if not matches:
+        return ''
+
     return max(pattern.findall(query), key=len)
 
 
