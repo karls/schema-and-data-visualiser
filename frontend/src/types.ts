@@ -3,10 +3,9 @@ export type RepositoryId = string;
 export type URI = string;
 
 export interface RepositoryInfo {
-  uri: string;
   name: string;
-  readable: boolean;
-  writeable: boolean;
+  description: string;
+  endpoint?: string;
 }
 
 export type Triplet = [string, string, string];
@@ -19,7 +18,7 @@ export type QueryResults = {
 };
 
 export type RDFGraph = {
-  header: ["Subject", "Predicate", "Object"];
+  header: ["subject", "predicate", "object"];
   data: Triplet[];
 };
 
