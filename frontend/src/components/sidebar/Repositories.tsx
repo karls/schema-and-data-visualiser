@@ -1,13 +1,29 @@
-import { Alert, Button, Input, Modal, Space, Tabs } from "antd";
+import {
+  Alert,
+  Button,
+  Card,
+  Input,
+  Modal,
+  Space,
+  Tabs,
+  Typography,
+} from "antd";
 import { useState } from "react";
 import { addRemoteRepository } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
-import { SlMagnifier } from 'react-icons/sl';
+import { SlMagnifier } from "react-icons/sl";
+import { RepositoryInfo } from "../../types";
+import { AiFillApi } from "react-icons/ai";
 
 const Repositories = observer(() => {
   const [open, setOpen] = useState<boolean>(false);
   const items = [
+    {
+      key: `all-repositories`,
+      label: "All Repositories",
+      children: <AllRepositories />,
+    },
     {
       key: `add-repository`,
       label: "Add Repository",
@@ -31,7 +47,9 @@ const Repositories = observer(() => {
 
 const AddRepository = () => {
   const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
   const authStore = rootStore.authStore;
+
   const [name, setName] = useState<string>("");
   const [endpoint, setEndpoint] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -66,11 +84,38 @@ const AddRepository = () => {
             authStore.username!
           ).then((repositoryId) => {
             setSuccess(true);
+            repositoryStore.updateRepositories();
+            setTimeout(() => setSuccess(false), 1000);
           })
         }
       >
         Create
       </Button>
+    </Space>
+  );
+};
+
+const AllRepositories = () => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
+
+  return (
+    <Space direction="vertical">
+      {repositoryStore.repositories.map(
+        ({ name, description, endpoint }: RepositoryInfo, index: number) => (
+          <Card title={name} key={`repository-${index}`} type="inner">
+            <Space direction="vertical">
+              <Typography.Text>{description}</Typography.Text>
+              {endpoint && (
+                <Space>
+                  <AiFillApi size={20} />
+                  <Typography.Text>{endpoint}</Typography.Text>
+                </Space>
+              )}
+            </Space>
+          </Card>
+        )
+      )}
     </Space>
   );
 };
