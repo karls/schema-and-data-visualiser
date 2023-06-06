@@ -7,7 +7,6 @@ import urllib
 from backend.repository import RDFRepository
 from .util import remove_comments, is_url, separator_split
 
-
 QUERY_PATH = 'backend/queries'
 
 
@@ -62,10 +61,10 @@ class QueryAnalyser:
             if subject not in self.triples:
                 self.triples[subject] = {}
 
-            groups = [shlex.split(s.strip()) for s in
-                      separator_split(properties)]
+            patterns = [shlex.split(s.strip()) for s in
+                        separator_split(properties)]
 
-            pairs = [group for group in groups if len(group) == 2]
+            pairs = [group for group in patterns if len(group) == 2]
 
             for [prop, obj] in pairs:
                 if prop in ['rdf:type', 'rdfs:type',
@@ -94,8 +93,6 @@ class QueryAnalyser:
                 if 'FunctionalProperty' in prop_types:
                     self.func_props.add(prop_uri)
 
-
-
     def add_triple(self, sub: str, predicate: str, obj: str):
         if sub not in self.triples:
             self.triples[sub] = {}
@@ -113,7 +110,8 @@ class QueryAnalyser:
     def get_types(self, *, uri: str):
 
         with open(f'{QUERY_PATH}/get_type.sparql', 'r') as query:
-            result = self.repository.run_query(query=query.read().format(uri=uri))
+            result = self.repository.run_query(
+                query=query.read().format(uri=uri))
 
         return [row[0] for row in result['data']]
 
