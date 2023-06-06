@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Button, Divider, Dropdown, Popover, Space } from "antd";
-import { allRepositories } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { RepositoryInfo } from "../../types";
 import { observer } from "mobx-react-lite";

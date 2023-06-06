@@ -12,7 +12,7 @@ import {
 import { useStore } from "../../stores/store";
 import { MdDelete } from "react-icons/md";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const QueryHistory = observer(() => {
   const rootStore = useStore();
