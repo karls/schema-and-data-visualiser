@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Alert,
   Button,
@@ -7,13 +8,14 @@ import {
   Space,
   Tabs,
   Typography,
+  Form,
+  Checkbox,
 } from "antd";
-import { useState } from "react";
 import { addRemoteRepository } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
 import { SlMagnifier } from "react-icons/sl";
-import { RepositoryInfo } from "../../types";
+import { RepositoryId, RepositoryInfo } from "../../types";
 import { AiFillApi } from "react-icons/ai";
 
 const Repositories = observer(() => {
@@ -50,48 +52,66 @@ const AddRepository = () => {
   const repositoryStore = rootStore.repositoryStore;
   const authStore = rootStore.authStore;
 
-  const [name, setName] = useState<string>("");
-  const [endpoint, setEndpoint] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
   const [success, setSuccess] = useState<boolean>(false);
 
   if (success) {
     return <Alert message="The repository was added successfully!" />;
   }
+
+  const onFinish = (values: any) => {
+    const { name, endpoint, description } = values;
+    addRemoteRepository(name, endpoint, description, authStore.username!).then(
+      (repositoryId: RepositoryId) => {
+        setSuccess(true);
+        repositoryStore.updateRepositories();
+        setTimeout(() => setSuccess(false), 1000);
+      }
+    );
+  };
+
+  const onFinishFailed = (errorInfo: any) => {
+    console.log("Failed:", errorInfo);
+  };
+
   return (
-    <Space direction="vertical" style={{ width: "100%" }}>
-      <Input
-        value={name}
-        onChange={(e) => setName(e.currentTarget.value)}
-        placeholder="Enter a unique name for repository"
-      />
-      <Input
-        value={endpoint}
-        onChange={(e) => setEndpoint(e.currentTarget.value)}
-        placeholder="Enter URL of SPARQL endpoint"
-      />
-      <Input.TextArea
-        placeholder="Enter a description"
-        value={description}
-        onChange={(e) => setDescription(e.currentTarget.value)}
-      />
-      <Button
-        onClick={() =>
-          addRemoteRepository(
-            name,
-            endpoint,
-            description,
-            authStore.username!
-          ).then((repositoryId) => {
-            setSuccess(true);
-            repositoryStore.updateRepositories();
-            setTimeout(() => setSuccess(false), 1000);
-          })
-        }
+    <Form
+      name="basic"
+      layout="vertical"
+      // labelCol={{ span: 8 }}
+      // wrapperCol={{ span: 16 }}
+      // style={{ maxWidth: 600 }}
+      initialValues={{ remember: true }}
+      onFinish={onFinish}
+      onFinishFailed={onFinishFailed}
+      autoComplete="off"
+    >
+      <Form.Item
+        label="Name"
+        name="name"
+        rules={[{ required: true, message: "Please input a unique name!" }]}
       >
-        Create
-      </Button>
-    </Space>
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="SPARQL endpoint"
+        name="endpoint"
+        rules={[{ required: true, message: "Please input a valid URL!" }]}
+      >
+        <Input />
+      </Form.Item>
+      <Form.Item
+        label="Description"
+        name="description"
+        rules={[{ required: true, message: "Please input a unique name!" }]}
+      >
+        <Input.TextArea />
+      </Form.Item>
+      <Form.Item>
+        <Button type="primary" htmlType="submit">
+          Create
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 
