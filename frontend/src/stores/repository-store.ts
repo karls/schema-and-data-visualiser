@@ -3,7 +3,7 @@ import { makePersistable } from "mobx-persist-store";
 import { QueryRecord, RepositoryInfo } from "../types";
 import RootStore from "./root-store";
 import { clearQueryHistory, getQueryHistory } from "../api/queries";
-import { allRepositories } from "../api/sparql";
+import { allRepositories, deleteRepository } from "../api/sparql";
 
 type RepositoryStoreState = {
   currentRepository: string | null;
@@ -46,7 +46,7 @@ class RepositoryStore {
   get repositories() {
     return this.state.repositories;
   }
-  
+
   getCurrentRepository() {
     return this.state.currentRepository;
   }
@@ -86,6 +86,15 @@ class RepositoryStore {
     if (username) {
       allRepositories(username!).then((repositories: RepositoryInfo[]) => {
         this.state.repositories = repositories;
+      });
+    }
+  }
+
+  deleteRepository(repository: string) {
+    const username = this.rootStore.authStore.username;
+    if (username) {
+      deleteRepository(repository, username!).then(() => {
+        this.updateRepositories();
       });
     }
   }
