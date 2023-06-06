@@ -1,12 +1,10 @@
-import sqlite3
 from datetime import datetime
 import compress_pickle
 import os
-from dotenv import load_dotenv, find_dotenv
 import pymongo
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-
+from dotenv import load_dotenv, find_dotenv
 from backend.repository import RDFRepository, LocalRepository, RemoteRepository
 
 load_dotenv(find_dotenv())
@@ -52,7 +50,8 @@ def get_repository(*, repository_id: str,
 def get_repository_info(*, username: str):
     repositories = db['repositories']
     details = repositories.find({'user': username},
-                                {'_id': 0, 'name': 1, 'description': 1})
+                                {'_id': 0, 'name': 1, 'description': 1,
+                                 'endpoint': 1})
 
     return list(details)
 
