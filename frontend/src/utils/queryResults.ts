@@ -6,7 +6,7 @@ export function isGraph(results: QueryResults) {
 
 export function emptyGraph(): RDFGraph {
   return {
-    header: ["Subject", "Predicate", "Object"],
+    header: ["subject", "predicate", "object"],
     data: [],
   };
 }
