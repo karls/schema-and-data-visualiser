@@ -28,7 +28,7 @@ const Sidebar = observer(() => {
   );
 });
 
-const SelectRepository = () => {
+const SelectRepository = observer(() => {
   const rootStore = useStore();
   const repositoryStore = rootStore.repositoryStore;
 
@@ -71,5 +71,6 @@ const SelectRepository = () => {
       </Button>
     </Dropdown>
   );
-};
+});
+
 export default Sidebar;
