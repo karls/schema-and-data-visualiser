@@ -32,38 +32,36 @@ const Sidebar = observer(() => {
 const SelectRepository = () => {
   const rootStore = useStore();
   const repositoryStore = rootStore.repositoryStore;
-  const authStore = rootStore.authStore;
-  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
 
   useEffect(() => {
-    allRepositories(authStore.username!).then((repositories) => {
-      setRepositories(repositories);
-    });
-  }, [authStore.username]);
+    repositoryStore.updateRepositories();
+  }, [repositoryStore]);
 
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ name }: RepositoryInfo, index) => {
-          return {
-            key: `${index}`,
-            label: (
-              <Popover
-                placement="right"
-                title={name ? "Description" : "No description available"}
-                content={name}
-                trigger="hover"
-              >
-                <Button
-                  onClick={() => repositoryStore.setCurrentRepository(name)}
-                  style={{ width: "100%", height: "100%" }}
+        items: repositoryStore.repositories.map(
+          ({ name }: RepositoryInfo, index) => {
+            return {
+              key: `${index}`,
+              label: (
+                <Popover
+                  placement="right"
+                  title={name ? "Description" : "No description available"}
+                  content={name}
+                  trigger="hover"
                 >
-                  {name}
-                </Button>
-              </Popover>
-            ),
-          };
-        }),
+                  <Button
+                    onClick={() => repositoryStore.setCurrentRepository(name)}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {name}
+                  </Button>
+                </Popover>
+              ),
+            };
+          }
+        ),
       }}
     >
       <Button style={{ width: "95%", margin: 5 }} name="Choose repository">

@@ -45,7 +45,7 @@ const Editor = ({
   const username = authStore.username!;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
-    repositoryStore.getCurrentRepository()
+    repositoryStore.currentRepository
   );
   const [properties, setProperties] = useState<URI[]>([]);
   const [types, setTypes] = useState<URI[]>([]);
@@ -147,31 +147,26 @@ const SelectRepository = ({
   setRepository: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
   const rootStore = useStore();
-  const authStore = rootStore.authStore;
-  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
-
-  useEffect(() => {
-    allRepositories(authStore.username!).then((repositories) => {
-      setRepositories(repositories);
-    });
-  }, [authStore.username]);
+  const repositoryStore = rootStore.repositoryStore;
 
   return (
     <Dropdown
       menu={{
-        items: repositories.map(({ name }: RepositoryInfo, index) => {
-          return {
-            key: `${index}`,
-            label: (
-              <Button
-                onClick={() => setRepository(name)}
-                style={{ width: "100%", height: "100%" }}
-              >
-                {name}
-              </Button>
-            ),
-          };
-        }),
+        items: repositoryStore.repositories.map(
+          ({ name }: RepositoryInfo, index) => {
+            return {
+              key: `${index}`,
+              label: (
+                <Button
+                  onClick={() => setRepository(name)}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  {name}
+                </Button>
+              ),
+            };
+          }
+        ),
       }}
     >
       <Button name="Choose repository">
