@@ -11,7 +11,7 @@ import { BiCopy, BiSave } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import sparql from "../../utils/sparql.json";
-import { sparql_templates } from "../../utils/sparql_templates";
+import { sparqlTemplates } from "../../utils/sparqlTemplates";
 import Templates from "./Templates";
 import Analysis from "./Analysis";
 import { addQueryToHistory } from "../../api/queries";
@@ -105,7 +105,7 @@ const Editor = ({
           </Button>
           <CopyToClipboard text={query} />
           <SaveQuery repository={repository} query={query} name={queryName} />
-          <Templates templates={sparql_templates} />
+          <Templates templates={sparqlTemplates} />
         </Space>
 
         <CodeEditor

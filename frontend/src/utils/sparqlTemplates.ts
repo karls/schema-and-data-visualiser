@@ -3,7 +3,7 @@ export type SPARQLTemplate = {
   query: string;
 };
 
-export const sparql_templates: SPARQLTemplate[] = [
+export const sparqlTemplates: SPARQLTemplate[] = [
   {
     title: "Class with data properties",
     query: `\
