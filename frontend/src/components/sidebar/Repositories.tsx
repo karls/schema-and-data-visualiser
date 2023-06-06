@@ -10,6 +10,7 @@ import {
   Typography,
   Form,
   Checkbox,
+  Popconfirm,
 } from "antd";
 import { addRemoteRepository } from "../../api/sparql";
 import { useStore } from "../../stores/store";
@@ -17,6 +18,7 @@ import { observer } from "mobx-react-lite";
 import { SlMagnifier } from "react-icons/sl";
 import { RepositoryId, RepositoryInfo } from "../../types";
 import { AiFillApi } from "react-icons/ai";
+import { MdDelete } from "react-icons/md";
 
 const Repositories = observer(() => {
   const [open, setOpen] = useState<boolean>(false);
@@ -123,7 +125,16 @@ const AllRepositories = () => {
     <Space direction="vertical">
       {repositoryStore.repositories.map(
         ({ name, description, endpoint }: RepositoryInfo, index: number) => (
-          <Card title={name} key={`repository-${index}`} type="inner">
+          <Card
+            title={
+              <Space>
+                {name}
+                <DeleteRepository repository={name} />
+              </Space>
+            }
+            key={`repository-${index}`}
+            type="inner"
+          >
             <Space direction="vertical">
               <Typography.Text>{description}</Typography.Text>
               {endpoint && (
@@ -140,4 +151,31 @@ const AllRepositories = () => {
   );
 };
 
+type DeleteRepositoryProps = {
+  repository: string;
+};
+const DeleteRepository = observer(({ repository }: DeleteRepositoryProps) => {
+  const rootStore = useStore();
+  const repositoryStore = rootStore.repositoryStore;
+
+  return (
+    <Popconfirm
+      title={"Delete repository"}
+      description={`Are you sure?`}
+      okText="Yes"
+      cancelText="No"
+      onConfirm={() => repositoryStore.deleteRepository(repository)}
+      style={{ justifyContent: "center" }}
+      placement="top"
+    >
+      <Button
+        danger
+        name="Delete"
+        style={{ border: "none", background: "none" }}
+      >
+        <MdDelete size={20} />
+      </Button>
+    </Popconfirm>
+  );
+});
 export default Repositories;
