@@ -68,7 +68,7 @@ const QueryHistory = observer(() => {
                     <Popover
                       key={`query-${id}`}
                       placement="right"
-                      title={`${name} (${date})`}
+                      title={`Saved on ${date}`}
                       content={
                         <div
                           style={{
