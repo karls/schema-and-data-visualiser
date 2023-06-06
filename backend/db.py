@@ -47,6 +47,11 @@ def get_repository(*, repository_id: str,
     return None
 
 
+def delete_repository(*, repository_id: str, username: str):
+    repositories = db['repositories']
+    return repositories.delete_one({'name': repository_id, 'user': username})
+
+
 def get_repository_info(*, username: str):
     repositories = db['repositories']
     details = repositories.find({'user': username},
@@ -108,10 +113,12 @@ if __name__ == '__main__':
     #            username='rohan')
     from backend.util import import_data
 
-    graph = import_data(
-        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
-        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
-    repo = LocalRepository(name="mondial", graph=graph)
+    g = import_data(
+        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                 '/Mondial-RDF/mondial.n3',
+        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                   '/Mondial-RDF/mondial-meta.n3')
+    repo = LocalRepository(name="mondial", graph=g)
     # add_repository(repository=repo, username='rohan', description="Trial")
     # print(list(get_queries('mondial', 'rohan')))
     import time

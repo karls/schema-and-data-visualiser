@@ -5,7 +5,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv, find_dotenv
 from backend.analysis import query_analysis, QUERY_PATH
 from backend.db import save_query, get_queries, delete_all_queries, \
-    get_repository, get_repository_info, add_repository
+    get_repository, get_repository_info, add_repository, delete_repository
 from backend.util import run_query_file, import_data
 
 load_dotenv(find_dotenv())
@@ -35,13 +35,6 @@ def serve(path):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-@app.route('/repositories', methods=['GET'])
-def get_repositories():
-    if request.method == 'GET':
-        username = request.args['username']
-        return jsonify(get_repository_info(username=username))
 
 
 @app.route('/upload', methods=['POST'])
@@ -85,6 +78,19 @@ def logout():
         return ''
 
 
+@app.route('/repositories', methods=['GET', 'DELETE'])
+def repositories():
+    if request.method == 'GET':
+        username = request.args['username']
+        return jsonify(get_repository_info(username=username))
+
+    elif request.method == 'DELETE':
+        username = request.args['username']
+        repository_id = request.args['repository']
+        delete_repository(repository_id=repository_id, username=username)
+        return repository_id
+
+
 @app.route('/repositories/local', methods=['POST'])
 def add_local_repo():
     username = session['username']
@@ -102,7 +108,7 @@ def add_local_repo():
 
 
 @app.route('/repositories/remote', methods=['POST'])
-def add_graphdb_repo():
+def add_remote_repo():
     if request.method == 'POST':
         name = request.json['name']
         endpoint = request.json['endpoint']

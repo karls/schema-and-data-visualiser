@@ -61,6 +61,22 @@ export async function addLocalRepository(
   return "";
 }
 
+export async function deleteRepository(
+  repository: string,
+  username: string
+): Promise<string> {
+  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+  try {
+    const endpoint = `${BACKEND_API}/repositories`;
+    const response = await axios.delete(endpoint, {
+      params: { repository, username },
+    });
+    const repository_id = response.data;
+    return repository_id;
+  } catch (error) {}
+  return "";
+}
+
 export async function runSparqlQuery(
   repository: RepositoryId,
   query: string,
