@@ -87,13 +87,14 @@ class QueryAnalyser:
                     self.data_var_type[obj] = self.get_prop_range(
                         prop_uri=prop_uri)
                     self.data_prop_of_var[obj] = subject
+                    if 'InverseFunctionalProperty' in prop_types:
+                        self.key_of_var[obj] = subject
+                        self.key_func_props.add(prop_uri)
 
                 if 'FunctionalProperty' in prop_types:
                     self.func_props.add(prop_uri)
 
-                if 'InverseFunctionalProperty' in prop_types:
-                    self.key_of_var[obj] = subject
-                    self.key_func_props.add(prop_uri)
+
 
     def add_triple(self, sub: str, predicate: str, obj: str):
         if sub not in self.triples:
