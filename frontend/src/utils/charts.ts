@@ -12,8 +12,7 @@ export function recommendedCharts(
   variables: VariableCategories,
   allRelations: RelationMap
 ) {
-  const { scalar, geographical, key, lexical, date, numeric } =
-    variables;
+  const { scalar, geographical, key, lexical, date, numeric } = variables;
 
   const charts: ChartType[] = [];
 
@@ -31,16 +30,13 @@ export function recommendedCharts(
 
   if (key.length === 1 && numeric.length >= 1) {
     charts.push(ChartType.BAR);
-    if (numeric.length === 2) {
-      charts.push(ChartType.LINE);
-    }
   }
 
   if (geographical.length === 1 && scalar.length >= 1) {
     charts.push(ChartType.CHOROPLETH_MAP);
   }
 
-  if ((key.length === 1 || lexical.length === 1) && scalar.length >= 1) {
+  if ((key.length === 1 || lexical.length === 1) && scalar.length === 1) {
     charts.push(ChartType.WORD_CLOUD);
   }
 
@@ -55,6 +51,7 @@ export function recommendedCharts(
       charts.push(ChartType.STACKED_BAR);
       charts.push(ChartType.GROUPED_BAR);
       charts.push(ChartType.SPIDER);
+      charts.push(ChartType.LINE);
 
       if (isHierarchical) {
         charts.push(ChartType.TREE_MAP);
