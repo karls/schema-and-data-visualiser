@@ -15,6 +15,8 @@ export type Row = string[];
 export type QueryResults = {
   header: string[];
   data: Row[];
+  boolean?: boolean;
+  error?: string;
 };
 
 export type RDFGraph = {
