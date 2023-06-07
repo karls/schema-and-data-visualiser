@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
-import { allRepositories, runSparqlQuery } from "../../api/sparql";
+import { runSparqlQuery } from "../../api/sparql";
 import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
 import { Button, Dropdown, Space, App as AntdApp, Row, Col } from "antd";
 import { FiPlay } from "react-icons/fi";
@@ -139,45 +139,47 @@ function isVariable(text: string): boolean {
   return text.length > 1 && text.charAt(0) === "?";
 }
 
-const SelectRepository = ({
-  repository,
-  setRepository,
-}: {
-  repository: string | null;
-  setRepository: React.Dispatch<React.SetStateAction<string | null>>;
-}) => {
-  const rootStore = useStore();
-  const repositoryStore = rootStore.repositoryStore;
+const SelectRepository = observer(
+  ({
+    repository,
+    setRepository,
+  }: {
+    repository: string | null;
+    setRepository: React.Dispatch<React.SetStateAction<string | null>>;
+  }) => {
+    const rootStore = useStore();
+    const repositoryStore = rootStore.repositoryStore;
 
-  return (
-    <Dropdown
-      menu={{
-        items: repositoryStore.repositories.map(
-          ({ name }: RepositoryInfo, index) => {
-            return {
-              key: `${index}`,
-              label: (
-                <Button
-                  onClick={() => setRepository(name)}
-                  style={{ width: "100%", height: "100%" }}
-                >
-                  {name}
-                </Button>
-              ),
-            };
-          }
-        ),
-      }}
-    >
-      <Button name="Choose repository">
-        <Space>
-          <RiGitRepositoryLine size={20} />
-          {repository || "Choose repository"}
-        </Space>
-      </Button>
-    </Dropdown>
-  );
-};
+    return (
+      <Dropdown
+        menu={{
+          items: repositoryStore.repositories.map(
+            ({ name }: RepositoryInfo, index) => {
+              return {
+                key: `${index}`,
+                label: (
+                  <Button
+                    onClick={() => setRepository(name)}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {name}
+                  </Button>
+                ),
+              };
+            }
+          ),
+        }}
+      >
+        <Button name="Choose repository">
+          <Space>
+            <RiGitRepositoryLine size={20} />
+            {repository || "Choose repository"}
+          </Space>
+        </Button>
+      </Dropdown>
+    );
+  }
+);
 
 const CopyToClipboard = ({ text }: { text: string }) => {
   return (
