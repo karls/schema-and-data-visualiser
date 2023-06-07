@@ -18,10 +18,16 @@ const NetworkChart = ({
   const { header, data } = results;
   const fromIndex = header.indexOf(variables.key[0]);
   const toIndex = header.indexOf(variables.key[1]);
+  const valueIndex = header.indexOf(variables.scalar[0]);
 
   const links: Triplet[] = useMemo(
-    () => data.map((row) => [row[fromIndex], "", row[toIndex]]),
-    [data, fromIndex, toIndex]
+    () =>
+      data.map((row) => [
+        row[fromIndex],
+        valueIndex > 0 ? row[valueIndex] : "",
+        row[toIndex],
+      ]),
+    [data, fromIndex, toIndex, valueIndex]
   );
   return (
     <GraphVis links={links} width={width} height={height} interactive={false} />
