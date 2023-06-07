@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Alert, Card, Divider, List, Space, Tag, Tooltip, Typography } from "antd";
+import {
+  Alert,
+  Card,
+  Divider,
+  List,
+  Space,
+  Tag,
+  Tooltip,
+  Typography,
+} from "antd";
 import {
   ChartType,
   QueryAnalysis,
@@ -86,7 +95,10 @@ const Analysis = ({ query, repository }: AnalysisProps) => {
               visualisations={queryAnalysis.visualisations}
             />
           ) : (
-            <Alert message="Could not match any query pattern." banner />
+            <Alert
+              message="Could not match any query pattern but you can still try the suggested charts."
+              banner
+            />
           )}
         </Space>
       )}
@@ -110,7 +122,7 @@ const Pattern = ({ pattern, visualisations }: PatternProps) => {
           {visualisations.map((chart) => (
             <Space key={chart}>
               <Tooltip title={chart}>{chartIcons[chart] ?? chart}</Tooltip>
-              <Divider type="vertical"/>
+              <Divider type="vertical" />
             </Space>
           ))}
         </Space>
