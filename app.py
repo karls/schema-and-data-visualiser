@@ -93,12 +93,12 @@ def repositories():
 
 @app.route('/repositories/local', methods=['POST'])
 def add_local_repo():
-    username = session['username']
     if request.method == 'POST':
         name = request.json['name']
         description = request.json['description']
         data_url = request.json['dataUrl']
         schema_url = request.json['schemaUrl']
+        username = request.json['username']
         graph = import_data(data_url=data_url,
                             schema_url=schema_url)
         add_repository(repository_id=name, username=username, graph=graph,
