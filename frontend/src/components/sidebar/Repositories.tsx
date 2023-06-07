@@ -9,10 +9,11 @@ import {
   Tabs,
   Typography,
   Form,
-  Checkbox,
   Popconfirm,
+  Segmented,
+  Spin,
 } from "antd";
-import { addRemoteRepository } from "../../api/sparql";
+import { addLocalRepository, addRemoteRepository } from "../../api/sparql";
 import { useStore } from "../../stores/store";
 import { observer } from "mobx-react-lite";
 import { SlMagnifier } from "react-icons/sl";
@@ -54,21 +55,43 @@ const AddRepository = () => {
   const repositoryStore = rootStore.repositoryStore;
   const authStore = rootStore.authStore;
 
+  const [type, setType] = useState<string>("remote");
   const [success, setSuccess] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   if (success) {
     return <Alert message="The repository was added successfully!" />;
   }
 
   const onFinish = (values: any) => {
-    const { name, endpoint, description } = values;
-    addRemoteRepository(name, endpoint, description, authStore.username!).then(
-      (repositoryId: RepositoryId) => {
+    const { name, endpoint, description, dataUrl, schemaUrl } = values;
+    setLoading(true);
+    if (endpoint) {
+      addRemoteRepository(
+        name,
+        endpoint,
+        description,
+        authStore.username!
+      ).then((repositoryId: RepositoryId) => {
         setSuccess(true);
+        setLoading(false);
         repositoryStore.updateRepositories();
         setTimeout(() => setSuccess(false), 1000);
-      }
-    );
+      });
+    } else {
+      addLocalRepository(
+        name,
+        dataUrl,
+        schemaUrl,
+        description,
+        authStore.username!
+      ).then((repositoryId: RepositoryId) => {
+        setSuccess(true);
+        setLoading(false);
+        repositoryStore.updateRepositories();
+        setTimeout(() => setSuccess(false), 1000);
+      });
+    }
   };
 
   const onFinishFailed = (errorInfo: any) => {
@@ -95,23 +118,59 @@ const AddRepository = () => {
         <Input />
       </Form.Item>
       <Form.Item
-        label="SPARQL endpoint"
-        name="endpoint"
-        rules={[{ required: true, message: "Please input a valid URL!" }]}
-      >
-        <Input />
-      </Form.Item>
-      <Form.Item
         label="Description"
         name="description"
         rules={[{ required: true, message: "Please input a unique name!" }]}
       >
         <Input.TextArea />
       </Form.Item>
+      <Segmented
+        options={[
+          {
+            label: "Import data",
+            value: "local",
+          },
+          {
+            label: "With endpoint",
+            value: "remote",
+          },
+        ]}
+        value={type}
+        onChange={(v) => setType(v as string)}
+      />
+      {type === "remote" && (
+        <Form.Item
+          label="SPARQL endpoint"
+          name="endpoint"
+          rules={[{ required: true, message: "Please input a valid URL!" }]}
+        >
+          <Input />
+        </Form.Item>
+      )}
+      {type === "local" && (
+        <>
+          <Form.Item
+            label="Data URL"
+            name="dataUrl"
+            rules={[{ required: true, message: "Please input a valid URL!" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Schema URL"
+            name="schemaUrl"
+            rules={[{ required: true, message: "Please input a valid URL!" }]}
+          >
+            <Input />
+          </Form.Item>
+        </>
+      )}
       <Form.Item>
-        <Button type="primary" htmlType="submit">
-          Create
-        </Button>
+        <Spin spinning={loading}>
+          <Button type="primary" htmlType="submit">
+            Create
+          </Button>
+        </Spin>
       </Form.Item>
     </Form>
   );
