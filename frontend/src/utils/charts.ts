@@ -10,62 +10,97 @@ type LinkMap = { [key: string]: Set<string> };
 
 export function recommendedCharts(
   variables: VariableCategories,
-  allRelations: RelationMap
+  allRelations: RelationMap,
+  results: QueryResults
 ) {
-  const { scalar, geographical, key, lexical, date, numeric } = variables;
+  const { scalar, geographical, key, temporal, lexical, date, numeric } =
+    variables;
 
-  const charts: ChartType[] = [];
+  const charts = new Set<ChartType>();
 
   if (date.length === 1 && scalar.length >= 1) {
-    charts.push(ChartType.CALENDAR);
+    charts.add(ChartType.CALENDAR);
   }
 
   if (scalar.length >= 2) {
-    charts.push(ChartType.SCATTER);
+    charts.add(ChartType.SCATTER);
 
     if (scalar.length >= 3) {
-      charts.push(ChartType.BUBBLE);
+      charts.add(ChartType.BUBBLE);
     }
   }
 
-  if (key.length === 1 && numeric.length >= 1) {
-    charts.push(ChartType.BAR);
+  if (key.length === 1 && scalar.length === 1) {
+    charts.add(ChartType.BAR);
   }
 
   if (geographical.length === 1 && scalar.length >= 1) {
-    charts.push(ChartType.CHOROPLETH_MAP);
+    charts.add(ChartType.CHOROPLETH_MAP);
   }
 
   if ((key.length === 1 || lexical.length === 1) && scalar.length === 1) {
-    charts.push(ChartType.WORD_CLOUD);
+    charts.add(ChartType.WORD_CLOUD);
   }
 
   if (key.length >= 2) {
     const isHierarchical = columnsAreHierarchical(allRelations, variables.key);
     if (isHierarchical) {
-      charts.push(ChartType.HIERARCHY_TREE);
+      charts.add(ChartType.HIERARCHY_TREE);
     } else {
-      charts.push(ChartType.NETWORK);
+      charts.add(ChartType.NETWORK);
     }
     if (scalar.length >= 1) {
-      charts.push(ChartType.STACKED_BAR);
-      charts.push(ChartType.GROUPED_BAR);
-      charts.push(ChartType.SPIDER);
-      charts.push(ChartType.LINE);
-
       if (isHierarchical) {
-        charts.push(ChartType.TREE_MAP);
-        charts.push(ChartType.SUNBURST);
-        charts.push(ChartType.CIRCLE_PACKING);
+        charts.add(ChartType.TREE_MAP);
+        charts.add(ChartType.SUNBURST);
+        charts.add(ChartType.CIRCLE_PACKING);
       } else {
-        charts.push(ChartType.HEAT_MAP);
-        charts.push(ChartType.CHORD_DIAGRAM);
-        charts.push(ChartType.SANKEY);
+        charts.add(ChartType.HEAT_MAP);
+        charts.add(ChartType.CHORD_DIAGRAM);
+        charts.add(ChartType.SANKEY);
+
+        charts.add(ChartType.STACKED_BAR);
+        charts.add(ChartType.GROUPED_BAR);
+        charts.add(ChartType.SPIDER);
+        charts.add(ChartType.LINE);
       }
+    }
+  } else if (key.length === 1) {
+    if (lexical.length > 0 && isCompositeKey([key[0], lexical[0]], results)) {
+      charts.add(ChartType.STACKED_BAR);
+      charts.add(ChartType.GROUPED_BAR);
+      charts.add(ChartType.SPIDER);
+    }
+    if (temporal.length > 0 && isCompositeKey([key[0], temporal[0]], results)) {
+      charts.add(ChartType.STACKED_BAR);
+      charts.add(ChartType.GROUPED_BAR);
+      charts.add(ChartType.SPIDER);
+      charts.add(ChartType.LINE);
+    }
+    if (numeric.length > 1 && isCompositeKey([key[0], numeric[0]], results)) {
+      charts.add(ChartType.LINE);
     }
   }
 
-  return charts;
+  return Array.from(charts);
+}
+
+export function isCompositeKey(
+  columns: string[],
+  results: QueryResults
+): boolean {
+  const values = new Set<string>();
+  const columnIdxs = columns.map((c) => results.header.indexOf(c));
+  for (let row of results.data) {
+    const s = columnIdxs.map((i) => row[i]).join(",");
+    if (values.has(s)) {
+      console.log(s);
+      return false;
+    }
+    values.add(s);
+  }
+  console.log(columns);
+  return true;
 }
 
 export function getLinks(results: QueryResults, colA: string, colB: string) {

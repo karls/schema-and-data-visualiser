@@ -83,12 +83,12 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     },
   });
   const { allRelations, allIncomingLinks, allOutgoingLinks } = useMemo(
-    () => getAllRelations(results, queryAnalysis.variables.key),
-    [queryAnalysis.variables.key, results]
+    () => getAllRelations(results, results.header),
+    [results]
   );
   const possibleCharts: ChartType[] = useMemo(
-    () => recommendedCharts(queryAnalysis.variables, allRelations),
-    [allRelations, queryAnalysis.variables]
+    () => recommendedCharts(queryAnalysis.variables, allRelations, results),
+    [allRelations, queryAnalysis.variables, results]
   );
   useEffect(() => {
     if (repositoryStore.currentRepository) {
@@ -423,7 +423,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ),
             children: (
               <Suggested
-                queryAnalysis={queryAnalysis}
+                results={results}
                 allRelations={allRelations}
                 allIncomingLinks={allIncomingLinks}
                 allOutgoingLinks={allOutgoingLinks}
