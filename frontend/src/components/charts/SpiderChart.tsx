@@ -33,7 +33,7 @@ const SpiderChart = observer(
 
     const { header } = results;
     const ringKeyIdx = header.indexOf(variables.key[0]);
-    const spokeKeyIdx = header.indexOf(variables.key[1]);
+    const spokeKeyIdx = header.indexOf(variables.key[1] || variables.scalar[0]);
     const valueIdx = header.indexOf(variables.numeric[0]);
 
     const data = useMemo(() => {
