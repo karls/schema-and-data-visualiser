@@ -41,7 +41,9 @@ def get_repository(*, repository_id: str,
     if not repo:
         return None
     if 'graph' in repo:
-        return LocalRepository(name=repository_id, graph=repo['graph'])
+        return LocalRepository(name=repository_id,
+                               graph=compress_pickle.loads(repo['graph'],
+                                                           COMPRESSION))
     elif 'endpoint' in repo:
         return RemoteRepository(name=repository_id, endpoint=repo['endpoint'])
     return None
@@ -70,7 +72,7 @@ def add_repository(*, repository_id: str, username: str,
         'description': description
     }
     if graph:
-        repo['graph'] = graph
+        repo['graph'] = compress_pickle.dumps(graph, COMPRESSION)
     elif endpoint:
         repo['endpoint'] = endpoint
     return repositories.insert_one(repo)
