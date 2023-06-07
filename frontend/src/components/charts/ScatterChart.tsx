@@ -31,21 +31,21 @@ const ScatterChart = observer(
     const data = useMemo(
       () =>
         results.data.map((row) => {
-          const label = `${removePrefix(row[0])}
+          let label = `${removePrefix(row[0])}
 
       ${results.header[col1]}: ${parseFloat(row[col1]).toLocaleString()}
-      ${results.header[col2]}: ${parseFloat(row[col2]).toLocaleString()}
-      ${
-        col3 !== -1
-          ? `${results.header[col3]}: ${parseFloat(row[col3]).toLocaleString()}`
-          : ""
-      }`;
+      ${results.header[col2]}: ${parseFloat(row[col2]).toLocaleString()}`;
+          if (col3) {
+            label += `${results.header[col3]}: ${parseFloat(
+              row[col3]
+            ).toLocaleString()}`;
+          }
 
           return {
             label,
             x: parseFloat(row[col1]),
             y: parseFloat(row[col2]),
-            z: col3 !== -1 ? parseFloat(row[col3]) : 1,
+            z: col3 ? parseFloat(row[col3]) : 1,
             fill: randomColor({
               luminosity: settings.darkMode ? "light" : "dark",
             }),
