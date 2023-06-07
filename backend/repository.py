@@ -49,18 +49,21 @@ class RemoteRepository(RDFRepository):
         accepted_formats = ['application/sparql-results+json',
                             'application/x-graphdb-table-results+json']
         NOT_ACCEPTABLE = 406
+        OK = 200
         result = None
         response = None
         for format in accepted_formats:
             response = requests.get(
                 f'{self.endpoint}?query={urllib.parse.quote(query, safe="")}',
                 headers={'Accept': format})
-            if response.status_code != NOT_ACCEPTABLE:
+            if response.status_code == NOT_ACCEPTABLE:
+                continue
+            if response.status_code == OK:
                 result = response.json()
                 break
 
         if not result:
-            return {'error': response.text}
+            return {'error': response.text, 'header': [], 'data': []}
 
         return convert_sparql_json_result(result)
 
