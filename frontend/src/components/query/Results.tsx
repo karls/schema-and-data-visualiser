@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Space, Switch, Table, Tooltip, Typography } from "antd";
+import { Alert, Space, Switch, Table, Tooltip, Typography } from "antd";
 import { QueryResults } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import Fullscreen from "./Fullscreen";
@@ -21,6 +21,16 @@ const Results = observer(({ results, loading }: QueryResultsProps) => {
   const height = Math.floor(
     window.screen.height * (settings.fullScreen ? 0.8 : 0.5)
   );
+  if (Object.keys(results).includes('boolean')) {
+    return (
+      <Alert
+        style={{ fontSize: 30 }}
+        message={`${results.boolean}`.toUpperCase()}
+      />
+    );
+  } else if (results.error) {
+    return <Alert banner message={results.error} />;
+  }
   return (
     <Fullscreen>
       <Space>
