@@ -66,7 +66,11 @@ export function recommendedCharts(
       }
     }
   } else if (key.length === 1) {
-    if (lexical.length > 0 && isCompositeKey([key[0], lexical[0]], results)) {
+    if (
+      lexical.length > 0 &&
+      isCompositeKey([key[0], lexical[0]], results) &&
+      key[0] !== lexical[0]
+    ) {
       charts.add(ChartType.STACKED_BAR);
       charts.add(ChartType.GROUPED_BAR);
       charts.add(ChartType.SPIDER);
