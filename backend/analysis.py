@@ -1,9 +1,6 @@
 import re
 import shlex
 from typing import Dict
-import requests
-import urllib
-
 from backend.repository import RDFRepository
 from .util import remove_comments, is_url, separator_split
 
