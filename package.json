@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "engines": {
-    "node": "16.15.x",
-    "yarn": "1.22.x"
+    "node": "16.15.0",
+    "yarn": "1.22.19"
   },
   "cacheDirectories": [
-    "client/node_modules"
+    "frontend/node_modules"
   ],
   "scripts": {
     "heroku-postbuild": "cd frontend && yarn install && yarn run build"
