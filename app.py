@@ -350,3 +350,10 @@ def analysis():
                                     username=username)
         return jsonify(
             query_analysis(query=query, repository=repository))
+
+
+if __name__ == "__main__":
+    if os.environ.get('BUILD') == 'development':
+        app.run(debug=True, port=5000)
+    elif os.environ.get('BUILD') == 'production':
+        app.run(host='0.0.0.0')
