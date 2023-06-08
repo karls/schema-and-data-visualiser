@@ -1,10 +1,11 @@
 import axios from "axios";
 import { QueryResults, RepositoryId, RepositoryInfo } from "../types";
 
+const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+
 export async function allRepositories(
   username: string
 ): Promise<RepositoryInfo[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/repositories?username=${encodeURIComponent(
       username
@@ -23,7 +24,6 @@ export async function addRemoteRepository(
   description: string,
   username: string
 ): Promise<string> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/repositories/remote`;
     const response = await axios.post(endpoint, {
@@ -45,7 +45,6 @@ export async function addLocalRepository(
   description: string,
   username: string
 ): Promise<string> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/repositories/local`;
     const response = await axios.post(endpoint, {
@@ -65,7 +64,6 @@ export async function deleteRepository(
   repository: string,
   username: string
 ): Promise<string> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/repositories`;
     const response = await axios.delete(endpoint, {
@@ -82,7 +80,6 @@ export async function runSparqlQuery(
   query: string,
   username: string
 ): Promise<QueryResults> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/sparql`;
     const response = await axios.get(

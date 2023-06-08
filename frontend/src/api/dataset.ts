@@ -2,11 +2,12 @@ import axios from "axios";
 import { Metadata, PropertyType, RDFGraph, RepositoryId, URI } from "../types";
 import { emptyGraph } from "../utils/queryResults";
 
+const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+
 export async function getClasses(
   repository: RepositoryId,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/classes?repository=${repository}&username=${encodeURIComponent(
       username
@@ -22,7 +23,6 @@ export async function getClassHierarchy(
   repository: RepositoryId,
   username: string
 ): Promise<RDFGraph> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/class-hierarchy?repository=${repository}&username=${encodeURIComponent(
       username
@@ -38,7 +38,6 @@ export async function getNoOfTriplets(
   repository: RepositoryId,
   username: string
 ): Promise<number> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/triplet-count?repository=${repository}&username=${encodeURIComponent(
       username
@@ -54,7 +53,6 @@ export async function getAllTypes(
   repository: RepositoryId,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/all-types?repository=${repository}&username=${encodeURIComponent(
       username
@@ -71,7 +69,6 @@ export async function getTypeProperties(
   type: URI,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type-properties?repository=${repository}&type=${encodeURIComponent(
       type
@@ -88,7 +85,6 @@ export async function getMetaInformation(
   uri: URI,
   username: string
 ): Promise<Metadata> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/meta-information?repository=${repository}&uri=${encodeURIComponent(
       uri
@@ -106,7 +102,6 @@ export async function getOutgoingLinks(
   uri: URI,
   username: string
 ): Promise<{ [key: URI]: number }> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/outgoing-links?repository=${repository}&uri=${encodeURIComponent(
       uri
@@ -124,7 +119,6 @@ export async function getIncomingLinks(
   uri: URI,
   username: string
 ): Promise<{ [key: URI]: number }> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/incoming-links?repository=${repository}&uri=${encodeURIComponent(
       uri
@@ -141,7 +135,6 @@ export async function getAllProperties(
   repository: RepositoryId,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/all-properties?repository=${repository}&username=${encodeURIComponent(
       username
@@ -159,7 +152,6 @@ export async function getPropertyValues(
   propType: PropertyType,
   username: string
 ): Promise<[URI, string][]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/property-values?repository=${repository}&uri=${encodeURIComponent(
       uri
@@ -178,7 +170,6 @@ export async function getInstances(
   type: URI,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type-instances?repository=${repository}&type=${encodeURIComponent(
       type
@@ -196,7 +187,6 @@ export async function getType(
   uri: URI,
   username: string
 ): Promise<URI[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/dataset/type?repository=${repository}&uri=${encodeURIComponent(
       uri
