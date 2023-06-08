@@ -214,7 +214,9 @@ class QueryAnalyser:
         if self.class_vars_used() != 1:
             return False
         for var in self.select_variables:
-            if var not in self.var_categories['scalar']:
+            if var in self.key_of_var:
+                continue
+            if variable_name(var) not in self.var_categories['scalar']:
                 return False
 
         return True
