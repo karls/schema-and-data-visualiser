@@ -36,38 +36,35 @@ class SettingsStore {
     });
   }
 
-  setState(state: SettingsState) {
-    this.state = state;
-  }
 
-  get darkMode(): boolean {
+  darkMode = (): boolean => {
     return this.state.darkMode;
   }
 
-  get sidebarWidth(): number {
+  sidebarWidth = (): number => {
     return this.state.sidebarWidth;
   }
 
-  get fullScreen(): boolean {
+  fullScreen = (): boolean => {
     return this.state.fullScreen;
   }
 
-  get sidebarCollapsed(): boolean {
+  sidebarCollapsed = (): boolean => {
     return this.state.sidebarCollapsed;
   }
 
-  get showAllCharts(): boolean {
+  showAllCharts = (): boolean => {
     return this.state.showAllCharts;
   }
 
-  get screenWidth(): number {
+  screenWidth = (): number => {
     return Math.max(
       document.documentElement.clientWidth || Number.MAX_SAFE_INTEGER,
       window.innerWidth || Number.MAX_SAFE_INTEGER
     );
   }
 
-  get screenHeight(): number {
+  screenHeight = (): number => {
     return Math.min(
       document.documentElement.clientHeight ?? Number.MAX_SAFE_INTEGER,
       window.innerHeight ?? Number.MAX_SAFE_INTEGER
@@ -75,7 +72,7 @@ class SettingsStore {
   }
 
   setDarkMode(value: boolean) {
-    this.setState({ ...this.state, darkMode: value });
+    this.state.darkMode = value;
   }
 
   setFullScreen(value: boolean) {

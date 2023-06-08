@@ -46,7 +46,7 @@ const Settings = () => {
         <Space direction="vertical">
           <Space>
             <Switch
-              checked={settings.darkMode}
+              checked={settings.darkMode()}
               onChange={(checked: boolean) => settings.setDarkMode(checked)}
               checkedChildren={<MdDarkMode style={{ marginBottom: 2 }} />}
               unCheckedChildren={<MdLightMode style={{ marginBottom: 2 }} />}
@@ -57,7 +57,7 @@ const Settings = () => {
           <Divider />
           <Space>
             <Switch
-              checked={settings.showAllCharts}
+              checked={settings.showAllCharts()}
               onChange={(checked: boolean) =>
                 settings.setShowAllCharts(checked)
               }

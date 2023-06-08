@@ -12,7 +12,7 @@ import {
 import { useStore } from "../../stores/store";
 import { MdDelete } from "react-icons/md";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const QueryHistory = observer(() => {
   const rootStore = useStore();
@@ -54,7 +54,7 @@ const QueryHistory = observer(() => {
         <div
           style={{
             width: "100%",
-            height: settings.screenHeight - 450,
+            height: settings.screenHeight() - 450,
             overflowY: "auto",
           }}
         >
@@ -68,7 +68,7 @@ const QueryHistory = observer(() => {
                     <Popover
                       key={`query-${id}`}
                       placement="right"
-                      title={`${name} (${date})`}
+                      title={`Saved on ${date}`}
                       content={
                         <div
                           style={{

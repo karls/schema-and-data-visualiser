@@ -44,10 +44,10 @@ const GraphVis = observer(
         font: {
           strokeWidth: 1,
           size: 20,
-          color: settings.darkMode ? "white" : "black",
+          color: settings.darkMode() ? "white" : "black",
         },
       };
-    }, [settings.darkMode]);
+    }, [settings.darkMode()]);
 
     useEffect(() => {
       setGraph(
@@ -90,7 +90,7 @@ const GraphVis = observer(
           : {}),
       },
       edges: {
-        color: settings.darkMode ? "white" : "black",
+        color: settings.darkMode() ? "white" : "black",
         font: { size: 10 },
       },
       width: `${width}px`,

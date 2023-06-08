@@ -105,7 +105,7 @@ def import_data(*, data_url, schema_url):
 
 def convert_sparql_json_result(result):
     if 'boolean' in result:
-        return {'boolean': result['boolean']}
+        return {'boolean': result['boolean'], 'header': [], 'data': []}
 
     header = result['head']['vars']
     data = []

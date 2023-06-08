@@ -22,8 +22,8 @@ const QueryBrowser = observer(() => {
 
   const remove = (targetKey: TargetKey) => {
     queriesStore.removeQuery(targetKey as string);
-    if (targetKey === queriesStore.currentQueryId) {
-      const newActiveKey = Object.keys(queriesStore.openQueries)[0];
+    if (targetKey === queriesStore.currentQueryId()) {
+      const newActiveKey = Object.keys(queriesStore.openQueries())[0];
       onTabChange(newActiveKey);
     }
   };
@@ -43,14 +43,14 @@ const QueryBrowser = observer(() => {
     <Tabs
       type="editable-card"
       onChange={onTabChange}
-      activeKey={queriesStore.currentQueryId}
+      activeKey={queriesStore.currentQueryId()}
       onEdit={onEdit}
       style={{ padding: 0 }}
-      items={Object.keys(queriesStore.openQueries).map((qid: string) => {
+      items={Object.keys(queriesStore.openQueries()).map((qid: string) => {
         return {
           label: (
             <Input
-              title={queriesStore.openQueries[qid].name}
+              title={queriesStore.openQueries()[qid].name}
               onKeyDown={(e) => e.stopPropagation()}
               // onChange={(e) => console.log(e.target.value)}
               style={{
@@ -72,7 +72,7 @@ const QueryBrowser = observer(() => {
           ),
           children: (
             <Query
-              query={queriesStore.openQueries[qid].sparql}
+              query={queriesStore.openQueries()[qid].sparql}
               setQueryText={(text: string) =>
                 queriesStore.setQueryText(qid, text)
               }

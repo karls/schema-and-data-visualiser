@@ -73,9 +73,9 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
         componentId={1}
         groupLabels={types.map((t: URI) => removePrefix(t))}
         groupColors={types.map(() =>
-          randomColor({ luminosity: settings.darkMode ? "light" : "dark" })
+          randomColor({ luminosity: settings.darkMode() ? "light" : "dark" })
         )}
-        labelColors={types.map(() => (settings.darkMode ? "white" : "black"))}
+        labelColors={types.map(() => (settings.darkMode() ? "white" : "black"))}
         style={{ margin: "auto", padding: 50, font: "white" }}
         width={width}
         outerRadius={width - 1000}
@@ -88,9 +88,9 @@ const ClassLinks = ({ repository, width }: ClassLinksProps) => {
         componentId={1}
         groupLabels={types.map((t: URI) => removePrefix(t))}
         groupColors={types.map(() =>
-          randomColor({ luminosity: settings.darkMode ? "light" : "dark" })
+          randomColor({ luminosity: settings.darkMode() ? "light" : "dark" })
         )}
-        labelColors={types.map(() => (settings.darkMode ? "white" : "black"))}
+        labelColors={types.map(() => (settings.darkMode() ? "white" : "black"))}
         style={{ margin: "auto", padding: 50, font: "white" }}
         width={width}
         outerRadius={width - 1000}

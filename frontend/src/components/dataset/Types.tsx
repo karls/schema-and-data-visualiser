@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Divider,
-  Select,
-  Skeleton,
-  Space,
-  Typography,
-} from "antd";
+import { Divider, Select, Skeleton, Space, Typography } from "antd";
 import { RepositoryId, URI } from "../../types";
 import { removePrefix } from "../../utils/queryResults";
 import { getTypeProperties, getAllTypes } from "../../api/dataset";
@@ -47,13 +41,8 @@ const Types = ({ repository }: TypesProps) => {
             style={{ width: 200 }}
           />
         </Space>
-        {type && (
-          <Space direction="vertical">
-            <MetaInfo repository={repository} uri={type} />
-            <Divider />
-            <Properties repository={repository} type={type} />
-          </Space>
-        )}
+        <Divider />
+        {type && <Properties repository={repository} type={type} />}
       </Space>
     </Skeleton>
   );
@@ -72,6 +61,7 @@ const Properties = ({ repository, type }: PropertiesProps) => {
 
   useEffect(() => {
     setLoading(true);
+    setProperty("");
     getTypeProperties(repository, type, username).then((res: URI[]) => {
       setAllProperties(res);
       setLoading(false);

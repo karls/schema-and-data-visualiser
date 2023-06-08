@@ -64,7 +64,7 @@ const ExploreDataset = ({ repository }: ExploreDatasetProps) => {
     <>
       <Button
         type="primary"
-        disabled={repositoryStore.currentRepository === null}
+        disabled={repositoryStore.currentRepository() === null}
         onClick={() => setIsModalOpen(true)}
         style={{ width: "95%", margin: 5 }}
       >

@@ -42,7 +42,7 @@ export const WordCloud = observer(
           display: "inline-block",
           // float: 'left',
           color: randomColor({
-            luminosity: settings.darkMode ? "light" : "dark",
+            luminosity: settings.darkMode() ? "light" : "dark",
           }),
         }}
       >

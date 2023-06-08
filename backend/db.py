@@ -1,12 +1,10 @@
-import sqlite3
 from datetime import datetime
 import compress_pickle
 import os
-from dotenv import load_dotenv, find_dotenv
 import pymongo
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
-
+from dotenv import load_dotenv, find_dotenv
 from backend.repository import RDFRepository, LocalRepository, RemoteRepository
 
 load_dotenv(find_dotenv())
@@ -43,16 +41,24 @@ def get_repository(*, repository_id: str,
     if not repo:
         return None
     if 'graph' in repo:
-        return LocalRepository(name=repository_id, graph=repo['graph'])
+        return LocalRepository(name=repository_id,
+                               graph=compress_pickle.loads(repo['graph'],
+                                                           COMPRESSION))
     elif 'endpoint' in repo:
         return RemoteRepository(name=repository_id, endpoint=repo['endpoint'])
     return None
 
 
+def delete_repository(*, repository_id: str, username: str):
+    repositories = db['repositories']
+    return repositories.delete_one({'name': repository_id, 'user': username})
+
+
 def get_repository_info(*, username: str):
     repositories = db['repositories']
     details = repositories.find({'user': username},
-                                {'_id': 0, 'name': 1, 'description': 1})
+                                {'_id': 0, 'name': 1, 'description': 1,
+                                 'endpoint': 1})
 
     return list(details)
 
@@ -66,7 +72,7 @@ def add_repository(*, repository_id: str, username: str,
         'description': description
     }
     if graph:
-        repo['graph'] = graph
+        repo['graph'] = compress_pickle.dumps(graph, COMPRESSION)
     elif endpoint:
         repo['endpoint'] = endpoint
     return repositories.insert_one(repo)
@@ -109,10 +115,12 @@ if __name__ == '__main__':
     #            username='rohan')
     from backend.util import import_data
 
-    graph = import_data(
-        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial.n3',
-        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial/Mondial-RDF/mondial-meta.n3')
-    repo = LocalRepository(name="mondial", graph=graph)
+    g = import_data(
+        data_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                 '/Mondial-RDF/mondial.n3',
+        schema_url='https://www.dbis.informatik.uni-goettingen.de/Mondial'
+                   '/Mondial-RDF/mondial-meta.n3')
+    repo = LocalRepository(name="mondial", graph=g)
     # add_repository(repository=repo, username='rohan', description="Trial")
     # print(list(get_queries('mondial', 'rohan')))
     import time

@@ -35,7 +35,7 @@ import {
       const { header } = results;
       const groupKey = variables.key[0];
       const groupKeyIdx = header.indexOf(groupKey);
-      const barKey = variables.key[1];
+      const barKey = variables.key[1] || variables.scalar[0];
       const barKeyIdx = header.indexOf(barKey);
       const valueKey = variables.numeric[0];
       const valueIdx = header.indexOf(valueKey);
@@ -67,7 +67,7 @@ import {
                   key={`bar-${index}`}
                   dataKey={dataKey}
                   fill={randomColor({
-                    luminosity: settings.darkMode ? "light" : "dark",
+                    luminosity: settings.darkMode() ? "light" : "dark",
                   })}
                 />
               )

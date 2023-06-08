@@ -6,13 +6,12 @@ import {
 } from "react-icons/tb";
 import { CgArrowLongLeftC, CgArrowLongRightC } from "react-icons/cg";
 import { QueryAnalysis, QueryResults, RelationType } from "../../types";
-import { getColumnRelationship, getLinks } from "../../utils/charts";
 import {
   Alert,
   Card,
   Modal,
   Segmented,
-  Skeleton,
+  // Skeleton,
   Space,
   Table,
   Tag,
@@ -22,13 +21,13 @@ import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 
 type SuggestedProps = {
-  queryAnalysis: QueryAnalysis;
+  results: QueryResults;
   allRelations: any;
   allOutgoingLinks: any;
   allIncomingLinks: any;
 };
 export const Suggested = ({
-  queryAnalysis,
+  results,
   allRelations,
   allIncomingLinks,
   allOutgoingLinks,
@@ -36,7 +35,7 @@ export const Suggested = ({
   return (
     <>
       <ColumnRelations
-        keyColumns={queryAnalysis.variables.key}
+        results={results}
         allRelations={allRelations}
         allIncomingLinks={allIncomingLinks}
         allOutgoingLinks={allOutgoingLinks}
@@ -58,26 +57,26 @@ const relationIcons: { [key: string]: JSX.Element } = {
 };
 
 type ColumnRelationsProps = {
-  keyColumns: string[];
+  results: QueryResults;
   allRelations: any;
   allIncomingLinks: any;
   allOutgoingLinks: any;
 };
 const ColumnRelations = observer(
   ({
-    keyColumns,
+    results,
     allRelations,
     allIncomingLinks,
     allOutgoingLinks,
   }: ColumnRelationsProps) => {
     return (
       <Card title="Entity Relationships">
-        {keyColumns.length < 2 ? (
-          <Alert banner message="Only applicable for multiple key variables" />
+        {results.header.length < 2 ? (
+          <Alert banner message="There is only one column" />
         ) : (
           <Space>
-            {keyColumns.map((colA, i) =>
-              keyColumns.map((colB, j) => {
+            {results.header.map((colA: string, i: number) =>
+              results.header.map((colB: string, j: number) => {
                 return (
                   i < j && (
                     <Relation
@@ -213,7 +212,7 @@ const Relation = observer(
           }
           footer={null}
           onCancel={() => setShowModal(false)}
-          width={Math.floor(settings.screenWidth * 0.75)}
+          width={Math.floor(settings.screenWidth() * 0.75)}
         >
           <RelationDetails
             colA={colA}

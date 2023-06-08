@@ -48,6 +48,7 @@ import { IoMdGitNetwork } from "react-icons/io";
 import { MdOutlineStackedBarChart } from "react-icons/md";
 import StackedBarChart from "../charts/StackedBarChart";
 import GroupedBarChart from "../charts/GroupedBarChart";
+import { RiBarChartGroupedFill } from "react-icons/ri";
 
 type ChartsProps = {
   query: string;
@@ -61,13 +62,14 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   const username = rootStore.authStore.username!;
 
   const chartWidth = Math.floor(
-    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
-      (settings.fullScreen ? 0.95 : 0.88)
+    (window.screen.width -
+      (settings.fullScreen() ? 0 : settings.sidebarWidth())) *
+      (settings.fullScreen() ? 0.95 : 0.88)
   );
 
-  const chartHeight = settings.fullScreen
-    ? settings.screenHeight
-    : settings.screenHeight - 325;
+  const chartHeight = settings.fullScreen()
+    ? settings.screenHeight()
+    : settings.screenHeight() - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>({
     pattern: null,
@@ -83,22 +85,24 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     },
   });
   const { allRelations, allIncomingLinks, allOutgoingLinks } = useMemo(
-    () => getAllRelations(results, queryAnalysis.variables.key),
-    [queryAnalysis.variables.key, results]
+    () => getAllRelations(results, results.header),
+    [results]
   );
   const possibleCharts: ChartType[] = useMemo(
-    () => recommendedCharts(queryAnalysis.variables, allRelations),
-    [allRelations, queryAnalysis.variables]
+    () => recommendedCharts(queryAnalysis.variables, allRelations, results),
+    [allRelations, queryAnalysis.variables, results]
   );
   useEffect(() => {
-    if (repositoryStore.currentRepository) {
-      getQueryAnalysis(query, repositoryStore.currentRepository, username).then(
-        (res) => {
-          setQueryAnalysis(res);
-        }
-      );
+    if (repositoryStore.currentRepository()) {
+      getQueryAnalysis(
+        query,
+        repositoryStore.currentRepository()!,
+        username
+      ).then((res) => {
+        setQueryAnalysis(res);
+      });
     }
-  }, [query, repositoryStore.currentRepository, results, username]);
+  }, [query, repositoryStore, results, username]);
 
   const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {
@@ -248,7 +252,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
         key: ChartType.GROUPED_BAR,
         label: (
           <>
-            <MdOutlineStackedBarChart size={20} /> Grouped Bar
+            <RiBarChartGroupedFill size={20} /> Grouped Bar
           </>
         ),
         children: (
@@ -423,14 +427,14 @@ const Charts = observer(({ query, results }: ChartsProps) => {
             ),
             children: (
               <Suggested
-                queryAnalysis={queryAnalysis}
+                results={results}
                 allRelations={allRelations}
                 allIncomingLinks={allIncomingLinks}
                 allOutgoingLinks={allOutgoingLinks}
               />
             ),
           },
-          ...(settings.showAllCharts
+          ...(settings.showAllCharts()
             ? chartTabs
             : queryAnalysis.pattern
             ? chartTabs.filter(

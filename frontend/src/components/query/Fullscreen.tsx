@@ -37,7 +37,7 @@ const Fullscreen = observer(({ children }: any) => {
     <>
       <FullScreen
         handle={handle}
-        className={settings.darkMode ? "fullscreen-dark" : "fullscreen-light"}
+        className={settings.darkMode() ? "fullscreen-dark" : "fullscreen-light"}
       >
         {children}
         {handle.active && (

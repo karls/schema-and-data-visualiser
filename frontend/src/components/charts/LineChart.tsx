@@ -45,12 +45,12 @@ const LineChart = observer(
             x: parseFloat(row[xIdx]),
             y: parseFloat(row[yIdx]),
             fill: randomColor({
-              luminosity: settings.darkMode ? "light" : "dark",
+              luminosity: settings.darkMode() ? "light" : "dark",
             }),
           };
         })
       );
-    }, [keyIdx, data, header, xIdx, yIdx, settings.darkMode]);
+    }, [keyIdx, data, header, xIdx, yIdx, settings.darkMode()]);
 
     const VictoryZoomVoronoiContainer: any = createContainer("zoom", "voronoi");
 

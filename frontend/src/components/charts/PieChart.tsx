@@ -50,7 +50,7 @@ const PieChart = observer(
           <div
             className="custom-tooltip"
             style={{
-              backgroundColor: settings.darkMode ? "black" : "#ffff",
+              backgroundColor: settings.darkMode() ? "black" : "#ffff",
               padding: "5px",
               border: "columnIndexpx solid #cccc",
             }}
@@ -82,7 +82,7 @@ const PieChart = observer(
               <Cell
                 key={`cell-${index}`}
                 fill={randomColor({
-                  luminosity: settings.darkMode ? "light" : "dark",
+                  luminosity: settings.darkMode() ? "light" : "dark",
                 })}
               />
             ))}

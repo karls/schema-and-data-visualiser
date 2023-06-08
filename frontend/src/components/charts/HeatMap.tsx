@@ -72,7 +72,7 @@ export const HeatMap = observer(
             fontSize: ".65rem",
             marginLeft: 5,
             marginRight: 5,
-            color: settings.darkMode ? "white" : "black",
+            color: settings.darkMode() ? "white" : "black",
           })}
           yLabelsStyle={() => ({
             fontSize: ".65rem",
@@ -84,13 +84,13 @@ export const HeatMap = observer(
             textAlign: "center",
             padding: 10,
             position: "sticky",
-            color: settings.darkMode ? "white" : "black",
+            color: settings.darkMode() ? "white" : "black",
           })}
           cellStyle={(_x, _y, ratio) => ({
             background: `rgb(12, 160, 44, ${ratio})`,
             fontSize: ".7rem",
-            // fontColor: settings.darkMode ? "white" : "black",
-            color: settings.darkMode
+            // fontColor: settings.darkMode() ? "white" : "black",
+            color: settings.darkMode()
               ? `rgb(255, 255, 255)` // , ${ratio / 2 + 0.4})`
               : `rgb(0, 0, 0, ${ratio / 2 + 0.4})`,
             cursor: "pointer",

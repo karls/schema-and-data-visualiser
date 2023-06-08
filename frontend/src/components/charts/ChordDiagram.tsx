@@ -68,9 +68,9 @@ const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) 
         componentId={1}
         groupLabels={labels.map((t: URI) => removePrefix(t))}
         groupColors={labels.map(() =>
-          randomColor({ luminosity: settings.darkMode ? "light" : "dark" })
+          randomColor({ luminosity: settings.darkMode() ? "light" : "dark" })
         )}
-        labelColors={labels.map(() => (settings.darkMode ? "white" : "black"))}
+        labelColors={labels.map(() => (settings.darkMode() ? "white" : "black"))}
         style={{ margin: "auto", padding: 50, font: "white" }}
         width={width}
         outerRadius={Math.min(width, height) * 0.3}
