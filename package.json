@@ -1,6 +1,7 @@
 {
   "name": "web-schema-and-data-visualiser",
   "version": "1.0.0",
+  "license": "MIT",
   "engines": {
     "node": "16.15.x",
     "yarn": "1.22.x"
