@@ -182,7 +182,7 @@ const AllRepositories = () => {
 
   return (
     <Space direction="vertical">
-      {repositoryStore.repositories.map(
+      {repositoryStore.repositories().map(
         ({ name, description, endpoint }: RepositoryInfo, index: number) => (
           <Card
             title={

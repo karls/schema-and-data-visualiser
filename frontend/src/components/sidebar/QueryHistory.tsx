@@ -54,7 +54,7 @@ const QueryHistory = observer(() => {
         <div
           style={{
             width: "100%",
-            height: settings.screenHeight - 450,
+            height: settings.screenHeight() - 450,
             overflowY: "auto",
           }}
         >

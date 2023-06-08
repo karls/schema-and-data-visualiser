@@ -38,53 +38,49 @@ class QueriesStore {
     });
   }
 
-  setState(state: QueriesState) {
-    this.state = state;
-  }
-
-  get openQueries() {
+  openQueries = () => {
     return this.state.openQueries;
   }
 
-  get currentQueryId(): string {
+  currentQueryId = (): string => {
     return this.state.currentQueryId;
   }
 
-  get currentQuery(): QueryInfo {
-    return this.openQueries[this.currentQueryId];
+  currentQuery = (): QueryInfo => {
+    return this.openQueries()[this.currentQueryId()];
   }
 
-  setCurrentQueryId(key: string): void {
+  setCurrentQueryId = (key: string): void => {
     this.state.currentQueryId = key;
   }
 
-  setQueryText(id: string, sparql: string) {
+  setQueryText = (id: string, sparql: string) => {
     this.state.openQueries[id]!.sparql = sparql;
   }
 
-  getCurrentQuery(id: string) {
+  getCurrentQuery = (id: string) => {
     if (!Object.keys(this.state.openQueries).includes(id)) {
       return "";
     }
-    return this.state.openQueries[this.currentQueryId]!;
+    return this.state.openQueries[this.currentQueryId()]!;
   }
 
-  setCurrentQuery(sparql: string) {
-    this.state.openQueries[this.currentQueryId]!.sparql = sparql;
+  setCurrentQuery = (sparql: string) => {
+    this.state.openQueries[this.currentQueryId()]!.sparql = sparql;
   }
 
-  getQueryName(id: string) {
+  getQueryName = (id: string) => {
     if (!Object.keys(this.state.openQueries).includes(id)) {
       return "";
     }
     return this.state.openQueries[id]!.name;
   }
 
-  setQueryTitle(id: string, title: string) {
+  setQueryTitle = (id: string, title: string) => {
     this.state.openQueries[id]!.name = title;
   }
 
-  addQuery(sparql: string = "", name: string = ""): QueryId {
+  addQuery = (sparql: string = "", name: string = ""): QueryId => {
     const qid = `${++this.state.totalQueries}`;
     this.state.openQueries[qid] = {
       name: name || `Query ${qid}`,
@@ -93,7 +89,7 @@ class QueriesStore {
     return qid;
   }
 
-  removeQuery(qid: string) {
+  removeQuery = (qid: string) => {
     delete this.state.openQueries[qid];
   }
 }

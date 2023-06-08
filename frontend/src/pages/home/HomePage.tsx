@@ -29,9 +29,9 @@ const HomePage = observer(() => {
     <Layout>
       <Sider
         collapsible
-        collapsed={settings.sidebarCollapsed}
+        collapsed={settings.sidebarCollapsed()}
         onCollapse={(value: boolean) => settings.setSidebarCollapsed(value)}
-        width={settings.sidebarWidth}
+        width={settings.sidebarWidth()}
         style={{ background: colorBgContainer }}
       >
         <Sidebar />

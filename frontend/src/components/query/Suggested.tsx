@@ -212,7 +212,7 @@ const Relation = observer(
           }
           footer={null}
           onCancel={() => setShowModal(false)}
-          width={Math.floor(settings.screenWidth * 0.75)}
+          width={Math.floor(settings.screenWidth() * 0.75)}
         >
           <RelationDetails
             colA={colA}

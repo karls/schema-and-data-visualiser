@@ -15,10 +15,10 @@ const Sidebar = observer(() => {
 
   return (
     <>
-      {!settings.sidebarCollapsed && (
+      {!settings.sidebarCollapsed() && (
         <div style={{ justifyContent: "center" }}>
           <SelectRepository />
-          <ExploreDataset repository={repositoryStore.currentRepository} />
+          <ExploreDataset repository={repositoryStore.currentRepository()} />
           <Repositories />
           <Divider />
           <QueryHistory />
@@ -39,8 +39,8 @@ const SelectRepository = observer(() => {
   return (
     <Dropdown
       menu={{
-        items: repositoryStore.repositories.map(
-          ({ name }: RepositoryInfo, index) => {
+        items: repositoryStore.repositories().map(
+          ({ name }: RepositoryInfo, index: number) => {
             return {
               key: `${index}`,
               label: (
@@ -66,7 +66,7 @@ const SelectRepository = observer(() => {
       <Button style={{ width: "95%", margin: 5 }} name="Choose repository">
         <Space>
           <RiGitRepositoryLine size={20} />
-          <b>{repositoryStore.currentRepository || "Select repository"}</b>
+          <b>{repositoryStore.currentRepository() || "Select repository"}</b>
         </Space>
       </Button>
     </Dropdown>

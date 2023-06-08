@@ -35,44 +35,43 @@ class RepositoryStore {
     });
   }
 
-  get currentRepository() {
-    return this.state.currentRepository;
-  }
+  currentRepository = () => (
+    this.state.currentRepository
+  )
 
-  get queryHistory() {
+  queryHistory = () => {
     return this.state.queryHistory;
   }
 
-  get repositories() {
+  repositories = () => {
     return this.state.repositories;
   }
 
-  getCurrentRepository() {
+  getCurrentRepository = () => {
     return this.state.currentRepository;
   }
 
-  getQueryHistory() {
+  getQueryHistory = () => {
     return this.state.queryHistory;
   }
 
-  setCurrentRepository(repositoryId: string) {
+  setCurrentRepository = (repositoryId: string) => {
     this.state.currentRepository = repositoryId;
     this.updateQueryHistory();
   }
 
-  updateQueryHistory() {
+  updateQueryHistory = () => {
     if (this.state.currentRepository) {
       const username = this.rootStore.authStore.username!;
       getQueryHistory(this.state.currentRepository, username).then(
         (queries: QueryRecord[]) => {
-          console.log(queries);
           this.state.queryHistory = queries;
         }
       );
     }
   }
 
-  clearQueryHistory() {
+  clearQueryHistory = () => {
     if (this.state.currentRepository) {
       const username = this.rootStore.authStore.username!;
       clearQueryHistory(this.state.currentRepository, username).then(() => {
@@ -81,7 +80,7 @@ class RepositoryStore {
     }
   }
 
-  updateRepositories() {
+  updateRepositories = () => {
     const username = this.rootStore.authStore.username;
     if (username) {
       allRepositories(username!).then((repositories: RepositoryInfo[]) => {
@@ -90,7 +89,7 @@ class RepositoryStore {
     }
   }
 
-  deleteRepository(repository: string) {
+  deleteRepository = (repository: string) => {
     const username = this.rootStore.authStore.username;
     if (username) {
       deleteRepository(repository, username!).then(() => {

@@ -19,7 +19,7 @@ const Results = observer(({ results, loading }: QueryResultsProps) => {
   const cellHeight = 55;
   const [showPrefix, setShowPrefix] = useState<boolean>(false);
   const height = Math.floor(
-    window.screen.height * (settings.fullScreen ? 0.8 : 0.5)
+    window.screen.height * (settings.fullScreen() ? 0.8 : 0.5)
   );
   if (Object.keys(results).includes('boolean')) {
     return (

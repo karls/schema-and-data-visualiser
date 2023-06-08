@@ -33,11 +33,11 @@ const Query = observer(({ query, setQueryText, name }: QueryProps) => {
   const [activeTab, setActiveTab] = useState<string>("editor");
 
   const width = Math.floor(
-    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
-      (settings.fullScreen ? 0.95 : 0.85)
+    (window.screen.width - (settings.fullScreen() ? 0 : settings.sidebarWidth())) *
+      (settings.fullScreen() ? 0.95 : 0.85)
   );
   const height = Math.floor(
-    window.screen.height * (settings.fullScreen ? 0.75 : 0.6)
+    window.screen.height * (settings.fullScreen() ? 0.75 : 0.6)
   );
 
   const items: TabsProps["items"] = [
@@ -91,7 +91,7 @@ const Query = observer(({ query, setQueryText, name }: QueryProps) => {
         <Graph
           key={graphKey}
           links={results.data as Triplet[]}
-          repository={repositoryStore.currentRepository!}
+          repository={repositoryStore.currentRepository()!}
         />
       ),
     },
