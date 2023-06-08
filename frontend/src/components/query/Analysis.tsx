@@ -136,13 +136,13 @@ type VariablesProps = {
 };
 
 const categoryIcon = {
-  [CategoryType.KEY]: <GoKey title="Key" size={20} />,
-  [CategoryType.DATE]: <BsCalendarDateFill title="Date" size={20} />,
-  [CategoryType.TEMPORAL]: <IoMdTime title="Temporal" size={20} />,
-  [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill title="Geographical" size={20} />,
-  [CategoryType.SCALAR]: <MdNumbers title="Scalar" size={25} />,
-  [CategoryType.LEXICAL]: <BiText title="Lexical" size={20} />,
-  [CategoryType.NUMERIC]: <Tb123 title="Numeric" size={25} />,
+  [CategoryType.KEY]: <GoKey size={20} />,
+  [CategoryType.DATE]: <BsCalendarDateFill size={20} />,
+  [CategoryType.TEMPORAL]: <IoMdTime size={20} />,
+  [CategoryType.GEOGRAPHICAL]: <BsGeoAltFill size={20} />,
+  [CategoryType.SCALAR]: <MdNumbers size={25} />,
+  [CategoryType.LEXICAL]: <BiText size={20} />,
+  [CategoryType.NUMERIC]: <Tb123 size={25} />,
 };
 
 const Variables = ({ variableCategories }: VariablesProps) => {
@@ -154,7 +154,7 @@ const Variables = ({ variableCategories }: VariablesProps) => {
             variableCategories[category].length > 0 && (
               <List.Item key={category}>
                 <Space key={`categ-${index}`}>
-                  {categoryIcon[category]}
+                  <Tooltip title={category}>{categoryIcon[category]}</Tooltip>
                   <Space>
                     {variableCategories[category].map(
                       (v: string, index: number) => (
