@@ -116,7 +116,7 @@ const Pattern = ({ pattern, visualisations }: PatternProps) => {
     <Card type="inner" title={pattern} style={{ width: "100%" }}>
       <Space direction="vertical">
         <Typography.Text style={{ fontSize: 20 }}>
-          Potential charts
+          Common charts
         </Typography.Text>
         <Space>
           {visualisations.map((chart) => (

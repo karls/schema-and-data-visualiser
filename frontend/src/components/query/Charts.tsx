@@ -62,13 +62,14 @@ const Charts = observer(({ query, results }: ChartsProps) => {
   const username = rootStore.authStore.username!;
 
   const chartWidth = Math.floor(
-    (window.screen.width - (settings.fullScreen ? 0 : settings.sidebarWidth)) *
-      (settings.fullScreen ? 0.95 : 0.88)
+    (window.screen.width -
+      (settings.fullScreen() ? 0 : settings.sidebarWidth())) *
+      (settings.fullScreen() ? 0.95 : 0.88)
   );
 
-  const chartHeight = settings.fullScreen
-    ? settings.screenHeight
-    : settings.screenHeight - 325;
+  const chartHeight = settings.fullScreen()
+    ? settings.screenHeight()
+    : settings.screenHeight() - 325;
 
   const [queryAnalysis, setQueryAnalysis] = useState<QueryAnalysis>({
     pattern: null,
@@ -92,14 +93,16 @@ const Charts = observer(({ query, results }: ChartsProps) => {
     [allRelations, queryAnalysis.variables, results]
   );
   useEffect(() => {
-    if (repositoryStore.currentRepository) {
-      getQueryAnalysis(query, repositoryStore.currentRepository, username).then(
-        (res) => {
-          setQueryAnalysis(res);
-        }
-      );
+    if (repositoryStore.currentRepository()) {
+      getQueryAnalysis(
+        query,
+        repositoryStore.currentRepository()!,
+        username
+      ).then((res) => {
+        setQueryAnalysis(res);
+      });
     }
-  }, [query, repositoryStore.currentRepository, results, username]);
+  }, [query, repositoryStore, results, username]);
 
   const chartTabs: TabsProps["items"] = useMemo(() => {
     if (!queryAnalysis) {
@@ -431,7 +434,7 @@ const Charts = observer(({ query, results }: ChartsProps) => {
               />
             ),
           },
-          ...(settings.showAllCharts
+          ...(settings.showAllCharts()
             ? chartTabs
             : queryAnalysis.pattern
             ? chartTabs.filter(

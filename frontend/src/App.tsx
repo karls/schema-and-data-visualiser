@@ -19,14 +19,14 @@ const App = () => {
   return (
     <ConfigProvider
       theme={{
-        algorithm: settings.darkMode ? darkAlgorithm : defaultAlgorithm,
+        algorithm: settings.darkMode() ? darkAlgorithm : defaultAlgorithm,
       }}
     >
       <AntdApp>
         <Layout
           style={{
             minHeight: "100vh",
-            backgroundColor: settings.darkMode ? "black" : "white",
+            backgroundColor: settings.darkMode() ? "black" : "white",
           }}
         >
           <Header className="header">

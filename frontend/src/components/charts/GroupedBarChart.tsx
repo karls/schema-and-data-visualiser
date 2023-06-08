@@ -67,7 +67,7 @@ import {
                   key={`bar-${index}`}
                   dataKey={dataKey}
                   fill={randomColor({
-                    luminosity: settings.darkMode ? "light" : "dark",
+                    luminosity: settings.darkMode() ? "light" : "dark",
                   })}
                 />
               )

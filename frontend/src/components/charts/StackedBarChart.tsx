@@ -68,7 +68,7 @@ const StackedBarChart = observer(
                 dataKey={dataKey}
                 stackId="a"
                 fill={randomColor({
-                  luminosity: settings.darkMode ? "light" : "dark",
+                  luminosity: settings.darkMode() ? "light" : "dark",
                 })}
               />
             )

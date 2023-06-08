@@ -45,7 +45,7 @@ const Editor = ({
   const username = authStore.username!;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
-    repositoryStore.currentRepository
+    repositoryStore.currentRepository()
   );
   const [properties, setProperties] = useState<URI[]>([]);
   const [types, setTypes] = useState<URI[]>([]);
@@ -91,7 +91,7 @@ const Editor = ({
               const start = new Date().getTime();
               runSparqlQuery(
                 repository!,
-                queriesStore.currentQuery.sparql,
+                queriesStore.currentQuery().sparql,
                 authStore.username!
               ).then((results) => {
                 showNotification(new Date().getTime() - start);
@@ -118,7 +118,7 @@ const Editor = ({
             types: types.map((t) => removePrefix(t)),
             variables: getTokens(query).filter((token) => isVariable(token)),
           }}
-          darkTheme={settings.darkMode}
+          darkTheme={settings.darkMode()}
           width={Math.floor(width / 2)}
           height={height}
         />
@@ -153,7 +153,7 @@ const SelectRepository = observer(
     return (
       <Dropdown
         menu={{
-          items: repositoryStore.repositories.map(
+          items: repositoryStore.repositories().map(
             ({ name }: RepositoryInfo, index) => {
               return {
                 key: `${index}`,

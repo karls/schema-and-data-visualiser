@@ -47,12 +47,12 @@ const ScatterChart = observer(
             y: parseFloat(row[col2]),
             z: col3 ? parseFloat(row[col3]) : 1,
             fill: randomColor({
-              luminosity: settings.darkMode ? "light" : "dark",
+              luminosity: settings.darkMode() ? "light" : "dark",
             }),
             amount: 2,
           };
         }),
-      [col1, col2, col3, results.data, results.header, settings.darkMode]
+      [col1, col2, col3, results.data, results.header, settings.darkMode()]
     );
 
     return (

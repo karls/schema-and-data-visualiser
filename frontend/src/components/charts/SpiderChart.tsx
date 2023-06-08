@@ -65,7 +65,7 @@ const SpiderChart = observer(
           {uniqueValues(results.data, ringKeyIdx).map(
             (dataKey: string, index: number) => {
               const colour = randomColor({
-                luminosity: settings.darkMode ? "light" : "dark",
+                luminosity: settings.darkMode() ? "light" : "dark",
               });
               return (
                 <Radar
