@@ -1,11 +1,12 @@
 import axios from "axios";
 import { QueryAnalysis, QueryRecord } from "../types";
 
+const BACKEND_API = process.env.REACT_APP_BACKEND_API;
+
 export async function getQueryHistory(
   repository: string,
   username: string
 ): Promise<QueryRecord[]> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/saved-queries?repository=${repository}&username=${encodeURIComponent(
       username
@@ -25,7 +26,6 @@ export async function addQueryToHistory(
   name: string,
   username: string
 ) {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/saved-queries`;
     const response = await axios.post(endpoint, {
@@ -42,7 +42,6 @@ export async function addQueryToHistory(
 }
 
 export async function clearQueryHistory(repository: string, username: string) {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/saved-queries`;
     const response = await axios.delete(endpoint, {
@@ -63,7 +62,6 @@ export async function getQueryAnalysis(
   repository: string,
   username: string
 ): Promise<QueryAnalysis> {
-  const BACKEND_API = process.env.REACT_APP_BACKEND_API;
   try {
     const endpoint = `${BACKEND_API}/analysis?repository=${encodeURIComponent(
       repository
