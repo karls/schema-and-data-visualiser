@@ -10,6 +10,6 @@
     "frontend/node_modules"
   ],
   "scripts": {
-    "heroku-postbuild": "cd frontend && yarn install && yarn run build"
+    "heroku-postbuild": "cd frontend && yarn install && yarn run build --verbose"
   }
 }
