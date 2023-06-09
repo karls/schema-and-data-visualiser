@@ -1,9 +1,10 @@
-import { TagCloud } from "react-tagcloud";
-import { QueryResults, Row, VariableCategories } from "../../types";
 import { useMemo } from "react";
-import randomColor from "randomcolor";
 import { observer } from "mobx-react-lite";
-import { useStore } from "../../stores/store";
+import { QueryResults, Row, VariableCategories } from "../../types";
+import randomColor from "randomcolor";
+import { Text } from "@visx/text";
+import { scaleLinear } from "@visx/scale";
+import Wordcloud from "@visx/wordcloud/lib/Wordcloud";
 
 type WordCloudProps = {
   results: QueryResults;
@@ -12,55 +13,83 @@ type WordCloudProps = {
   variables: VariableCategories;
 };
 
+function getRotationDegree() {
+  const rand = Math.random();
+  const degree = rand > 0.5 ? 60 : -60;
+  return rand * degree;
+}
+
+interface WordData {
+  text: string;
+  value: number;
+}
+
+const fixedValueGenerator = () => 0.5;
+
 export const WordCloud = observer(
   ({ results, width, height, variables }: WordCloudProps) => {
-    const rootStore = useStore();
-    const settings = rootStore.settingsStore;
+    const textIndex = results.header.indexOf(variables.key[0]);
+    const valueIndex = results.header.indexOf(variables.scalar[0]);
 
-    const data: any = useMemo(() => {
-      const textIndex = results.header.indexOf(variables.key[0]);
-      const valueIndex = results.header.indexOf(variables.scalar[0]);
+    const { words, colors }: any = useMemo(() => {
+      const colors: { [key: string]: string } = {};
+      return {
+        words: results.data.map((row: Row) => {
+          const text = row[textIndex] as string;
+          const value = parseFloat(row[valueIndex]);
+          colors[text] = randomColor();
+          return {
+            text,
+            value,
+          };
+        }),
+        colors,
+      };
+    }, [results.data, textIndex, valueIndex]);
 
-      return results.data.map((row: Row) => {
-        return {
-          value: row[textIndex] as string,
-          count: parseFloat(row[valueIndex]),
-        };
-      });
-    }, [results.data, results.header, variables.key, variables.scalar]);
-
-    const customRenderer = (tag, size, color) => (
-      <span
-        key={tag.value}
-        style={{
-          animation: "blinker 3s linear infinite",
-          animationDelay: `${Math.random() * 2}s`,
-          fontSize: size,
-          // border: `2px solid ${color}`,
-          margin: "3px",
-          padding: "3px",
-          display: "inline-block",
-          // float: 'left',
-          color: randomColor({
-            luminosity: settings.darkMode() ? "light" : "dark",
-          }),
-        }}
-      >
-        {tag.value}
-      </span>
+    const fontScale = useMemo(
+      () =>
+        scaleLinear({
+          domain: [
+            Math.min(...words.map((w: WordData) => w.value)),
+            Math.max(...words.map((w: WordData) => w.value)),
+          ],
+          range: [15, 100],
+        }),
+      [words]
     );
 
+    const fontSizeSetter = (datum: WordData) => fontScale(datum.value);
+    const withRotation = false;
+
     return (
-      <div
-        style={{ justifyContent: "center", width, height }}
-      >
-        <TagCloud
-          tags={data}
-          minSize={20}
-          maxSize={70}
-          randomSeed={42}
-          renderer={customRenderer}
-        />
+      <div style={{ justifyContent: "center", width, height }}>
+        <Wordcloud
+          words={words}
+          width={width}
+          height={height}
+          fontSize={fontSizeSetter}
+          font={"Impact"}
+          padding={2}
+          spiral="archimedean"
+          rotate={withRotation ? getRotationDegree : 0}
+          random={fixedValueGenerator}
+        >
+          {(cloudWords) =>
+            cloudWords.map((w, i: number) => (
+              <Text
+                key={w.text}
+                fill={colors[w.text as string]}
+                textAnchor={"middle"}
+                transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+                fontSize={w.size}
+                fontFamily={w.font}
+              >
+                {w.text}
+              </Text>
+            ))
+          }
+        </Wordcloud>
       </div>
     );
   }
