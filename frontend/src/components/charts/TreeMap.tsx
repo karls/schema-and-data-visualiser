@@ -95,6 +95,7 @@ export function getHierarchicalData(
 
     const newDataFromTitle = {}; // Data with previous column as key
     const parentChildren = {};
+
     for (let row of results.data) {
       const parentValue = row[parentTitleIndex];
       const childValue = row[childTitleIndex];
@@ -111,8 +112,10 @@ export function getHierarchicalData(
           border: "thin solid black",
         },
       };
+
       const parentData = newDataFromTitle[parentValue];
       let groupColour = "";
+
       for (let childValue of parentChildren[parentValue]) {
         const childData = dataFromTitle[childValue];
 
@@ -124,6 +127,7 @@ export function getHierarchicalData(
         parentData.children.push(childData);
         parentData.value += childData.value; // Increment parent's size using child for circle packing
       }
+
       titleSizes[parentValue] = parentData.value;
       parentData.color = shadeColor(
         groupColour ? groupColour : randomColor({ luminosity: "light" }),
@@ -133,6 +137,7 @@ export function getHierarchicalData(
 
     dataFromTitle = newDataFromTitle;
   }
+
   const children: any[] = Object.values(dataFromTitle);
   const label = keyColumns.join(" <- ") + " <- " + sizeColumn;
   const totalSize = children
