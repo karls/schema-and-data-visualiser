@@ -50,7 +50,7 @@ const LineChart = observer(
           };
         })
       );
-    }, [keyIdx, data, header, xIdx, yIdx, settings.darkMode()]);
+    }, [keyIdx, data, header, xIdx, yIdx, settings]);
 
     const VictoryZoomVoronoiContainer: any = createContainer("zoom", "voronoi");
 

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import {
   TbRelationManyToMany,
   TbRelationOneToMany,
-  TbRelationOneToOne
+  TbRelationOneToOne,
 } from "react-icons/tb";
 import { CgArrowLongLeftC, CgArrowLongRightC } from "react-icons/cg";
 import { QueryResults, RelationType } from "../../types";
@@ -15,12 +15,12 @@ import {
   Space,
   Table,
   Tag,
-  Typography
+  Typography,
 } from "antd";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 
-const relationIcons: { [key: string]: JSX.Element; } = {
+const relationIcons: { [key: string]: JSX.Element } = {
   [RelationType.ONE_TO_ONE]: (
     <TbRelationOneToOne title="One to one" size={30} />
   ),
@@ -39,7 +39,10 @@ type ColumnRelationsProps = {
 };
 export const ColumnRelations = observer(
   ({
-    results, allRelations, allIncomingLinks, allOutgoingLinks,
+    results,
+    allRelations,
+    allIncomingLinks,
+    allOutgoingLinks,
   }: ColumnRelationsProps) => {
     return (
       <Card title="Entity Relationships">
@@ -47,18 +50,20 @@ export const ColumnRelations = observer(
           <Alert banner message="There is only one column" />
         ) : (
           <Space>
-            {results.header.map((colA: string, i: number) => results.header.map((colB: string, j: number) => {
-              return (
-                i < j && (
-                  <Relation
-                    colA={colA}
-                    colB={colB}
-                    allRelations={allRelations}
-                    allIncomingLinks={allIncomingLinks}
-                    allOutgoingLinks={allOutgoingLinks} />
-                )
-              );
-            })
+            {results.header.map((colA: string, i: number) =>
+              results.header.map((colB: string, j: number) => {
+                return (
+                  i < j && (
+                    <Relation
+                      colA={colA}
+                      colB={colB}
+                      allRelations={allRelations}
+                      allIncomingLinks={allIncomingLinks}
+                      allOutgoingLinks={allOutgoingLinks}
+                    />
+                  )
+                );
+              })
             )}
           </Space>
         )}
@@ -94,7 +99,8 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
           },
         ]}
         value={value}
-        onChange={(v) => setValue(v as string)} />
+        onChange={(v) => setValue(v as string)}
+      />
       <Table
         pagination={{
           position: ["topCenter"],
@@ -109,13 +115,14 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
             title: value === "Outgoing" ? colB : colA,
             dataIndex: "children",
             key: "children",
-            render: (children) => (
-              <>
-                {children.map((child: any) => (
-                  <Tag key={child}>{child}</Tag>
-                ))}
-              </>
-            ),
+            render: (children) =>
+              children && (
+                <>
+                  {children.map((child: any) => (
+                    <Tag key={child}>{child}</Tag>
+                  ))}
+                </>
+              ),
           },
         ]}
         dataSource={Object.keys(links).map((parent, index) => {
@@ -124,7 +131,8 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
             parent,
             children: Array.from(links[parent]),
           };
-        })} />
+        })}
+      />
     </Space>
   );
 };
@@ -169,11 +177,13 @@ const Relation = observer(
         </Card>
         <Modal
           open={showModal}
-          title={<Space>
-            <Typography.Text>{colA}</Typography.Text>
-            {relationIcons[relationType]}
-            <Typography.Text>{colB}</Typography.Text>
-          </Space>}
+          title={
+            <Space>
+              <Typography.Text>{colA}</Typography.Text>
+              {relationIcons[relationType]}
+              <Typography.Text>{colB}</Typography.Text>
+            </Space>
+          }
           footer={null}
           onCancel={() => setShowModal(false)}
           width={Math.floor(settings.screenWidth() * 0.75)}
@@ -182,7 +192,8 @@ const Relation = observer(
             colA={colA}
             colB={colB}
             incomingLinks={incomingLinks}
-            outgoingLinks={outgoingLinks} />
+            outgoingLinks={outgoingLinks}
+          />
         </Modal>
       </>
     );

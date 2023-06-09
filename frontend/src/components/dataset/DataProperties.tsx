@@ -27,7 +27,7 @@ export const PropertyValues = ({
       setData(res);
       setLoading(false);
     });
-  }, [repository, uri, propType]);
+  }, [repository, uri, propType, username]);
 
   return (
     <Skeleton loading={loading}>

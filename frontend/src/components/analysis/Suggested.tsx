@@ -1,4 +1,6 @@
+import { Space } from "antd";
 import { QueryResults } from "../../types";
+import Cardinalities from "./Cardinalities";
 import { ColumnRelations } from "./ColumnRelations";
 
 type SuggestedProps = {
@@ -14,15 +16,14 @@ export const Suggested = ({
   allOutgoingLinks,
 }: SuggestedProps) => {
   return (
-    <>
+    <Space direction="vertical" style={{ width: "100%" }}>
       <ColumnRelations
         results={results}
         allRelations={allRelations}
         allIncomingLinks={allIncomingLinks}
         allOutgoingLinks={allOutgoingLinks}
       />
-    </>
+      <Cardinalities results={results} />
+    </Space>
   );
 };
-
-

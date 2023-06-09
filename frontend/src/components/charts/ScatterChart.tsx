@@ -52,7 +52,7 @@ const ScatterChart = observer(
             amount: 2,
           };
         }),
-      [col1, col2, col3, results.data, results.header, settings.darkMode()]
+      [col1, col2, col3, results.data, results.header, settings]
     );
 
     return (
