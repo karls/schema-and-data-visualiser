@@ -24,3 +24,5 @@ yarn-error.log*
 .env
 .env.development
 .env.production
+
+/build/static/**/*.map
