@@ -24,6 +24,9 @@ export const TreeMap = observer(
     // const settings = rootStore.settingsStore;
     const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
+    const titleColumn = variables.key.at(-1)!;
+    const valueColumn = variables.scalar[0];
+
     const { data, titleSizes } = useMemo(() => {
       return getHierarchicalData(results, variables.key, variables.scalar[0]);
     }, [results, variables.key, variables.scalar]);
@@ -31,8 +34,8 @@ export const TreeMap = observer(
     return (
       <Space direction="vertical">
         <Statistic
-          title={hoveredNode ? hoveredNode.data.title : "Title"}
-          value={hoveredNode ? titleSizes[hoveredNode.data.title] : "Size"}
+          title={hoveredNode ? hoveredNode.data.title : titleColumn}
+          value={hoveredNode ? titleSizes[hoveredNode.data.title] : valueColumn}
         />
 
         <Treemap
