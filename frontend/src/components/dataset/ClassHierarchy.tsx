@@ -2,6 +2,7 @@ import { RDFGraph, Triplet, RepositoryId } from "../../types";
 import { useEffect, useState } from "react";
 import { getClassHierarchy } from "../../api/dataset";
 import GraphVis from "../graph/GraphVis";
+import { useStore } from "../../stores/store";
 
 type ClassHierarchyProps = {
   repository: RepositoryId;
@@ -10,13 +11,14 @@ type ClassHierarchyProps = {
 };
 
 const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
+  const username = useStore().authStore.username!;
   const [triplets, setTriplets] = useState<Triplet[]>([]);
 
   useEffect(() => {
-    getClassHierarchy(repository).then((res: RDFGraph) => {
+    getClassHierarchy(repository, username).then((res: RDFGraph) => {
       setTriplets(res.data);
     });
-  }, [repository]);
+  }, [repository, username]);
 
   return (
     <GraphVis
@@ -25,6 +27,7 @@ const ClassHierarchy = ({ repository, width, height }: ClassHierarchyProps) => {
       height={height}
       repository={repository}
       hierarchical={true}
+      interactive={false}
     />
   );
 };

@@ -33,7 +33,7 @@ const SpiderChart = observer(
 
     const { header } = results;
     const ringKeyIdx = header.indexOf(variables.key[0]);
-    const spokeKeyIdx = header.indexOf(variables.key[1]);
+    const spokeKeyIdx = header.indexOf(variables.key[1] || variables.scalar[0]);
     const valueIdx = header.indexOf(variables.numeric[0]);
 
     const data = useMemo(() => {
@@ -65,7 +65,7 @@ const SpiderChart = observer(
           {uniqueValues(results.data, ringKeyIdx).map(
             (dataKey: string, index: number) => {
               const colour = randomColor({
-                luminosity: settings.darkMode ? "light" : "dark",
+                luminosity: settings.darkMode() ? "light" : "dark",
               });
               return (
                 <Radar

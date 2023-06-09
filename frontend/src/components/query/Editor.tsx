@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { useEffect, useState } from "react";
 import { useStore } from "../../stores/store";
 import CodeEditor from "./CodeEditor";
-import { allRepositories, runSparqlQuery } from "../../api/sparql";
+import { runSparqlQuery } from "../../api/sparql";
 import { QueryResults, RepositoryId, RepositoryInfo, URI } from "../../types";
 import { Button, Dropdown, Space, App as AntdApp, Row, Col } from "antd";
 import { FiPlay } from "react-icons/fi";
@@ -11,9 +11,9 @@ import { BiCopy, BiSave } from "react-icons/bi";
 import { getAllProperties, getAllTypes } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
 import sparql from "../../utils/sparql.json";
-import { sparql_templates } from "../../utils/sparql_templates";
+import { sparqlTemplates } from "../../utils/sparqlTemplates";
 import Templates from "./Templates";
-import Analysis from "./Analysis";
+import Analysis from "../analysis/Analysis";
 import { addQueryToHistory } from "../../api/queries";
 
 type QueryEditorProps = {
@@ -24,7 +24,7 @@ type QueryEditorProps = {
   onRun: (results: QueryResults) => void;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  queryTitle: string;
+  queryName: string;
 };
 
 const Editor = ({
@@ -35,29 +35,31 @@ const Editor = ({
   onRun,
   loading,
   setLoading,
-  queryTitle,
+  queryName,
 }: QueryEditorProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const repositoryStore = rootStore.repositoryStore;
   const queriesStore = rootStore.queriesStore;
+  const authStore = rootStore.authStore;
+  const username = authStore.username!;
 
   const [repository, setRepository] = useState<RepositoryId | null>(
-    repositoryStore.getCurrentRepository()
+    repositoryStore.currentRepository()
   );
   const [properties, setProperties] = useState<URI[]>([]);
   const [types, setTypes] = useState<URI[]>([]);
 
   useEffect(() => {
     if (repository !== null) {
-      getAllProperties(repository).then((res) => {
+      getAllProperties(repository, username).then((res) => {
         setProperties(res);
       });
-      getAllTypes(repository).then((res) => {
+      getAllTypes(repository, username).then((res) => {
         setTypes(res);
       });
     }
-  }, [repository]);
+  }, [repository, username]);
 
   const { notification } = AntdApp.useApp();
 
@@ -89,7 +91,8 @@ const Editor = ({
               const start = new Date().getTime();
               runSparqlQuery(
                 repository!,
-                queriesStore.currentQuery.sparql
+                queriesStore.currentQuery().sparql,
+                authStore.username!
               ).then((results) => {
                 showNotification(new Date().getTime() - start);
                 onRun(results);
@@ -101,8 +104,8 @@ const Editor = ({
             Run
           </Button>
           <CopyToClipboard text={query} />
-          <SaveQuery repository={repository} query={query} title={queryTitle} />
-          <Templates templates={sparql_templates} />
+          <SaveQuery repository={repository} query={query} name={queryName} />
+          <Templates templates={sparqlTemplates} />
         </Space>
 
         <CodeEditor
@@ -115,7 +118,7 @@ const Editor = ({
             types: types.map((t) => removePrefix(t)),
             variables: getTokens(query).filter((token) => isVariable(token)),
           }}
-          darkTheme={settings.darkMode}
+          darkTheme={settings.darkMode()}
           width={Math.floor(width / 2)}
           height={height}
         />
@@ -136,48 +139,47 @@ function isVariable(text: string): boolean {
   return text.length > 1 && text.charAt(0) === "?";
 }
 
-const SelectRepository = ({
-  repository,
-  setRepository,
-}: {
-  repository: string | null;
-  setRepository: React.Dispatch<React.SetStateAction<string | null>>;
-}) => {
-  const [repositories, setRepositories] = useState<RepositoryInfo[]>([]);
+const SelectRepository = observer(
+  ({
+    repository,
+    setRepository,
+  }: {
+    repository: string | null;
+    setRepository: React.Dispatch<React.SetStateAction<string | null>>;
+  }) => {
+    const rootStore = useStore();
+    const repositoryStore = rootStore.repositoryStore;
 
-  useEffect(() => {
-    allRepositories().then((repositories) => {
-      setRepositories(repositories);
-    });
-  }, []);
-
-  return (
-    <Dropdown
-      menu={{
-        items: repositories.map(({ id, title }: RepositoryInfo, index) => {
-          return {
-            key: `${index}`,
-            label: (
-              <Button
-                onClick={() => setRepository(id)}
-                style={{ width: "100%", height: "100%" }}
-              >
-                {id}
-              </Button>
-            ),
-          };
-        }),
-      }}
-    >
-      <Button title="Choose repository">
-        <Space>
-          <RiGitRepositoryLine size={20} />
-          {repository || "Choose repository"}
-        </Space>
-      </Button>
-    </Dropdown>
-  );
-};
+    return (
+      <Dropdown
+        menu={{
+          items: repositoryStore.repositories().map(
+            ({ name }: RepositoryInfo, index) => {
+              return {
+                key: `${index}`,
+                label: (
+                  <Button
+                    onClick={() => setRepository(name)}
+                    style={{ width: "100%", height: "100%" }}
+                  >
+                    {name}
+                  </Button>
+                ),
+              };
+            }
+          ),
+        }}
+      >
+        <Button name="Choose repository">
+          <Space>
+            <RiGitRepositoryLine size={20} />
+            {repository || "Choose repository"}
+          </Space>
+        </Button>
+      </Dropdown>
+    );
+  }
+);
 
 const CopyToClipboard = ({ text }: { text: string }) => {
   return (
@@ -192,22 +194,24 @@ const CopyToClipboard = ({ text }: { text: string }) => {
 
 const SaveQuery = observer(
   ({
-    title,
+    name,
     query,
     repository,
   }: {
-    title: string;
+    name: string;
     query: string;
     repository: RepositoryId | null;
   }) => {
     const rootStore = useStore();
+    const username = rootStore.authStore.username!;
+
     const repositoryStore = rootStore.repositoryStore;
     return (
       <Button
         icon={<BiSave size={20} />}
         disabled={repository === null}
         onClick={() => {
-          addQueryToHistory(repository!, query, title).then(() => {
+          addQueryToHistory(repository!, query, name, username).then(() => {
             repositoryStore.updateQueryHistory();
           });
         }}

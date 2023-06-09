@@ -1,12 +1,14 @@
 import { makeAutoObservable } from "mobx";
 import { makePersistable } from "mobx-persist-store";
-import { QueryRecord, RepositoryId } from "../types";
+import { QueryRecord, RepositoryInfo } from "../types";
 import RootStore from "./root-store";
 import { clearQueryHistory, getQueryHistory } from "../api/queries";
+import { allRepositories, deleteRepository } from "../api/sparql";
 
 type RepositoryStoreState = {
-  currentRepository: RepositoryId | null;
+  currentRepository: string | null;
   queryHistory: QueryRecord[];
+  repositories: RepositoryInfo[];
 };
 
 class RepositoryStore {
@@ -14,6 +16,7 @@ class RepositoryStore {
   state: RepositoryStoreState = {
     currentRepository: null,
     queryHistory: [],
+    repositories: [],
   };
 
   constructor(rootStore: RootStore) {
@@ -32,43 +35,65 @@ class RepositoryStore {
     });
   }
 
-  setState(state: RepositoryStoreState) {
-    this.state = state;
-  }
+  currentRepository = () => (
+    this.state.currentRepository
+  )
 
-  get currentRepository() {
-    return this.state.currentRepository;
-  }
-
-  get queryHistory() {
+  queryHistory = () => {
     return this.state.queryHistory;
   }
 
-  getCurrentRepository() {
+  repositories = () => {
+    return this.state.repositories;
+  }
+
+  getCurrentRepository = () => {
     return this.state.currentRepository;
   }
 
-  getQueryHistory() {
+  getQueryHistory = () => {
     return this.state.queryHistory;
   }
 
-  setCurrentRepository(id: RepositoryId) {
-    this.setState({ ...this.state, currentRepository: id });
+  setCurrentRepository = (repositoryId: string) => {
+    this.state.currentRepository = repositoryId;
     this.updateQueryHistory();
   }
 
-  updateQueryHistory() {
+  updateQueryHistory = () => {
     if (this.state.currentRepository) {
-      getQueryHistory(this.state.currentRepository).then((queries: QueryRecord[]) => {
-        this.setState({ ...this.state, queryHistory: queries });
+      const username = this.rootStore.authStore.username!;
+      getQueryHistory(this.state.currentRepository, username).then(
+        (queries: QueryRecord[]) => {
+          this.state.queryHistory = queries;
+        }
+      );
+    }
+  }
+
+  clearQueryHistory = () => {
+    if (this.state.currentRepository) {
+      const username = this.rootStore.authStore.username!;
+      clearQueryHistory(this.state.currentRepository, username).then(() => {
+        this.updateQueryHistory();
       });
     }
   }
 
-  clearQueryHistory() {
-    if (this.state.currentRepository) {
-      clearQueryHistory(this.state.currentRepository).then(() => {
-        this.updateQueryHistory();
+  updateRepositories = () => {
+    const username = this.rootStore.authStore.username;
+    if (username) {
+      allRepositories(username!).then((repositories: RepositoryInfo[]) => {
+        this.state.repositories = repositories;
+      });
+    }
+  }
+
+  deleteRepository = (repository: string) => {
+    const username = this.rootStore.authStore.username;
+    if (username) {
+      deleteRepository(repository, username!).then(() => {
+        this.updateRepositories();
       });
     }
   }

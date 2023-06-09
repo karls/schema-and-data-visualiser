@@ -15,4 +15,5 @@ WHERE
          }
     }
    FILTER(?cls != owl:Thing) # We get rid of the root class from the query results
+   FILTER (!isBlank(?cls)) .
 }

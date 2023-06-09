@@ -4,6 +4,8 @@ import io
 import shlex
 import re
 
+from rdflib import Graph
+
 
 def is_url(text):
     regex = re.compile(
@@ -65,10 +67,6 @@ def is_blank_node(uri: str):
     return uri.startswith('_:')
 
 
-def remove_blank_nodes(uris: [str]):
-    return list(filter(lambda uri: not is_blank_node(uri), uris))
-
-
 def is_json(myjson):
     try:
         json.loads(myjson)
@@ -84,3 +82,41 @@ def remove_comments(code):
 
 def separator_split(text) -> [str]:
     return re.split(''';(?=(?:[^'"]|'[^']*'|"[^"]*")*$)''', text)
+
+
+def import_data(*, data_url, schema_url):
+    graph = Graph()
+    formats = ['xml', 'nt', 'n3', 'ttl', 'turtle']
+    for ext in formats:
+        try:
+            graph.parse(location=data_url, format=ext)
+            break
+        except:
+            pass
+    for ext in formats:
+        try:
+            graph.parse(location=schema_url, format=ext)
+            break
+        except:
+            pass
+
+    return graph
+
+
+def convert_sparql_json_result(result):
+    if 'boolean' in result:
+        return {'boolean': result['boolean'], 'header': [], 'data': []}
+
+    header = result['head']['vars']
+    data = []
+
+    for row in result['results']['bindings']:
+        data.append([row[var]['value'] if var in row else '' for var in header])
+
+    return {'header': header, 'data': data}
+
+
+def run_query_file(*, repository, path: str):
+    with open(path, 'r') as query:
+        result = repository.run_query(query=query.read())
+        return result

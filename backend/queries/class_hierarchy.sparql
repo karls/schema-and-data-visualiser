@@ -7,7 +7,7 @@ WHERE {
     WHERE {
         { ?subject a owl:Class . } UNION { ?individual a ?subject . } .
         OPTIONAL { ?subject rdfs:subClassOf ?supertype } .
-        OPTIONAL { ?subject rdfs:label ?label }
+        FILTER (!isBlank(?supertype)) .
         FILTER (?subject != owl:Class &&
               ?subject != rdf:List &&
               ?subject != rdf:Property &&
@@ -16,6 +16,6 @@ WHERE {
               ?subject != rdfs:ContainerMembershipProperty &&
               ?subject != owl:DatatypeProperty &&
               ?subject != owl:NamedIndividual &&
-              ?subject != owl:Ontology )
+              ?subject != owl:Ontology ) .
     } ORDER BY ?subject
 }

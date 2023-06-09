@@ -3,12 +3,15 @@ import { Descriptions, Skeleton, Tag } from "antd";
 import { Metadata, RepositoryId, URI } from "../../types";
 import { getMetaInformation, getType } from "../../api/dataset";
 import { removePrefix } from "../../utils/queryResults";
+import { useStore } from "../../stores/store";
 
 type MetaInfoProps = {
   repository: RepositoryId;
   uri: URI;
 };
 export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
+  const username = useStore().authStore.username!;
+
   const [metadata, setMetadata] = useState<Metadata>({
     comment: "",
     label: "",
@@ -20,22 +23,22 @@ export const MetaInfo = ({ repository, uri }: MetaInfoProps) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getMetaInformation(repository, uri).then((res: Metadata) => {
+    getMetaInformation(repository, uri, username).then((res: Metadata) => {
       setMetadata(res);
       setLoading(false);
     });
-    getType(repository, uri).then((res: URI[]) => {
+    getType(repository, uri, username).then((res: URI[]) => {
       setTypes(res);
     });
-  }, [repository, uri]);
+  }, [repository, uri, username]);
 
   return (
     <Skeleton loading={loading}>
-      <Descriptions size="small" bordered>
+      <Descriptions size="small" layout="vertical"  bordered>
         {types.length > 0 && (
           <Descriptions.Item key="type" label="Type">
             {types.map((t, index) => (
-              <Tag key={`type-${index}`}>{removePrefix(t)}</Tag>
+              <Tag key={`type-${index}`} title={t}>{removePrefix(t)}</Tag>
             ))}
           </Descriptions.Item>
         )}

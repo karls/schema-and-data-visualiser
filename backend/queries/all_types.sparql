@@ -3,7 +3,7 @@ WHERE {
     { ?subject a owl:Class . } UNION { ?individual a ?subject . } .
     # ?individual a ?subject .
     OPTIONAL { ?subject rdfs:subClassOf ?supertype } .
-    OPTIONAL { ?subject rdfs:label ?label }
+    FILTER (!isBlank(?supertype)) .
     FILTER (?subject != owl:Class &&
           ?subject != rdf:List &&
           ?subject != rdf:Property &&

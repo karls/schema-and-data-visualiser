@@ -35,7 +35,7 @@ const StackedBarChart = observer(
     const { header } = results;
     const barKey = variables.key[0];
     const barKeyIdx = header.indexOf(barKey);
-    const stackKey = variables.key[1];
+    const stackKey = variables.key[1] || variables.scalar[0];
     const stackKeyIdx = header.indexOf(stackKey);
     const valueKey = variables.numeric[0];
     const valueIdx = header.indexOf(valueKey);
@@ -68,7 +68,7 @@ const StackedBarChart = observer(
                 dataKey={dataKey}
                 stackId="a"
                 fill={randomColor({
-                  luminosity: settings.darkMode ? "light" : "dark",
+                  luminosity: settings.darkMode() ? "light" : "dark",
                 })}
               />
             )

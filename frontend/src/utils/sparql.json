@@ -12,6 +12,7 @@
     "UNION",
     "CONSTRUCT",
     "ASK",
-    "BIND"
+    "BIND",
+    "SERVICE"
   ]
 }

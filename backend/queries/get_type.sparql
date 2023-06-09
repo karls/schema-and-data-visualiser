@@ -1,4 +1,4 @@
-SELECT ?type
+SELECT DISTINCT ?type
 WHERE {{
     <{uri}> a ?type .
 }}

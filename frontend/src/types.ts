@@ -3,11 +3,9 @@ export type RepositoryId = string;
 export type URI = string;
 
 export interface RepositoryInfo {
-  uri: String;
-  id: RepositoryId;
-  title: String;
-  readable: boolean;
-  writeable: boolean;
+  name: string;
+  description: string;
+  endpoint?: string;
 }
 
 export type Triplet = [string, string, string];
@@ -17,23 +15,25 @@ export type Row = string[];
 export type QueryResults = {
   header: string[];
   data: Row[];
+  boolean?: boolean;
+  error?: string;
 };
 
 export type RDFGraph = {
-  header: ["Subject", "Predicate", "Object"];
+  header: ["subject", "predicate", "object"];
   data: Triplet[];
 };
 
 export type QueryRecord = {
   id: number;
-  title: string;
+  name: string;
   sparql: string;
-  repositoryId: string;
+  repository: string;
   date: string;
 };
 
 export type QueryId = string;
-export type QueryInfo = { title: string; sparql: string };
+export type QueryInfo = { name: string; sparql: string };
 
 export type Metadata = {
   label: string;

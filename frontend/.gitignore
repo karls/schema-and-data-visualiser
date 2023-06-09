@@ -9,7 +9,6 @@
 /coverage
 
 # production
-# /build
 
 # misc
 .DS_Store
@@ -21,3 +20,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.env
+.env.development
+.env.production
+
+/build/static/**/*.map

@@ -24,6 +24,9 @@ export const TreeMap = observer(
     // const settings = rootStore.settingsStore;
     const [hoveredNode, setHoveredNode] = useState<TreemapPoint | null>();
 
+    const titleColumn = variables.key.at(-1)!;
+    const valueColumn = variables.scalar[0];
+
     const { data, titleSizes } = useMemo(() => {
       return getHierarchicalData(results, variables.key, variables.scalar[0]);
     }, [results, variables.key, variables.scalar]);
@@ -31,8 +34,8 @@ export const TreeMap = observer(
     return (
       <Space direction="vertical">
         <Statistic
-          title={hoveredNode ? hoveredNode.data.title : "Title"}
-          value={hoveredNode ? titleSizes[hoveredNode.data.title] : "Size"}
+          title={hoveredNode ? hoveredNode.data.title : titleColumn}
+          value={hoveredNode ? titleSizes[hoveredNode.data.title] : valueColumn}
         />
 
         <Treemap
@@ -92,6 +95,7 @@ export function getHierarchicalData(
 
     const newDataFromTitle = {}; // Data with previous column as key
     const parentChildren = {};
+
     for (let row of results.data) {
       const parentValue = row[parentTitleIndex];
       const childValue = row[childTitleIndex];
@@ -108,8 +112,10 @@ export function getHierarchicalData(
           border: "thin solid black",
         },
       };
+
       const parentData = newDataFromTitle[parentValue];
       let groupColour = "";
+
       for (let childValue of parentChildren[parentValue]) {
         const childData = dataFromTitle[childValue];
 
@@ -121,6 +127,7 @@ export function getHierarchicalData(
         parentData.children.push(childData);
         parentData.value += childData.value; // Increment parent's size using child for circle packing
       }
+
       titleSizes[parentValue] = parentData.value;
       parentData.color = shadeColor(
         groupColour ? groupColour : randomColor({ luminosity: "light" }),
@@ -130,6 +137,7 @@ export function getHierarchicalData(
 
     dataFromTitle = newDataFromTitle;
   }
+
   const children: any[] = Object.values(dataFromTitle);
   const label = keyColumns.join(" <- ") + " <- " + sizeColumn;
   const totalSize = children
