@@ -42,7 +42,7 @@ import SunburstChart from "../charts/SunburstChart";
 import HeatMap from "../charts/HeatMap";
 import ChoroplethMap from "../charts/ChoroplethMap";
 import { getAllRelations, recommendedCharts } from "../../utils/charts";
-import { Suggested } from "./Suggested";
+import { Suggested } from "../analysis/Suggested";
 import NetworkChart from "../charts/NetworkChart";
 import { IoMdGitNetwork } from "react-icons/io";
 import { MdOutlineStackedBarChart } from "react-icons/md";

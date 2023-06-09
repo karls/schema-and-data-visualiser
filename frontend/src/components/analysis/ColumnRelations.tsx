@@ -2,10 +2,10 @@ import { useMemo, useState } from "react";
 import {
   TbRelationManyToMany,
   TbRelationOneToMany,
-  TbRelationOneToOne,
+  TbRelationOneToOne
 } from "react-icons/tb";
 import { CgArrowLongLeftC, CgArrowLongRightC } from "react-icons/cg";
-import { QueryAnalysis, QueryResults, RelationType } from "../../types";
+import { QueryResults, RelationType } from "../../types";
 import {
   Alert,
   Card,
@@ -15,36 +15,12 @@ import {
   Space,
   Table,
   Tag,
-  Typography,
+  Typography
 } from "antd";
 import { observer } from "mobx-react-lite";
 import { useStore } from "../../stores/store";
 
-type SuggestedProps = {
-  results: QueryResults;
-  allRelations: any;
-  allOutgoingLinks: any;
-  allIncomingLinks: any;
-};
-export const Suggested = ({
-  results,
-  allRelations,
-  allIncomingLinks,
-  allOutgoingLinks,
-}: SuggestedProps) => {
-  return (
-    <>
-      <ColumnRelations
-        results={results}
-        allRelations={allRelations}
-        allIncomingLinks={allIncomingLinks}
-        allOutgoingLinks={allOutgoingLinks}
-      />
-    </>
-  );
-};
-
-const relationIcons: { [key: string]: JSX.Element } = {
+const relationIcons: { [key: string]: JSX.Element; } = {
   [RelationType.ONE_TO_ONE]: (
     <TbRelationOneToOne title="One to one" size={30} />
   ),
@@ -55,19 +31,15 @@ const relationIcons: { [key: string]: JSX.Element } = {
     <TbRelationManyToMany title="Many to many" size={30} />
   ),
 };
-
 type ColumnRelationsProps = {
   results: QueryResults;
   allRelations: any;
   allIncomingLinks: any;
   allOutgoingLinks: any;
 };
-const ColumnRelations = observer(
+export const ColumnRelations = observer(
   ({
-    results,
-    allRelations,
-    allIncomingLinks,
-    allOutgoingLinks,
+    results, allRelations, allIncomingLinks, allOutgoingLinks,
   }: ColumnRelationsProps) => {
     return (
       <Card title="Entity Relationships">
@@ -75,20 +47,18 @@ const ColumnRelations = observer(
           <Alert banner message="There is only one column" />
         ) : (
           <Space>
-            {results.header.map((colA: string, i: number) =>
-              results.header.map((colB: string, j: number) => {
-                return (
-                  i < j && (
-                    <Relation
-                      colA={colA}
-                      colB={colB}
-                      allRelations={allRelations}
-                      allIncomingLinks={allIncomingLinks}
-                      allOutgoingLinks={allOutgoingLinks}
-                    />
-                  )
-                );
-              })
+            {results.header.map((colA: string, i: number) => results.header.map((colB: string, j: number) => {
+              return (
+                i < j && (
+                  <Relation
+                    colA={colA}
+                    colB={colB}
+                    allRelations={allRelations}
+                    allIncomingLinks={allIncomingLinks}
+                    allOutgoingLinks={allOutgoingLinks} />
+                )
+              );
+            })
             )}
           </Space>
         )}
@@ -96,7 +66,6 @@ const ColumnRelations = observer(
     );
   }
 );
-
 const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
   const [value, setValue] = useState<string>("Outgoing");
   const links = useMemo(
@@ -125,8 +94,7 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
           },
         ]}
         value={value}
-        onChange={(v) => setValue(v as string)}
-      />
+        onChange={(v) => setValue(v as string)} />
       <Table
         pagination={{
           position: ["topCenter"],
@@ -156,19 +124,17 @@ const RelationDetails = ({ colA, colB, incomingLinks, outgoingLinks }) => {
             parent,
             children: Array.from(links[parent]),
           };
-        })}
-      />
+        })} />
     </Space>
   );
 };
-
 const Relation = observer(
   ({ colA, colB, allRelations, allIncomingLinks, allOutgoingLinks }: any) => {
     const rootStore = useStore();
     const settings = rootStore.settingsStore;
 
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
+    // const [loading, setLoading] = useState<boolean>(true);
     const { incomingLinks, outgoingLinks } = useMemo(() => {
       return {
         incomingLinks: allIncomingLinks[colB][colA],
@@ -203,13 +169,11 @@ const Relation = observer(
         </Card>
         <Modal
           open={showModal}
-          title={
-            <Space>
-              <Typography.Text>{colA}</Typography.Text>
-              {relationIcons[relationType]}
-              <Typography.Text>{colB}</Typography.Text>
-            </Space>
-          }
+          title={<Space>
+            <Typography.Text>{colA}</Typography.Text>
+            {relationIcons[relationType]}
+            <Typography.Text>{colB}</Typography.Text>
+          </Space>}
           footer={null}
           onCancel={() => setShowModal(false)}
           width={Math.floor(settings.screenWidth() * 0.75)}
@@ -218,8 +182,7 @@ const Relation = observer(
             colA={colA}
             colB={colB}
             incomingLinks={incomingLinks}
-            outgoingLinks={outgoingLinks}
-          />
+            outgoingLinks={outgoingLinks} />
         </Modal>
       </>
     );
