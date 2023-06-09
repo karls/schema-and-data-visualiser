@@ -176,7 +176,7 @@ const AddRepository = () => {
   );
 };
 
-const AllRepositories = () => {
+const AllRepositories = observer(() => {
   const rootStore = useStore();
   const repositoryStore = rootStore.repositoryStore;
 
@@ -208,7 +208,7 @@ const AllRepositories = () => {
       )}
     </Space>
   );
-};
+});
 
 type DeleteRepositoryProps = {
   repository: string;

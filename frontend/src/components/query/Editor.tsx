@@ -13,7 +13,7 @@ import { removePrefix } from "../../utils/queryResults";
 import sparql from "../../utils/sparql.json";
 import { sparqlTemplates } from "../../utils/sparqlTemplates";
 import Templates from "./Templates";
-import Analysis from "./Analysis";
+import Analysis from "../analysis/Analysis";
 import { addQueryToHistory } from "../../api/queries";
 
 type QueryEditorProps = {

@@ -1,21 +1,18 @@
 import {
   Alert,
-  Button,
   Divider,
   Drawer,
   FloatButton,
-  Input,
   Space,
   Switch,
   Tooltip,
 } from "antd";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { useStore } from "../../stores/store";
 import { Typography } from "antd";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
-import { isURL } from "../../utils/queryResults";
 
 const { Text } = Typography;
 
