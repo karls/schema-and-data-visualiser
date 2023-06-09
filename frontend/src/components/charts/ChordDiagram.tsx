@@ -3,12 +3,8 @@ import { QueryResults, URI, VariableCategories } from "../../types";
 import { useStore } from "../../stores/store";
 import { useMemo, useState } from "react";
 import randomColor from "randomcolor";
-import {
-  categoricalColumns,
-  numericColumns,
-  removePrefix,
-} from "../../utils/queryResults";
-import { Select, Space, Switch } from "antd";
+import { removePrefix } from "../../utils/queryResults";
+import { Space } from "antd";
 
 type ChordDiagramProps = {
   results: QueryResults;
@@ -17,7 +13,12 @@ type ChordDiagramProps = {
   variables: VariableCategories;
 };
 
-const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) => {
+const ChordDiagram = ({
+  results,
+  width,
+  height,
+  variables,
+}: ChordDiagramProps) => {
   const rootStore = useStore();
   const settings = rootStore.settingsStore;
   const { header, data } = results;
@@ -26,7 +27,6 @@ const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) 
 
   const valueColumn = variables.scalar[0];
   const [labels, setLabels] = useState<URI[]>([]);
-  const [symmetric, setSymmetric] = useState<boolean>(true);
 
   const matrix: number[][] = useMemo(() => {
     const uniqueLabels = new Set<URI>();
@@ -41,13 +41,11 @@ const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) 
 
       links[row[col1Idx]][row[col2Idx]] = parseFloat(row[valueColumn]);
 
-      if (symmetric) {
-        if (!links[row[col2Idx]]) {
-            links[row[col2Idx]] = {};
-          }
-    
-          links[row[col2Idx]][row[col1Idx]] = parseFloat(row[valueColumn]);
+      if (!links[row[col2Idx]]) {
+        links[row[col2Idx]] = {};
       }
+
+      links[row[col2Idx]][row[col1Idx]] = parseFloat(row[valueColumn]);
     }
     const allLabels = Array.from(uniqueLabels);
 
@@ -59,7 +57,7 @@ const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) 
       )
     );
     return m;
-  }, [results, col1Idx, col2Idx, valueColumn, symmetric]);
+  }, [data, col1Idx, col2Idx, valueColumn]);
 
   return (
     <Space direction="vertical" style={{ width, height }}>
@@ -70,7 +68,9 @@ const ChordDiagram = ({ results, width, height, variables }: ChordDiagramProps) 
         groupColors={labels.map(() =>
           randomColor({ luminosity: settings.darkMode() ? "light" : "dark" })
         )}
-        labelColors={labels.map(() => (settings.darkMode() ? "white" : "black"))}
+        labelColors={labels.map(() =>
+          settings.darkMode() ? "white" : "black"
+        )}
         style={{ margin: "auto", padding: 50, font: "white" }}
         width={width}
         outerRadius={Math.min(width, height) * 0.3}

@@ -47,13 +47,17 @@ const GraphVis = observer(
           color: settings.darkMode() ? "white" : "black",
         },
       };
-    }, [settings.darkMode()]);
+    }, [settings]);
 
     useEffect(() => {
       setGraph(
         getNodesAndEdges({
           links,
-          nodeOptions: { shape: "box", font: { size: 30 } },
+          nodeOptions: {
+            shape: "box",
+            font: { size: 30 },
+            color: randomColor({ luminosity: "light" }),
+          },
           edgeOptions,
         })
       );
@@ -97,12 +101,18 @@ const GraphVis = observer(
       height: `${height}px`,
       physics: {
         forceAtlas2Based: {
-          gravitationalConstant: -126,
-          springLength: 250,
-          springConstant: 0.01,
+          gravitationalConstant: -150,
+          springLength: 300,
+          springConstant: 0.36,
+          avoidOverlap: 0.3,
+        },
+        barnesHut: {
+          springLength: 200,
+          avoidOverlap: 0.2,
+          gravitationalConstant: -2000,
         },
         maxVelocity: 50,
-        solver: hierarchical ? "hierarchicalRepulsion" : "forceAtlas2Based",
+        solver: hierarchical ? "hierarchicalRepulsion" : "forceAtlas2Based", //"barnesHut", //forceAtlas2Based
         timestep: 0.35,
         stabilization: true,
         hierarchicalRepulsion: {
@@ -165,7 +175,8 @@ const GraphVis = observer(
           setGraph(newGraph);
         }
       },
-      hold: function (event: any) { // Click and hold on a node shows all object properties of current node
+      hold: function (event: any) {
+        // Click and hold on a node shows all object properties of current node
         const { nodes, edges } = event;
         for (let nodeId of nodes) {
           const uri = idToNode[nodeId].title!;
